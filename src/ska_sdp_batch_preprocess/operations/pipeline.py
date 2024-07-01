@@ -2,10 +2,12 @@
 
 from pathlib import Path
 
+from operations.ms import MeasurementSet
+
 
 def run(
         msin: Path, config: dict
 ) -> None:
     """
     """
-    raise NotImplementedError("function not implemented")
+    MSv2 = MeasurementSet(msin)

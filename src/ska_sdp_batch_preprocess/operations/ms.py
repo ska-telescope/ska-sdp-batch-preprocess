@@ -1,12 +1,12 @@
 # see license in parent directory
 
+from pathlib import Path
+
 
 class MeasurementSet:
     """"""
 
-    def __init__(self):
+    def __init__(self, dir: Path):
         """
         """
-        raise NotImplementedError(
-            "class not implemented"
-        )
+        self.input_dir = dir
