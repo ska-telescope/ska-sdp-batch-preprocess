@@ -1,3 +1,5 @@
+# see license in parent directory
+
 from pathlib import Path
 
 

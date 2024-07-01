@@ -1,3 +1,5 @@
+# see license in parent directory
+
 import argparse
 import yaml
 from pathlib import Path
