@@ -2,6 +2,8 @@ import argparse
 import yaml
 from pathlib import Path
 
+from operations import pipeline
+
 
 def main() -> None:
     """
