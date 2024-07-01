@@ -13,6 +13,11 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="input YAML configuration file"
     )
+    parser.add_argument(
+        "ms",
+        type=str,
+        help="measurement set (V2) directory"
+    )
     return parser.parse_args()
 
 def main() -> None:
