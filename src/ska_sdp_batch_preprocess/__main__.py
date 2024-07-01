@@ -3,6 +3,12 @@ import yaml
 from pathlib import Path
 
 
+def main() -> None:
+    """
+    """
+    args = parse_args()
+    config = read_yaml(Path(args.config))
+
 def parse_args() -> argparse.Namespace:
     """
     """
@@ -22,12 +28,6 @@ def parse_args() -> argparse.Namespace:
         help="measurement set (V2) directory"
     )
     return parser.parse_args()
-
-def main() -> None:
-    """
-    """
-    args = parse_args()
-    config = read_yaml(Path(args.config))
 
 def read_yaml(dir: Path) -> dict:
     """
