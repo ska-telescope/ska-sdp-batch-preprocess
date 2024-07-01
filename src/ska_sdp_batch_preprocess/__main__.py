@@ -11,6 +11,10 @@ def main() -> None:
     args = parse_args()
     config = read_yaml(Path(args.config))
 
+    pipeline.run(
+        args.msin, args.config
+    )
+
 def parse_args() -> argparse.Namespace:
     """
     """
@@ -25,7 +29,7 @@ def parse_args() -> argparse.Namespace:
         help="input YAML configuration file"
     )
     parser.add_argument(
-        "ms",
+        "msin",
         type=str,
         help="measurement set (V2) directory"
     )
