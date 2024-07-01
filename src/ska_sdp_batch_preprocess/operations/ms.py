@@ -1,6 +1,7 @@
 # see license in parent directory
 
 from pathlib import Path
+from typing import Tuple
 
 import numpy as np
 from casacore.tables import table
@@ -42,3 +43,20 @@ class MeasurementSet:
                 "there must be 3 positional coordinates per observation"
             )
         return output
+    
+    @property
+    def channels(self) -> Tuple[float, float]:
+        """
+        """
+        try:
+            chan_freq = table(
+                str(self.input_dir.joinpath("SPECTRAL_WINDOW"))
+            ).getcol("CHAN_FREQ")
+        except:
+            raise FileNotFoundError(
+                "expected a 'SPECTRAL_WINDOW' table with a 'CHAN_FREQ' column"
+            )
+        chan_freq = chan_freq.flatten()
+        if len(chan_freq) == 1:
+            return chan_freq[0], 0.
+        return chan_freq[0], chan_freq[1]-chan_freq[0]
