@@ -11,10 +11,8 @@ def main() -> None:
     """
     """
     args = parse_args()
-    config = read_yaml(Path(args.config))
-
     pipeline.run(
-        args.msin, args.config
+        Path(args.msin), read_yaml(Path(args.config))
     )
 
 def parse_args() -> argparse.Namespace:
@@ -41,7 +39,7 @@ def read_yaml(dir: Path) -> dict:
     """
     """
     try:
-        with open(F"{dir}", 'r') as file:
+        with open(f"{dir}", 'r') as file:
             try:
                 return yaml.safe_load(file)
             except yaml.YAMLError as e:
