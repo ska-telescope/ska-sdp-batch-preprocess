@@ -6,6 +6,7 @@ from typing import Tuple
 import numpy as np
 from casacore.tables import table
 from numpy.typing import NDArray
+from xradio import vis as xr_vis
 
 
 class MeasurementSet:
@@ -60,3 +61,11 @@ class MeasurementSet:
         if len(chan_freq) == 1:
             return chan_freq[0], 0.
         return chan_freq[0], chan_freq[1]-chan_freq[0]
+    
+    def to_processing_set(self) -> None:
+        """
+        """
+        xr_vis.convert_msv2_to_processing_set(
+            f"{self.input_dir}", 
+            f"{self.input_dir.with_suffix("ps")}"
+        )
