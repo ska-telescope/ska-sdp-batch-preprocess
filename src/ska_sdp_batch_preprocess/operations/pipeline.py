@@ -11,3 +11,4 @@ def run(
     """
     """
     MSv2 = MeasurementSet(msin)
+    MSv2.to_processing_set()
