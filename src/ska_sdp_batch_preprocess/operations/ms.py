@@ -67,5 +67,5 @@ class MeasurementSet:
         """
         xr_vis.convert_msv2_to_processing_set(
             f"{self.input_dir}", 
-            f"{self.input_dir.with_suffix("ps")}"
+            f"{self.input_dir.with_suffix('ps')}"
         )
