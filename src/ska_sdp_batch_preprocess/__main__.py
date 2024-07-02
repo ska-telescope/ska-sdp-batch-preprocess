@@ -25,13 +25,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--config",
         type=str,
-        required=True,
+        default=f"{Path.cwd().joinpath(
+            "data", "config.yml"
+        )}",
         help="input YAML configuration file"
     )
     parser.add_argument(
         "msin",
         type=str,
-        help="measurement set (V2) directory"
+        help="measurement set (v2) directory"
     )
     return parser.parse_args()
 
