@@ -22,7 +22,7 @@ class MeasurementSet:
         """
         """
         try:
-           output = table(str(self.input_dir)).getcol("DATA")
+           output = table(f"{self.input_dir}").getcol("DATA")
         except:
             raise FileNotFoundError("expected a 'DATA' column")
         if len(np.asarray(output).shape) > 4:
@@ -36,7 +36,7 @@ class MeasurementSet:
         """
         """
         try:
-           output = table(str(self.input_dir)).getcol("UVW")
+           output = table(f"{self.input_dir}").getcol("UVW")
         except:
             raise FileNotFoundError("expected a 'UVW' column")
         if len(np.asarray(output).shape) != 3:
@@ -51,7 +51,7 @@ class MeasurementSet:
         """
         try:
             chan_freq = table(
-                str(self.input_dir.joinpath("SPECTRAL_WINDOW"))
+                f"{self.input_dir.joinpath("SPECTRAL_WINDOW")}"
             ).getcol("CHAN_FREQ")
         except:
             raise FileNotFoundError(
