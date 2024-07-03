@@ -15,4 +15,8 @@ class ProcessingSet:
         """
         self.data = data
 
-    
+    @classmethod
+    def load_lazy(cls, dir: Path):
+        """
+        """
+        return
