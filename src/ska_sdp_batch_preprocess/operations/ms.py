@@ -51,7 +51,7 @@ class MeasurementSet:
         """
         try:
             chan_freq = table(
-                f"{self.input_dir.joinpath("SPECTRAL_WINDOW")}"
+                f"{self.input_dir.joinpath('SPECTRAL_WINDOW')}"
             ).getcol("CHAN_FREQ")
         except:
             raise FileNotFoundError(
