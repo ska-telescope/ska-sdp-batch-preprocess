@@ -6,7 +6,9 @@ from typing import Optional, Tuple
 import numpy as np
 from casacore.tables import table
 from numpy.typing import NDArray
-from xradio import vis as xr_vis
+from xradio.vis import(
+    convert_msv2_to_processing_set
+)
 
 
 class MeasurementSet:
@@ -68,12 +70,12 @@ class MeasurementSet:
         """
         """
         if args is None:
-            xr_vis.convert_msv2_to_processing_set(
+            convert_msv2_to_processing_set(
                 f"{self.input_dir}", 
                 f"{self.input_dir.with_suffix('.ps')}"
             )
         else:
-            xr_vis.convert_msv2_to_processing_set(
+            convert_msv2_to_processing_set(
                 f"{self.input_dir}", 
                 f"{self.input_dir.with_suffix('.ps')}",
                 **args
