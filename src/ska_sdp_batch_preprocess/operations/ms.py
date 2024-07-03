@@ -1,7 +1,7 @@
 # see license in parent directory
 
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 from casacore.tables import table
@@ -62,10 +62,19 @@ class MeasurementSet:
             return chan_freq[0], 0.
         return (chan_freq[0], chan_freq[1]-chan_freq[0])
     
-    def to_processing_set(self) -> None:
+    def to_processing_set(
+            self, conversion_config: Optional[dict]=None
+    ) -> None:
         """
         """
-        xr_vis.convert_msv2_to_processing_set(
-            f"{self.input_dir}", 
-            f"{self.input_dir.with_suffix('.ps')}"
-        )
+        if conversion_config is None:
+            xr_vis.convert_msv2_to_processing_set(
+                f"{self.input_dir}", 
+                f"{self.input_dir.with_suffix('.ps')}"
+            )
+        else:
+            xr_vis.convert_msv2_to_processing_set(
+                f"{self.input_dir}", 
+                f"{self.input_dir.with_suffix('.ps')}",
+                **conversion_config
+            )
