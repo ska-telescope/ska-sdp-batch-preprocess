@@ -60,7 +60,7 @@ class MeasurementSet:
         chan_freq = chan_freq.flatten()
         if len(chan_freq) == 1:
             return chan_freq[0], 0.
-        return chan_freq[0], chan_freq[1]-chan_freq[0]
+        return (chan_freq[0], chan_freq[1]-chan_freq[0])
     
     def to_processing_set(self) -> None:
         """
