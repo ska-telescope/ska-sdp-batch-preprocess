@@ -2,11 +2,17 @@
 
 from pathlib import Path
 
+from xradio.vis._processing_set import (
+    processing_set
+)
+
 
 class ProcessingSet:
     """"""
 
-    def __init__(self, dir: Path):
+    def __init__(self, data: processing_set):
         """
         """
-        self.input_dir = dir
+        self.data = data
+
+    
