@@ -63,11 +63,11 @@ class MeasurementSet:
         return (chan_freq[0], chan_freq[1]-chan_freq[0])
     
     def to_processing_set(
-            self, conversion_config: Optional[dict]=None
+            self, args: Optional[dict]=None
     ) -> None:
         """
         """
-        if conversion_config is None:
+        if args is None:
             xr_vis.convert_msv2_to_processing_set(
                 f"{self.input_dir}", 
                 f"{self.input_dir.with_suffix('.ps')}"
@@ -76,5 +76,5 @@ class MeasurementSet:
             xr_vis.convert_msv2_to_processing_set(
                 f"{self.input_dir}", 
                 f"{self.input_dir.with_suffix('.ps')}",
-                **conversion_config
+                **args
             )
