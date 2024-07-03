@@ -21,7 +21,8 @@ class ProcessingSet:
 
     @classmethod
     def load_lazy(
-            cls, dir: Path, *, args: Optional[dict]=None
+            cls, dir: Path, *, 
+            args: Optional[dict]=None
     ):
         """
         """
