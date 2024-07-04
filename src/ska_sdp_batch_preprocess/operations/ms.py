@@ -7,10 +7,12 @@ import numpy as np
 from casacore.tables import table
 from numpy.typing import NDArray
 from xradio.vis import(
-    convert_msv2_to_processing_set
+    convert_msv2_to_processing_set,
+    read_processing_set
 )
-from xradio.vis._processing_set import (
-    processing_set
+
+from operations.processing_intent import (
+    ProcessingIntent
 )
 
 
@@ -18,7 +20,8 @@ class MeasurementSet:
     """"""
 
     def __init__(
-            self, dataframe: Union[table, processing_set],
+            self, 
+            dataframe: Union[table, list[ProcessingIntent]],
             *, v2: bool=False, v4: bool=False
     ):
         """
@@ -95,9 +98,7 @@ class MeasurementSet:
                 "MSv4 functionality not yet implemented"
             )
     
-    def to_msv4(
-            self, args: Optional[dict]=None
-    ) -> None:
+    def to_msv4(self, args: Optional[dict]=None) -> None:
         """
         """
         if self.v4:
@@ -119,3 +120,19 @@ class MeasurementSet:
         """
         """
         return cls(table(dir), v2=True)
+    
+    @classmethod
+    def ver_4(
+            cls, dir: Path, *, manual_compute: bool=False
+    ):
+        """
+        """
+        if manual_compute:
+            return cls([
+                ProcessingIntent.manual_compute(intent)
+                for intent in read_processing_set(dir).values()
+            ], v4=True)
+        return cls([
+            ProcessingIntent(intent)
+            for intent in read_processing_set(dir).values()
+        ], v4=True)
