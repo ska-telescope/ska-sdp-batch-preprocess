@@ -17,10 +17,19 @@ class ProcessingIntent:
         """
         """
         try:
-            return self.data["VISIBILITY"]
+            return self.data["VISIBILITY"].values
         except KeyError as e:
             raise e(
                 "expected a 'VISIBILITY' column in this ProcessingIntent"
+            )
+        
+    @property
+    def uvw(self) -> NDArray:
+        try:
+            return self.data["UVW"].values
+        except KeyError as e:
+            raise e(
+                "expected a 'UVW' column in this ProcessingIntent"
             )
 
     @classmethod
