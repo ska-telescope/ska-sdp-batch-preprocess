@@ -53,18 +53,25 @@ class MeasurementSet:
             )
     
     @property
-    def uvw(self) -> NDArray:
+    def uvw(self) -> Optional[NDArray]:
         """
         """
-        try:
-           output = table(f"{self.input_dir}").getcol("UVW")
-        except:
-            raise FileNotFoundError("expected a 'UVW' column")
-        if len(np.asarray(output).shape) != 3:
-            raise ValueError(
-                "there must be 3 positional coordinates per observation"
+        if self.v2:
+            try:
+                output = self.dataframe.getcol("UVW")
+            except FileNotFoundError as e:
+                raise e(
+                    "expected a 'UVW' column in MSv2"
+                )
+            if len(np.asarray(output).shape) > 3:
+                raise ValueError(
+                    "unsupported MSv2 UVW with more than 3 dims"
+                )
+            return np.asarray(output)
+        elif self.v4:
+            raise NotImplementedError(
+                "MSv4 functionality not yet implemented"
             )
-        return output
     
     @property
     def channels(self) -> Tuple[float, float]:
