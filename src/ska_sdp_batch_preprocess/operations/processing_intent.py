@@ -11,8 +11,8 @@ class ProcessingIntent:
         """
         self.data = data
 
-    @property
-    def manually_computed_data(self) -> Dataset:
+    @classmethod
+    def manual_compute(cls, data: Dataset):
         """
         """
-        return self.data.compute()
+        return cls(data.compute())
