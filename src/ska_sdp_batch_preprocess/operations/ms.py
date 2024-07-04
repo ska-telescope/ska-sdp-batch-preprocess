@@ -1,7 +1,7 @@
 # see license in parent directory
 
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from casacore.tables import table
@@ -9,29 +9,44 @@ from numpy.typing import NDArray
 from xradio.vis import(
     convert_msv2_to_processing_set
 )
+from xradio.vis._processing_set import (
+    processing_set
+)
 
 
 class MeasurementSet:
     """"""
 
-    def __init__(self, dir: Path):
+    def __init__(
+            self, dataframe: Union[table, processing_set],
+            *, v2: bool=False, v4: bool=False
+    ):
         """
         """
-        self.input_dir = dir
+        self.dataframe = dataframe
+        self.v2 = v2
+        self.v4 = v4
 
     @property
-    def data(self) -> NDArray:
+    def data(self) -> Optional[NDArray]:
         """
         """
-        try:
-           output = table(f"{self.input_dir}").getcol("DATA")
-        except:
-            raise FileNotFoundError("expected a 'DATA' column")
-        if len(np.asarray(output).shape) > 4:
-            raise ValueError(
-                "unsupported DATA with more than 4 dimensions"
+        if self.v2:
+            try:
+                output = self.dataframe.getcol("DATA")
+            except FileNotFoundError as e:
+                raise e(
+                    "expected a 'DATA' column in MSv2"
+                )
+            if len(np.asarray(output).shape) > 4:
+                raise ValueError(
+                    "unsupported MSv2 DATA with more than 4 dims"
+                )
+            return np.asarray(output)
+        elif self.v4:
+            raise NotImplementedError(
+                "MSv4 functionality not yet implemented"
             )
-        return output
     
     @property
     def uvw(self) -> NDArray:
