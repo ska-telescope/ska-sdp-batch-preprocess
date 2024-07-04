@@ -113,3 +113,9 @@ class MeasurementSet:
                 f"{self.input_dir.with_suffix('.ms4')}",
                 **args
             )
+
+    @classmethod
+    def v2(cls, dir: Path):
+        """
+        """
+        return cls(table(dir), v2=True)
