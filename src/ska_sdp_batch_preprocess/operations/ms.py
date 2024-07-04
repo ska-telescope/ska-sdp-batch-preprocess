@@ -25,7 +25,7 @@ class MeasurementSet:
         """
         if self.v2 and self.v4:
             raise TypeError(
-                "your MS cannot be both v2 and v4"
+                "MS cannot be both v2 & v4"
             )
         self.dataframe = dataframe
         self.v2 = v2
