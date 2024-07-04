@@ -15,3 +15,5 @@ def run(
             if func.lower() == "convert_msv2_to_msv4":
                 MSv2 = MeasurementSet.ver_2(msin)
                 MSv2.to_msv4(args)
+            elif func.lower() == "load_msv4":
+                MSv4 = MeasurementSet.ver_4(msin)
