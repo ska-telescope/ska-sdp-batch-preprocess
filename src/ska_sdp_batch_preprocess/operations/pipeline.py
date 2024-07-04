@@ -12,6 +12,6 @@ def run(
     """
     if config is not None:
         for func, args in config.items():
-            if func.lower() == "convert_msv2_to_ps":
+            if func.lower() == "convert_msv2_to_msv4":
                 MSv2 = MeasurementSet.ver_2(msin)
                 MSv2.to_msv4(args)
