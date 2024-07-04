@@ -74,21 +74,26 @@ class MeasurementSet:
             )
     
     @property
-    def channels(self) -> Tuple[float, float]:
+    def channels(self) -> Optional[Tuple[float, float]]:
         """
         """
-        try:
-            chan_freq = table(
-                f"{self.input_dir.joinpath('SPECTRAL_WINDOW')}"
-            ).getcol("CHAN_FREQ")
-        except:
-            raise FileNotFoundError(
-                "expected a 'SPECTRAL_WINDOW' table with a 'CHAN_FREQ' column"
+        if self.v2:
+            try:
+                chan_freq = self.dataframe.getkeyword(
+                    "SPECTRAL_WINDOW"
+                ).getcol("CHAN_FREQ")
+            except FileNotFoundError as e:
+                raise e(
+                    "expected a 'SPECTRAL_WINDOW' table with a 'CHAN_FREQ' column in MSv2"
+                )
+            chan_freq = chan_freq.flatten()
+            if len(chan_freq) == 1:
+                return chan_freq[0], 0.
+            return (chan_freq[0], chan_freq[1]-chan_freq[0])
+        elif self.v4:
+            raise NotImplementedError(
+                "MSv4 functionality not yet implemented"
             )
-        chan_freq = chan_freq.flatten()
-        if len(chan_freq) == 1:
-            return chan_freq[0], 0.
-        return (chan_freq[0], chan_freq[1]-chan_freq[0])
     
     def to_processing_set(
             self, args: Optional[dict]=None
