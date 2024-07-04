@@ -32,7 +32,7 @@ class MeasurementSet:
         self.dataframe = dataframe
 
     @property
-    def data(self) -> Optional[NDArray]:
+    def visibilities(self) -> Optional[NDArray]:
         """
         """
         if self.v2:
