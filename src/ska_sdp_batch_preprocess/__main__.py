@@ -31,7 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "msin",
         type=str,
-        help="measurement set (v2) directory"
+        help="measurement set (v2 or v4) directory"
     )
     return parser.parse_args()
 
