@@ -23,13 +23,13 @@ class MeasurementSet:
     ):
         """
         """
+        self.v2 = v2
+        self.v4 = v4
         if self.v2 and self.v4:
             raise TypeError(
                 "MS cannot be both v2 & v4"
             )
         self.dataframe = dataframe
-        self.v2 = v2
-        self.v4 = v4
 
     @property
     def data(self) -> Optional[NDArray]:
@@ -115,7 +115,7 @@ class MeasurementSet:
             )
 
     @classmethod
-    def v2(cls, dir: Path):
+    def ver_2(cls, dir: Path):
         """
         """
         return cls(table(dir), v2=True)
