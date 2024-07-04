@@ -1,7 +1,6 @@
 # see license in parent directory
 
 from xarray.core.dataset import Dataset
-from xradio.vis import read_processing_set
 
 
 class ProcessingIntent:
@@ -11,3 +10,9 @@ class ProcessingIntent:
         """
         """
         self.data = data
+
+    @property
+    def computed_data(self) -> Dataset:
+        """
+        """
+        return self.data.compute()
