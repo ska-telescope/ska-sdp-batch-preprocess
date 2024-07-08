@@ -1,0 +1,14 @@
+# see license in parent directory
+#
+# Default YAML config file.
+#
+# Software will always look for a .yml file in this directory
+#    if no config file is provided manually.
+#
+
+processing_functions:
+  apply_rfi_masks: 
+    rfi_frequency_masks:  [[1.05e06, 1.07e06], [1.1e06, 1.2e06]]
+  averaging_frequency:
+    freqstep: 4
+    flag_threshold: 0.4
