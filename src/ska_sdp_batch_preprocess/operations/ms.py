@@ -130,9 +130,9 @@ class MeasurementSet:
         if manual_compute:
             return cls([
                 ProcessingIntent.manual_compute(intent)
-                for intent in read_processing_set(dir).values()
+                for intent in read_processing_set(f"{dir}").values()
             ], v4=True)
         return cls([
             ProcessingIntent(intent)
-            for intent in read_processing_set(dir).values()
+            for intent in read_processing_set(f"{dir}").values()
         ], v4=True)
