@@ -8,7 +8,7 @@
 
 processing_functions:
   apply_rfi_masks: 
-    rfi_frequency_masks:  [[1.05e06, 1.07e06], [1.1e06, 1.2e06]]
-  averaging_frequency:
-    freqstep: 4
-    flag_threshold: 0.4
+    rfi_frequency_masks:  [[1.343124e08, 1.343613e08], [1.344345e08, 1.344345e08]]
+  apply_rfi_masks: 
+    rfi_frequency_masks:  [[1.344101e08, 1.344101e08]]
+  

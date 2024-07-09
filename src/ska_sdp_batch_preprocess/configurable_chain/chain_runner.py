@@ -1,6 +1,7 @@
 import yaml
-import ska_sdp_func_python.preprocessing
+from ska_sdp_func_python.preprocessing import apply_rfi_masks, averaging_frequency
 import os
+import numpy
 
 
 
@@ -14,9 +15,11 @@ def chain_runner(data, config):
 
     for func in chain['processing_functions'].keys():
         for params in chain['processing_functions'][func]:
-            if type(chain['processing_functions'][func][params]) is list:
-                chain['processing_functions'][func][params] = [float(i) for i in chain['processing_functions'][func][params]]
-        print(func)
-        func(data, chain['processing_functions'][func])
+            if isinstance(chain['processing_functions'][func][params], list):
+                x = numpy.array(chain['processing_functions'][func][params]).astype(numpy.float32)
+                chain['processing_functions'][func][params] = x
+                
+        arguments = chain['processing_functions'][func]
+        data = eval(func)(data, **arguments)
     
     return data
