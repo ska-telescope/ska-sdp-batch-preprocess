@@ -16,7 +16,7 @@
 #      currently only loads full datasets without any slicing
 # 
 #   4- convert_msv2_to_msv4_then_load
-#      combines (1) and (2)
+#      combines (1) and (3)
 
 
 convert_msv2_to_msv4_then_load:
