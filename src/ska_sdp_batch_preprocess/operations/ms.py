@@ -68,6 +68,7 @@ class MeasurementSet:
     @property
     def visibilities(self) -> Union[NDArray, list[NDArray]]:
         """
+        Visibilities as numpy arrays (or list thereof for MSv4).
         """
         if type(self.dataframe) == table:
             try:
@@ -89,6 +90,7 @@ class MeasurementSet:
     @property
     def uvw(self) -> Union[NDArray, list[NDArray]]:
         """
+        UVW data as numpy arrays (or list thereof for MSv4).
         """
         if type(self.dataframe) == table:
             try:
@@ -110,6 +112,7 @@ class MeasurementSet:
     @property
     def weights(self) -> Union[NDArray, list[NDArray]]:
         """
+        Weights as numpy arrays (or list thereof for MSv4).
         """
         if type(self.dataframe) == table:
             try:
@@ -131,6 +134,7 @@ class MeasurementSet:
     @property
     def channels(self) -> Union[Tuple[float, float], list[Tuple[float, float]]]:
         """
+        Base frequency and frequency increments.
         """
         if type(self.dataframe) == table:
             try:
