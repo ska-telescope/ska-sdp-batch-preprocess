@@ -34,9 +34,9 @@ class MeasurementSet:
         if type(self.dataframe) == table:
             try:
                 output = self.dataframe.getcol("DATA")
-            except FileNotFoundError as e:
-                raise e(
-                    "expected a 'DATA' column in MSv2"
+            except:
+                raise RuntimeError(
+                    "could not load visibilities from MSv2"
                 )
             if len(np.asarray(output).shape) > 4:
                 raise ValueError(
@@ -54,10 +54,10 @@ class MeasurementSet:
         """
         if type(self.dataframe) == table:
             try:
-                output = self.dataframe.getcol("UVW")
-            except FileNotFoundError as e:
-                raise e(
-                    "expected a 'UVW' column in MSv2"
+                output = self.dataframe.getcol("UVWs")
+            except:
+                raise RuntimeError(
+                    "could not load uvw from MSv2"
                 )
             if len(np.asarray(output).shape) > 3:
                 raise ValueError(
