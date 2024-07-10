@@ -68,6 +68,24 @@ class MeasurementSet:
             intent.uvw
             for intent in self.dataframe
         ]
+    
+    @property
+    def weights(self) -> Union[NDArray, list[NDArray]]:
+        """
+        """
+        if type(self.dataframe) == table:
+            try:
+                output = self.dataframe.getcol("WEIGHT")
+            except:
+                raise RuntimeError(
+                    "could not load weights from MSv2"
+                )
+            if len(np.asarray(output).shape) > 4:
+                raise ValueError(
+                    "unsupported MSv2 WEIGHT with more than 4 dims"
+                )
+            return np.asarray(output)
+        return
 
     @property
     def channels(self) -> Union[Tuple[float, float], list[Tuple[float, float]]]:
