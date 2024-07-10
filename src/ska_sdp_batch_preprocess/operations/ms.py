@@ -21,24 +21,17 @@ class MeasurementSet:
 
     def __init__(
             self, 
-            dataframe: Union[table, list[ProcessingIntent]],
-            *, v2: bool=False, v4: bool=False
+            dataframe: Union[table, list[ProcessingIntent]]
     ):
         """
         """
-        self.v2 = v2
-        self.v4 = v4
-        if self.v2 and self.v4:
-            raise TypeError(
-                "MS cannot be both v2 & v4"
-            )
         self.dataframe = dataframe
 
     @property
     def visibilities(self) -> Optional[NDArray]:
         """
         """
-        if self.v2:
+        if type(self.dataframe) == table:
             try:
                 output = self.dataframe.getcol("DATA")
             except FileNotFoundError as e:
@@ -50,7 +43,7 @@ class MeasurementSet:
                     "unsupported MSv2 DATA with more than 4 dims"
                 )
             return np.asarray(output)
-        elif self.v4:
+        elif type(self.dataframe) == list[ProcessingIntent]:
             raise NotImplementedError(
                 "MSv4 functionality not yet implemented"
             )
@@ -59,7 +52,7 @@ class MeasurementSet:
     def uvw(self) -> Optional[NDArray]:
         """
         """
-        if self.v2:
+        if type(self.dataframe) == table:
             try:
                 output = self.dataframe.getcol("UVW")
             except FileNotFoundError as e:
@@ -71,7 +64,7 @@ class MeasurementSet:
                     "unsupported MSv2 UVW with more than 3 dims"
                 )
             return np.asarray(output)
-        elif self.v4:
+        elif type(self.dataframe) == list[ProcessingIntent]:
             raise NotImplementedError(
                 "MSv4 functionality not yet implemented"
             )
@@ -80,7 +73,7 @@ class MeasurementSet:
     def channels(self) -> Optional[Tuple[float, float]]:
         """
         """
-        if self.v2:
+        if type(self.dataframe) == table:
             try:
                 chan_freq = self.dataframe.getkeyword(
                     "SPECTRAL_WINDOW"
@@ -93,7 +86,7 @@ class MeasurementSet:
             if len(chan_freq) == 1:
                 return chan_freq[0], 0.
             return (chan_freq[0], chan_freq[1]-chan_freq[0])
-        elif self.v4:
+        elif type(self.dataframe) == list[ProcessingIntent]:
             raise NotImplementedError(
                 "MSv4 functionality not yet implemented"
             )
@@ -119,7 +112,7 @@ class MeasurementSet:
     def ver_2(cls, dir: Path):
         """
         """
-        return cls(table(f"{dir}"), v2=True)
+        return cls(table(f"{dir}"))
     
     @classmethod
     def ver_4(
@@ -131,8 +124,8 @@ class MeasurementSet:
             return cls([
                 ProcessingIntent.manual_compute(intent)
                 for intent in read_processing_set(f"{dir}").values()
-            ], v4=True)
+            ])
         return cls([
             ProcessingIntent(intent)
             for intent in read_processing_set(f"{dir}").values()
-        ], v4=True)
+        ])
