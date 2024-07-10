@@ -115,7 +115,7 @@ class MeasurementSet:
         ]
         if len(list_of_intents) == 0:
             raise ValueError(
-                "loaded an empty MSv4"
+                "loaded empty MSv4; check it is not MSv2"
             )
         return cls(list_of_intents)
 
