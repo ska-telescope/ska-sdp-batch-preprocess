@@ -23,7 +23,7 @@ class MeasurementSet:
     Attributes
     ----------
     dataframe: casacore.tables.table | list[ProcessingIntent]
-      class to represent the MS data (casacore table if MSv2 
+      contains the MS data (casacore table if MSv2 
       or an iterable if MSv4).
 
     visibilities: NDArray | list[NDArray]
