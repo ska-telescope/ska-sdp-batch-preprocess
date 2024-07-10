@@ -85,7 +85,10 @@ class MeasurementSet:
                     "unsupported MSv2 WEIGHT with more than 4 dims"
                 )
             return np.asarray(output)
-        return
+        return [
+            intent.weights
+            for intent in self.dataframe
+        ]
 
     @property
     def channels(self) -> Union[Tuple[float, float], list[Tuple[float, float]]]:

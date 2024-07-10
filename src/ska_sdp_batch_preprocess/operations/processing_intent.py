@@ -33,6 +33,15 @@ class ProcessingIntent:
             raise RuntimeError(
                 "could not load uvw from this ProcessingIntent"
             )
+        
+    @property
+    def weights(self) -> NDArray:
+        try:
+            return self.data["WEIGHT"].values
+        except:
+            raise RuntimeError(
+                "could not load weights from this ProcessingIntent"
+            )
     
     @property
     def channels(self) -> Tuple[float, float]:
