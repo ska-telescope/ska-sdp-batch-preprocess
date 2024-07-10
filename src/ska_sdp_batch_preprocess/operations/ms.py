@@ -75,12 +75,12 @@ class MeasurementSet:
         """
         if type(self.dataframe) == table:
             try:
-                chan_freq = self.dataframe.getkeyword(
-                    "SPECTRAL_WINDOW"
+                chan_freq = table(
+                    self.dataframe.getkeyword("SPECTRAL_WINDOW")
                 ).getcol("CHAN_FREQ")
-            except FileNotFoundError as e:
-                raise e(
-                    "expected a 'SPECTRAL_WINDOW' table with a 'CHAN_FREQ' column in MSv2"
+            except:
+                raise RuntimeError(
+                    "could not load spectral window data from MSv2"
                 )
             chan_freq = chan_freq.flatten()
             if len(chan_freq) == 1:
