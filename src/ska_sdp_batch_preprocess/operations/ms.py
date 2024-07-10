@@ -91,23 +91,6 @@ class MeasurementSet:
                 "MSv4 functionality not yet implemented"
             )
     
-    def to_msv4(self, args: Optional[dict]=None) -> None:
-        """
-        """
-        if self.v4:
-            raise TypeError("already MSv4")
-        if args is None:
-            convert_msv2_to_processing_set(
-                f"{self.input_dir}", 
-                f"{self.input_dir.with_suffix('.ms4')}"
-            )
-        else:
-            convert_msv2_to_processing_set(
-                f"{self.input_dir}", 
-                f"{self.input_dir.with_suffix('.ms4')}",
-                **args
-            )
-
     @classmethod
     def ver_2(cls, dir: Path):
         """
@@ -134,3 +117,20 @@ class MeasurementSet:
             raise TypeError(
                 "try loading your MS with the ver_2() classmethod instead"
             )
+
+def to_msv4(
+        msin: Path, args: Optional[dict]=None
+) -> None:
+    """
+    """
+    if args is None:
+        convert_msv2_to_processing_set(
+            f"{msin}", 
+            f"{msin.with_suffix('.ms4')}"
+        )
+    else:
+        convert_msv2_to_processing_set(
+            f"{msin}", 
+            f"{msin('.ms4')}",
+            **args
+        )

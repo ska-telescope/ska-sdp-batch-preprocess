@@ -9,10 +9,13 @@
 #   1- convert_msv2_to_msv4 (takes all relevant XRadio optional arguments)
 #      https://github.com/casangi/xradio/blob/c683d8927c431e2b81a1e0ae1fdabc36b77f05d4/src/xradio/vis/convert_msv2_to_processing_set.py#L13
 #
-#   2- load_msv4
+#   2- load_msv2
+#      uses casacore
+#
+#   3- load_msv4
 #      currently only loads full datasets without any slicing
 # 
-#   3- convert_msv2_to_msv4_then_load
+#   4- convert_msv2_to_msv4_then_load
 #      combines (1) and (2)
 
 
