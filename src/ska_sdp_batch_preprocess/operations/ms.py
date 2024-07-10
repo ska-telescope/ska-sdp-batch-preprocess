@@ -82,7 +82,7 @@ class MeasurementSet:
                 ).getcol("CHAN_FREQ")
             except:
                 raise RuntimeError(
-                    "could not load spectral window data from MSv2"
+                    "could not load frequency data from MSv2"
                 )
             chan_freq = chan_freq.flatten()
             if len(chan_freq) == 1:
