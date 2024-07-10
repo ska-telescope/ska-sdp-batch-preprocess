@@ -95,7 +95,12 @@ class MeasurementSet:
     def ver_2(cls, dir: Path):
         """
         """
-        return cls(table(f"{dir}"))
+        try:
+            return cls(table(f"{dir}"))
+        except:
+            raise RuntimeError(
+                "try loading your MS with the ver_4() classmethod instead"
+            )
     
     @classmethod
     def ver_4(
@@ -113,8 +118,8 @@ class MeasurementSet:
                 ProcessingIntent(intent)
                 for intent in read_processing_set(f"{dir}").values()
             ])
-        except TypeError:
-            raise TypeError(
+        except:
+            raise RuntimeError(
                 "try loading your MS with the ver_2() classmethod instead"
             )
 
