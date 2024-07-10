@@ -138,5 +138,5 @@ def to_msv4(
             )
     except:
         raise RuntimeError(
-            "conversion not possible; check input & whether output already exists"
+            "conversion not possible; check input type & whether output already exists"
         )
