@@ -18,18 +18,18 @@ class ProcessingIntent:
         """
         try:
             return self.data["VISIBILITY"].values
-        except KeyError as e:
-            raise e(
-                "expected a 'VISIBILITY' column in this ProcessingIntent"
+        except:
+            raise RuntimeError(
+                "could not load visibilities from this ProcessingIntent"
             )
         
     @property
     def uvw(self) -> NDArray:
         try:
             return self.data["UVW"].values
-        except KeyError as e:
-            raise e(
-                "expected a 'UVW' column in this ProcessingIntent"
+        except:
+            raise RuntimeError(
+                "could not load uvw from this ProcessingIntent"
             )
 
     @classmethod
