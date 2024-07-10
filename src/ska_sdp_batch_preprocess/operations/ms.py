@@ -17,13 +17,51 @@ from operations.processing_intent import (
 
 
 class MeasurementSet:
-    """"""
+    """
+    Class to represent MS in memory.
+
+    Attributes
+    ----------
+    dataframe: casacore.tables.table | list[ProcessingIntent]
+      class to represent the MS data (casacore table if MSv2 
+      or an iterable if MSv4).
+
+    visibilities: NDArray | list[NDArray]
+      visibilities as numpy arrays (or list thereof for MSv4).
+
+    uvw: NDArray | list[NDArray]
+      uvw data as numpy arrays (or list thereof for MSv4).
+    
+    weights: NDArray | list[NDArray]
+      weights as numpy arrays (or list thereof for MSv4).
+
+    channels: Tuple[float, float]
+      base frequency and frequency increments.
+    
+    Methods
+    -------
+    ver_2(**args)
+      class method to generate an instance with MSv2.
+
+    ver_4(**args)
+      class method to generate an instance with MSv4.
+
+    Note: call further casacore/xarray functionalities on the 
+      class instance where needed.
+    """
 
     def __init__(
             self, 
             dataframe: Union[table, list[ProcessingIntent]]
     ):
         """
+        Initiates the MeasurementSet class.
+
+        Parameters
+        ----------
+        dataframe: casacore.tables.table | list[ProcessingIntent]
+          class to represent the MS data (casacore table if MSv2 
+          or an iterable if MSv4).
         """
         self.dataframe = dataframe
 
