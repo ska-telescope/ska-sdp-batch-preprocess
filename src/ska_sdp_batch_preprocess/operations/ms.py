@@ -120,12 +120,17 @@ class MeasurementSet:
     ):
         """
         """
-        if manual_compute:
+        try:
+            if manual_compute:
+                return cls([
+                    ProcessingIntent.manual_compute(intent)
+                    for intent in read_processing_set(f"{dir}").values()
+                ])
             return cls([
-                ProcessingIntent.manual_compute(intent)
+                ProcessingIntent(intent)
                 for intent in read_processing_set(f"{dir}").values()
             ])
-        return cls([
-            ProcessingIntent(intent)
-            for intent in read_processing_set(f"{dir}").values()
-        ])
+        except TypeError:
+            raise TypeError(
+                "try loading your MS with the ver_2() classmethod instead"
+            )
