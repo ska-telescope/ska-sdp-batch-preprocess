@@ -28,7 +28,7 @@ class MeasurementSet:
         self.dataframe = dataframe
 
     @property
-    def visibilities(self) -> Optional[NDArray]:
+    def visibilities(self) -> Optional[Union[NDArray, list[NDArray]]]:
         """
         """
         if type(self.dataframe) == table:
@@ -43,10 +43,11 @@ class MeasurementSet:
                     "unsupported MSv2 DATA with more than 4 dims"
                 )
             return np.asarray(output)
-        elif type(self.dataframe) == list[ProcessingIntent]:
-            raise NotImplementedError(
-                "MSv4 functionality not yet implemented"
-            )
+        elif type(self.dataframe) == list:
+            return [
+                intent.visibilities
+                for intent in self.dataframe
+            ]
     
     @property
     def uvw(self) -> Optional[NDArray]:
