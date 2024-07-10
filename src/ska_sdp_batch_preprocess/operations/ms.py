@@ -98,9 +98,12 @@ class MeasurementSet:
         try:
             return cls(table(f"{dir}"))
         except:
-            raise RuntimeError(
-                "try loading your MS with the ver_4() classmethod instead"
-            )
+            try:
+                return cls.ver_4(dir)
+            except:
+                raise RuntimeError(
+                    "could not load your MS as either v2 or v4"
+                )
     
     @classmethod
     def ver_4(
@@ -119,9 +122,12 @@ class MeasurementSet:
                 for intent in read_processing_set(f"{dir}").values()
             ])
         except:
-            raise RuntimeError(
-                "try loading your MS with the ver_2() classmethod instead"
-            )
+            try:
+                cls.ver_2(dir)
+            except:
+                raise RuntimeError(
+                    "could not load your MS as either v4 or v2"
+                )
 
 def to_msv4(
         msin: Path, args: Optional[dict]=None
