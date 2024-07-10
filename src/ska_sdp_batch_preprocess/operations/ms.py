@@ -72,7 +72,7 @@ class MeasurementSet:
             ]
     
     @property
-    def channels(self) -> Tuple[float, float]:
+    def channels(self) -> Union[Tuple[float, float], list[Tuple[float, float]]]:
         """
         """
         if type(self.dataframe) == table:
@@ -88,9 +88,10 @@ class MeasurementSet:
                 return chan_freq[0], 0.
             return (chan_freq[0], chan_freq[1]-chan_freq[0])
         else:
-            raise NotImplementedError(
-                "MSv4 functionality not yet implemented"
-            )
+            return [
+                intent.channels
+                for intent in self.dataframe
+            ]
     
     @classmethod
     def ver_2(cls, dir: Path):
