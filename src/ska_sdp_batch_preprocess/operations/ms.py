@@ -79,12 +79,11 @@ class MeasurementSet:
             try:
                 chan_freq = table(
                     self.dataframe.getkeyword("SPECTRAL_WINDOW")
-                ).getcol("CHAN_FREQ")
+                ).getcol("CHAN_FREQ").flatten()
             except:
                 raise RuntimeError(
                     "could not load frequency data from MSv2"
                 )
-            chan_freq = chan_freq.flatten()
             if len(chan_freq) == 1:
                 return chan_freq[0], 0.
             return (chan_freq[0], chan_freq[1]-chan_freq[0])
