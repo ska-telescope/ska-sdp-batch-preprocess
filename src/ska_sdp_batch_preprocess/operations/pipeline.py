@@ -11,6 +11,9 @@ def run(
         msin: Path, config: dict
 ) -> None:
     """
+    Principal function in th pipeline where the various
+    functionalities are executed based on the YAML file
+    instructions.
     """
     if config is not None:
         for func, args in config.items():
