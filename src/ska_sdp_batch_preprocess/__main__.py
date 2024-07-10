@@ -9,6 +9,7 @@ from operations import pipeline
 
 def main() -> None:
     """
+    Pipeline entry point.
     """
     args = parse_args()
     pipeline.run(
@@ -17,6 +18,11 @@ def main() -> None:
 
 def parse_args() -> argparse.Namespace:
     """
+    Parses command line arguments.
+
+    Current arguments:
+    --config (optional): directory for the YAML configuration file
+    msin: directory for the input measurement set
     """
     parser = argparse.ArgumentParser(
         description="Batch preprocessing pipeline",
@@ -37,6 +43,8 @@ def parse_args() -> argparse.Namespace:
 
 def read_yaml(dir: Path) -> dict:
     """
+    Reads YAML configuration file as a dictionary.
+    Raises errors where the load fails or the file does not exist.
     """
     try:
         with open(f"{dir}", 'r') as file:
