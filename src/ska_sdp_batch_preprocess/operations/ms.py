@@ -128,14 +128,17 @@ def to_msv4(
 ) -> None:
     """
     """
-    if args is None:
-        convert_msv2_to_processing_set(
-            f"{msin}", 
-            f"{msin.with_suffix('.ms4')}"
-        )
-    else:
-        convert_msv2_to_processing_set(
-            f"{msin}", 
-            f"{msin('.ms4')}",
-            **args
-        )
+    try:
+        if args is None:
+            convert_msv2_to_processing_set(
+                f"{msin}", 
+                f"{msin.with_suffix('.ms4')}"
+            )
+        else:
+            convert_msv2_to_processing_set(
+                f"{msin}", 
+                f"{msin('.ms4')}",
+                **args
+            )
+    except ValueError:
+        raise RuntimeError("already MSv4")
