@@ -141,4 +141,4 @@ def to_msv4(
                 **args
             )
     except ValueError:
-        raise RuntimeError("already MSv4")
+        raise TypeError("already MSv4")
