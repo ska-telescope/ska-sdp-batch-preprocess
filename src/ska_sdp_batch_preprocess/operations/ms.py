@@ -43,11 +43,10 @@ class MeasurementSet:
                     "unsupported MSv2 DATA with more than 4 dims"
                 )
             return np.asarray(output)
-        else:
-            return [
-                intent.visibilities
-                for intent in self.dataframe
-            ]
+        return [
+            intent.visibilities
+            for intent in self.dataframe
+        ]
     
     @property
     def uvw(self) -> Union[NDArray, list[NDArray]]:
@@ -65,12 +64,11 @@ class MeasurementSet:
                     "unsupported MSv2 UVW with more than 3 dims"
                 )
             return np.asarray(output)
-        else:
-            return [
-                intent.uvw
-                for intent in self.dataframe
-            ]
-    
+        return [
+            intent.uvw
+            for intent in self.dataframe
+        ]
+
     @property
     def channels(self) -> Union[Tuple[float, float], list[Tuple[float, float]]]:
         """
@@ -87,11 +85,10 @@ class MeasurementSet:
             if len(chan_freq) == 1:
                 return chan_freq[0], 0.
             return (chan_freq[0], chan_freq[1]-chan_freq[0])
-        else:
-            return [
-                intent.channels
-                for intent in self.dataframe
-            ]
+        return [
+            intent.channels
+            for intent in self.dataframe
+        ]
     
     @classmethod
     def ver_2(cls, dir: Path):
