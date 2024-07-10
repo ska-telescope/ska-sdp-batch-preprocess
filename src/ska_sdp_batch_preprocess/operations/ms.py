@@ -54,7 +54,7 @@ class MeasurementSet:
         """
         if type(self.dataframe) == table:
             try:
-                output = self.dataframe.getcol("UVWs")
+                output = self.dataframe.getcol("UVW")
             except:
                 raise RuntimeError(
                     "could not load uvw from MSv2"
