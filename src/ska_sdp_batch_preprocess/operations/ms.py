@@ -136,5 +136,7 @@ def to_msv4(
                 f"{msin('.ms4')}",
                 **args
             )
-    except ValueError:
-        raise TypeError("already MSv4")
+    except:
+        raise RuntimeError(
+            "conversion not possible; check input & whether output already exists"
+        )
