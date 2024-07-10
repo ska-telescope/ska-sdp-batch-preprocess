@@ -98,12 +98,9 @@ class MeasurementSet:
         try:
             return cls(table(f"{dir}"))
         except:
-            try:
-                return cls.ver_4(dir)
-            except:
-                raise RuntimeError(
-                    "could not load your MS as either v2 or v4"
-                )
+            raise RuntimeError(
+                "could not load MSv2"
+            )
     
     @classmethod
     def ver_4(
@@ -111,23 +108,16 @@ class MeasurementSet:
     ):
         """
         """
-        try:
-            if manual_compute:
-                return cls([
-                    ProcessingIntent.manual_compute(intent)
-                    for intent in read_processing_set(f"{dir}").values()
-                ])
-            return cls([
-                ProcessingIntent(intent)
-                for intent in read_processing_set(f"{dir}").values()
-            ])
-        except:
-            try:
-                cls.ver_2(dir)
-            except:
-                raise RuntimeError(
-                    "could not load your MS as either v4 or v2"
-                )
+        list_of_intents = [
+            ProcessingIntent.manual_compute(intent)
+            if manual_compute else ProcessingIntent(intent)
+            for intent in read_processing_set(f"{dir}").values()
+        ]
+        if len(list_of_intents) == 0:
+            raise ValueError(
+                "loaded an empty MSv4"
+            )
+        return cls(list_of_intents)
 
 def to_msv4(
         msin: Path, args: Optional[dict]=None
