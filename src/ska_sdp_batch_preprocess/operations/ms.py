@@ -119,7 +119,7 @@ class MeasurementSet:
     def ver_2(cls, dir: Path):
         """
         """
-        return cls(table(dir), v2=True)
+        return cls(table(f"{dir}"), v2=True)
     
     @classmethod
     def ver_4(
