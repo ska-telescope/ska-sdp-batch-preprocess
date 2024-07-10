@@ -28,7 +28,7 @@ class MeasurementSet:
         self.dataframe = dataframe
 
     @property
-    def visibilities(self) -> Optional[Union[NDArray, list[NDArray]]]:
+    def visibilities(self) -> Union[NDArray, list[NDArray]]:
         """
         """
         if type(self.dataframe) == table:
@@ -43,14 +43,14 @@ class MeasurementSet:
                     "unsupported MSv2 DATA with more than 4 dims"
                 )
             return np.asarray(output)
-        elif type(self.dataframe) == list:
+        else:
             return [
                 intent.visibilities
                 for intent in self.dataframe
             ]
     
     @property
-    def uvw(self) -> Optional[NDArray]:
+    def uvw(self) -> Union[NDArray, list[NDArray]]:
         """
         """
         if type(self.dataframe) == table:
@@ -65,13 +65,14 @@ class MeasurementSet:
                     "unsupported MSv2 UVW with more than 3 dims"
                 )
             return np.asarray(output)
-        elif type(self.dataframe) == list[ProcessingIntent]:
-            raise NotImplementedError(
-                "MSv4 functionality not yet implemented"
-            )
+        else:
+            return [
+                intent.uvw
+                for intent in self.dataframe
+            ]
     
     @property
-    def channels(self) -> Optional[Tuple[float, float]]:
+    def channels(self) -> Tuple[float, float]:
         """
         """
         if type(self.dataframe) == table:
@@ -87,7 +88,7 @@ class MeasurementSet:
             if len(chan_freq) == 1:
                 return chan_freq[0], 0.
             return (chan_freq[0], chan_freq[1]-chan_freq[0])
-        elif type(self.dataframe) == list[ProcessingIntent]:
+        else:
             raise NotImplementedError(
                 "MSv4 functionality not yet implemented"
             )
