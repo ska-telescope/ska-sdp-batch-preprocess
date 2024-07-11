@@ -73,7 +73,8 @@ def read_yaml(dir: Path, logger: Logger) -> dict:
         with open(f"{dir}", 'r') as file:
             return yaml.safe_load(file)
     except:
-        exit()
+        logger.critical("Loading {dir.name} failed")
+        log_handler.exit_pipeline(logger)
 
 
 if __name__ == "__main__":
