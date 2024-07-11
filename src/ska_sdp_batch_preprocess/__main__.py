@@ -12,6 +12,11 @@ from utils import log_handler
 def main(logger: Logger) -> None:
     """
     Pipeline entry point.
+
+    Arguments
+    ---------
+    logger: logging.Logger
+      logger object to handle pipeline logs.
     """
     args = parse_args()
     pipeline.run(
