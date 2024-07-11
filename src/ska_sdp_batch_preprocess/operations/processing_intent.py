@@ -5,6 +5,13 @@ from typing import Tuple
 from numpy.typing import NDArray
 from xarray.core.dataset import Dataset
 
+from ska_sdp_datamodels.visibility import (
+    Visibility
+)
+from ska_sdp_datamodels.visibility.vis_xradio import (
+    create_visibility_from_xradio_xds
+)
+
 
 class ProcessingIntent:
     """
@@ -46,6 +53,12 @@ class ProcessingIntent:
           contains the processing set data.
         """
         self.data = data
+
+    @property
+    def data_as_ska_vis(self) -> Visibility:
+        """
+        """
+        return create_visibility_from_xradio_xds(self.data)
 
     @property
     def visibilities(self) -> NDArray:
