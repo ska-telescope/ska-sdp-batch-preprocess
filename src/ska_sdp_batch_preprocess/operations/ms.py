@@ -156,6 +156,16 @@ class MeasurementSet:
     @classmethod
     def ver_2(cls, dir: Path):
         """
+        Class method to generate an instance with MSv2.
+
+        Arguments
+        ---------
+        dir: pathlib.Path
+          directory for the input MSv2.
+
+        Returns
+        -------
+        MeasurementSet class instance.
         """
         try:
             return cls(table(f"{dir}"))
@@ -169,6 +179,22 @@ class MeasurementSet:
             cls, dir: Path, *, manual_compute: bool=False
     ):
         """
+        Class method to generate an instance with MSv4.
+
+        Arguments
+        ---------
+        dir: pathlib.Path
+          directory for the input MSv4.
+
+        manual_compute: bool=False
+          optional argument which, if true, calls the 
+          ProcessingIntent class with the class method
+          manual_compute(**args) on the XRadio MSv4 
+          processing intent reads. 
+
+        Returns
+        -------
+        MeasurementSet class instance.
         """
         list_of_intents = [
             ProcessingIntent.manual_compute(intent)
