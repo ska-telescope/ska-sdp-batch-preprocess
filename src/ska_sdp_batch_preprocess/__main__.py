@@ -2,15 +2,18 @@
 
 import argparse
 import yaml
+from logging import Logger
 from pathlib import Path
 
 from operations import pipeline
+from utils import log_handler
 
 
 def main() -> None:
     """
     Pipeline entry point.
     """
+    logger = log_handler("Batch Preprocess")
     args = parse_args()
     pipeline.run(
         Path(args.msin), read_yaml(Path(args.config))
@@ -51,7 +54,7 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-def read_yaml(dir: Path) -> dict:
+def read_yaml(dir: Path, logger: Logger) -> dict:
     """
     Reads YAML configuration file as a dictionary.
     No custom format checks as of yet.
@@ -65,8 +68,12 @@ def read_yaml(dir: Path) -> dict:
     -------
     Python dictionary enclosing the YAML configurations.
     """
-    with open(f"{dir}", 'r') as file:
-        return yaml.safe_load(file)
+    logger.info(f"Loading {dir.name} into memory")
+    try:
+        with open(f"{dir}", 'r') as file:
+            return yaml.safe_load(file)
+    except:
+        exit()
 
 
 if __name__ == "__main__":
