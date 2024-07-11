@@ -127,15 +127,15 @@ class ProcessingIntent:
           XArray representation of the processing set data,
           which are to be loaded manually.
         
+        Returns
+        -------
+        ProcessingIntent class instance.
+
         Note: this manual_compute() method does not support 
         slicing/partial data loading due to the default XArray
         functionality stipulating that data are normally loaded
         automatically. Hence, this manual_compute() class method
         should not be needed in normal circumstances.
         https://docs.xarray.dev/en/latest/generated/xarray.Dataset.compute.html
-
-        Returns
-        -------
-        ProcessingIntent class instance.
         """
         return cls(data.compute())
