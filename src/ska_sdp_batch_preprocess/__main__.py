@@ -51,14 +51,8 @@ def read_yaml(dir: Path) -> dict:
     Reads YAML configuration file as a dictionary.
     Raises errors where the load fails or the file does not exist.
     """
-    try:
-        with open(f"{dir}", 'r') as file:
-            try:
-                return yaml.safe_load(file)
-            except yaml.YAMLError as e:
-                raise e("YAML file could not be loaded")
-    except FileNotFoundError as e:
-        raise e("YAML file not found")
+    with open(f"{dir}", 'r') as file:
+        return yaml.safe_load(file)
 
 
 if __name__ == "__main__":
