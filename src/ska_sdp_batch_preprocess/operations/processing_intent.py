@@ -1,5 +1,6 @@
 # see license in parent directory
 
+from logging import Logger
 from typing import Tuple
 
 from numpy.typing import NDArray
@@ -11,6 +12,8 @@ from ska_sdp_datamodels.visibility import (
 from ska_sdp_datamodels.visibility.vis_xradio import (
     create_visibility_from_xradio_xds
 )
+
+from utils import log_handler
 
 
 class ProcessingIntent:
@@ -38,6 +41,9 @@ class ProcessingIntent:
     channels: Tuple[float, float]
       base frequency and frequency increments.
 
+    logger: logging.Logger
+      logger object to handle pipeline logs.
+
     Methods
     -------
     manual_compute(**args)
@@ -46,7 +52,9 @@ class ProcessingIntent:
       using compute() method.
     """
 
-    def __init__(self, data_as_xarray: Dataset):
+    def __init__(
+            self, data_as_xarray: Dataset, *, logger: Logger
+    ):
         """
         Initiates the ProcessingIntent class.
 
@@ -56,6 +64,7 @@ class ProcessingIntent:
           contains the processing set data.
         """
         self.data_as_xarray = data_as_xarray
+        self.logger = logger
 
     @property
     def data_as_ska_vis(self) -> Visibility:
@@ -82,9 +91,10 @@ class ProcessingIntent:
         try:
             return self.data_as_xarray["VISIBILITY"].values
         except:
-            raise RuntimeError(
-                "could not load visibilities from this ProcessingIntent"
+            self.logger.critical(
+                "Could not read visibilities from MSv4"
             )
+            log_handler.exit_pipeline(self.logger)
         
     @property
     def uvw(self) -> NDArray:
@@ -98,9 +108,10 @@ class ProcessingIntent:
         try:
             return self.data_as_xarray["UVW"].values
         except:
-            raise RuntimeError(
-                "could not load uvw from this ProcessingIntent"
+            self.logger.critical(
+                "Could not read UVW data from MSv4"
             )
+            log_handler.exit_pipeline(self.logger)
         
     @property
     def weights(self) -> NDArray:
@@ -114,9 +125,10 @@ class ProcessingIntent:
         try:
             return self.data_as_xarray["WEIGHT"].values
         except:
-            raise RuntimeError(
-                "could not load weights from this ProcessingIntent"
+            self.logger.critical(
+                "Could not read weights from MSv4"
             )
+            log_handler.exit_pipeline(self.logger)
     
     @property
     def channels(self) -> Tuple[float, float]:
@@ -133,12 +145,15 @@ class ProcessingIntent:
                 return chan_freq[0], 0.
             return (chan_freq[0], chan_freq[1]-chan_freq[0])
         except:
-            raise RuntimeError(
-                "could not load frequency data from this ProcessingIntent"
+            self.logger.critical(
+                "Could not read frequency data from MSv4"
             )
+            log_handler.exit_pipeline(self.logger)
 
     @classmethod
-    def manual_compute(cls, data_as_xarray: Dataset):
+    def manual_compute(
+            cls, data_as_xarray: Dataset, *, logger: Logger
+    ):
         """
         Class method to generate an instance with
         the data manually loaded into memory as XArrays
@@ -163,4 +178,4 @@ class ProcessingIntent:
         should not be needed in normal circumstances.
         https://docs.xarray.dev/en/latest/generated/xarray.Dataset.compute.html
         """
-        return cls(data_as_xarray.compute())
+        return cls(data_as_xarray.compute(), logger=logger)
