@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from operations.ms import (
+from ska_sdp_batch_preprocess.operations.measurement_set import (
     MeasurementSet, to_msv4
 )
 
