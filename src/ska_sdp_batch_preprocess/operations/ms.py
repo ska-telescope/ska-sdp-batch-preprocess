@@ -69,6 +69,10 @@ class MeasurementSet:
     def visibilities(self) -> Union[NDArray, list[NDArray]]:
         """
         Visibilities as numpy arrays (or list thereof for MSv4).
+
+        Returns
+        -------
+        NumPy array (or list thereof for MSv4) enclosing visibilities.
         """
         if type(self.dataframe) == table:
             try:
@@ -91,6 +95,10 @@ class MeasurementSet:
     def uvw(self) -> Union[NDArray, list[NDArray]]:
         """
         UVW data as numpy arrays (or list thereof for MSv4).
+
+        Returns
+        -------
+        NumPy array (or list thereof for MSv4) enclosing uvw data.
         """
         if type(self.dataframe) == table:
             try:
@@ -113,6 +121,10 @@ class MeasurementSet:
     def weights(self) -> Union[NDArray, list[NDArray]]:
         """
         Weights as numpy arrays (or list thereof for MSv4).
+
+        Returns
+        -------
+        NumPy array (or list thereof for MSv4) enclosing weights.
         """
         if type(self.dataframe) == table:
             try:
@@ -135,6 +147,11 @@ class MeasurementSet:
     def channels(self) -> Union[Tuple[float, float], list[Tuple[float, float]]]:
         """
         Base frequency and frequency increments (or list thereof for MSv4).
+
+        Returns
+        -------
+        Tuple of base frequency and frequency increments (or list thereof 
+        for MSv4) enclosing weights.
         """
         if type(self.dataframe) == table:
             try:
