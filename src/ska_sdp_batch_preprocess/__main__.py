@@ -28,6 +28,11 @@ def parse_args() -> argparse.Namespace:
     
     msin: str
       directory for the input measurement set (v2 or v4).
+
+    Returns
+    -------
+    argparse.Namespace class instance enclosing the parsed
+    cmd arguments.
     """
     parser = argparse.ArgumentParser(
         description="Batch preprocessing pipeline",
@@ -50,6 +55,15 @@ def read_yaml(dir: Path) -> dict:
     """
     Reads YAML configuration file as a dictionary.
     No custom format checks as of yet.
+
+    Arguments
+    ---------
+    dir: pathlib.Path
+      directory for the YAML configuration file.
+
+    Returns
+    -------
+    Python dictionary enclosing the YAML configurations.
     """
     with open(f"{dir}", 'r') as file:
         return yaml.safe_load(file)
