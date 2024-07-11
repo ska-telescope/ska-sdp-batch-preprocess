@@ -131,7 +131,9 @@ class ProcessingIntent:
         -------
         ProcessingIntent class instance.
 
-        Note: this manual_compute() method does not support 
+        Note
+        ----
+        This manual_compute() method does not support 
         slicing/partial data loading due to the default XArray
         functionality stipulating that data are normally loaded
         automatically. Hence, this manual_compute() class method

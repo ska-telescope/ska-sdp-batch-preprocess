@@ -46,8 +46,10 @@ class MeasurementSet:
     ver_4(**args)
       class method to generate an instance with MSv4.
 
-    Note: call further casacore/xarray functionalities on the 
-      class instance where needed.
+    Note
+    ----
+    Call further casacore/xarray functionalities on the 
+    class instance where needed.
     """
 
     def __init__(
