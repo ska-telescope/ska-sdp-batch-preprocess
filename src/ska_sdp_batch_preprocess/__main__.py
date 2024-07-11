@@ -13,10 +13,11 @@ def main() -> None:
     """
     Pipeline entry point.
     """
-    logger = log_handler("Batch Preprocess")
+    logger = log_handler.generate("Batch Preprocess")
     args = parse_args()
     pipeline.run(
-        Path(args.msin), read_yaml(Path(args.config))
+        Path(args.msin), 
+        read_yaml(Path(args.config), logger)
     )
 
 def parse_args() -> argparse.Namespace:
