@@ -20,8 +20,11 @@ class ProcessingIntent:
 
     Attributes
     ----------
-    data: xarray.Dataset
+    data_as_xarray: xarray.Dataset
       XArray representation of the processing set data.
+
+    data_as_ska_vis: ska_sdp_datamodels.visibility.Visibility
+      SKA-Visibility representation of the processing set data.
 
     visibilities: NDArray
       visibilities as NumPy arrays.
@@ -57,6 +60,11 @@ class ProcessingIntent:
     @property
     def data_as_ska_vis(self) -> Visibility:
         """
+        SKA-Visibility representation of the processing set data.
+
+        Returns
+        -------
+        SKA-Visibility class instance.
         """
         return create_visibility_from_xradio_xds(
             self.data_as_xarray
