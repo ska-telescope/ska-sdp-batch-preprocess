@@ -38,6 +38,12 @@ class ProcessingIntent:
 
     def __init__(self, data: Dataset):
         """
+        Initiates the ProcessingIntent class.
+
+        Parameters
+        ----------
+        data: xarray.Dataset
+          contains the processing set data.
         """
         self.data = data
 
