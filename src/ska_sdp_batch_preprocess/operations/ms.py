@@ -228,6 +228,15 @@ def to_msv4(
         msin: Path, args: Optional[dict]=None
 ) -> None:
     """
+    Convert MSv2 to MSv4 on dist using XRadio.
+    
+    Arguments
+    ---------
+    msin: pathlib.Path
+      directory for the input MSv2.
+    args: dict | None=None
+      Dictionary for the optional XRadio conversion 
+      function arguments. 
     """
     try:
         if args is None:
