@@ -43,7 +43,7 @@ class ProcessingIntent:
       using compute() method.
     """
 
-    def __init__(self, data: Dataset):
+    def __init__(self, data_as_xarray: Dataset):
         """
         Initiates the ProcessingIntent class.
 
@@ -52,13 +52,15 @@ class ProcessingIntent:
         data: xarray.Dataset
           contains the processing set data.
         """
-        self.data = data
+        self.data_as_xarray = data_as_xarray
 
     @property
     def data_as_ska_vis(self) -> Visibility:
         """
         """
-        return create_visibility_from_xradio_xds(self.data)
+        return create_visibility_from_xradio_xds(
+            self.data_as_xarray
+        )
 
     @property
     def visibilities(self) -> NDArray:
@@ -70,7 +72,7 @@ class ProcessingIntent:
         NumPy array enclosing visibilities.
         """
         try:
-            return self.data["VISIBILITY"].values
+            return self.data_as_xarray["VISIBILITY"].values
         except:
             raise RuntimeError(
                 "could not load visibilities from this ProcessingIntent"
@@ -86,7 +88,7 @@ class ProcessingIntent:
         NumPy array enclosing UVW data.
         """
         try:
-            return self.data["UVW"].values
+            return self.data_as_xarray["UVW"].values
         except:
             raise RuntimeError(
                 "could not load uvw from this ProcessingIntent"
@@ -102,7 +104,7 @@ class ProcessingIntent:
         NumPy array enclosing weights.
         """
         try:
-            return self.data["WEIGHT"].values
+            return self.data_as_xarray["WEIGHT"].values
         except:
             raise RuntimeError(
                 "could not load weights from this ProcessingIntent"
@@ -118,7 +120,7 @@ class ProcessingIntent:
         Tuple of base frequency and frequency increments.
         """
         try:
-            chan_freq = self.data["frequency"].values.flatten()
+            chan_freq = self.data_as_xarray["frequency"].values.flatten()
             if len(chan_freq) == 1:
                 return chan_freq[0], 0.
             return (chan_freq[0], chan_freq[1]-chan_freq[0])
@@ -128,7 +130,7 @@ class ProcessingIntent:
             )
 
     @classmethod
-    def manual_compute(cls, data: Dataset):
+    def manual_compute(cls, data_as_xarray: Dataset):
         """
         Class method to generate an instance with
         the data manually loaded into memory as XArrays
@@ -153,4 +155,4 @@ class ProcessingIntent:
         should not be needed in normal circumstances.
         https://docs.xarray.dev/en/latest/generated/xarray.Dataset.compute.html
         """
-        return cls(data.compute())
+        return cls(data_as_xarray.compute())
