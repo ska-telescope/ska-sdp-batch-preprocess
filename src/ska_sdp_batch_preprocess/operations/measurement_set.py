@@ -167,7 +167,7 @@ class MeasurementSet:
         ]
     
     @classmethod
-    def ver_2(cls, dir: Path):
+    def ver_2(cls, dir: Path, *, logger: Logger):
         """
         Class method to generate an instance with MSv2.
 
@@ -181,7 +181,7 @@ class MeasurementSet:
         MeasurementSet class instance.
         """
         try:
-            return cls(table(f"{dir}"))
+            return cls(table(f"{dir}"), logger=logger)
         except:
             raise RuntimeError(
                 "could not load MSv2"
@@ -189,7 +189,8 @@ class MeasurementSet:
     
     @classmethod
     def ver_4(
-            cls, dir: Path, *, manual_compute: bool=False
+            cls, dir: Path, *, manual_compute: bool=False,
+            logger: Logger
     ):
         """
         Class method to generate an instance with MSv4.
@@ -218,7 +219,7 @@ class MeasurementSet:
             raise ValueError(
                 "loaded empty MSv4; check it is not MSv2"
             )
-        return cls(list_of_intents)
+        return cls(list_of_intents, logger=logger)
 
 def to_msv4(
         msin: Path, args: Optional[dict]=None, *,
