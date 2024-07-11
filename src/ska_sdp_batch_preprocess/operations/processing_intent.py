@@ -33,7 +33,7 @@ class ProcessingIntent:
     manual_compute(**args)
       class method to generate an instance with
       the data manually loaded into memory as XArrays
-      (using .compute() method).
+      using compute() method.
     """
 
     def __init__(self, data: Dataset):
@@ -98,6 +98,11 @@ class ProcessingIntent:
     @property
     def channels(self) -> Tuple[float, float]:
         """
+        Base frequency and frequency increments.
+
+        Returns
+        -------
+        Tuple of base frequency and frequency increments.
         """
         try:
             chan_freq = self.data["frequency"].values.flatten()
@@ -112,5 +117,25 @@ class ProcessingIntent:
     @classmethod
     def manual_compute(cls, data: Dataset):
         """
+        Class method to generate an instance with
+        the data manually loaded into memory as XArrays
+        using the compute() method.
+
+        Arguments
+        ---------
+        data: xarray.Dataset
+          XArray representation of the processing set data,
+          which are to be loaded manually.
+        
+        Note: this manual_compute() method does not support 
+        slicing/partial data loading due to the default XArray
+        functionality stipulating that data are normally loaded
+        automatically. Hence, this manual_compute() class method
+        should not be needed in normal circumstances.
+        https://docs.xarray.dev/en/latest/generated/xarray.Dataset.compute.html
+
+        Returns
+        -------
+        ProcessingIntent class instance.
         """
         return cls(data.compute())
