@@ -1,5 +1,6 @@
 # see license in parent directory
 
+from logging import Logger
 from pathlib import Path
 
 from operations.measurement_set import (
@@ -8,7 +9,7 @@ from operations.measurement_set import (
 
 
 def run(
-        msin: Path, config: dict
+        msin: Path, config: dict, *, logger: Logger
 ) -> None:
     """
     Principal function in th pipeline where the various

@@ -21,7 +21,8 @@ def main(logger: Logger) -> None:
     args = parse_args()
     pipeline.run(
         Path(args.msin), 
-        read_yaml(Path(args.config), logger)
+        read_yaml(Path(args.config), logger=logger),
+        logger=logger
     )
 
 def parse_args() -> argparse.Namespace:
@@ -59,7 +60,7 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-def read_yaml(dir: Path, logger: Logger) -> dict:
+def read_yaml(dir: Path, *, logger: Logger) -> dict:
     """
     Reads YAML configuration file as a dictionary.
     No custom format checks as of yet.
