@@ -27,13 +27,13 @@ class MeasurementSet:
       or an iterable if MSv4).
 
     visibilities: NDArray | list[NDArray]
-      visibilities as numpy arrays (or list thereof for MSv4).
+      visibilities as NumPy arrays (or list thereof for MSv4).
 
     uvw: NDArray | list[NDArray]
-      uvw data as numpy arrays (or list thereof for MSv4).
+      uvw data as NumPy arrays (or list thereof for MSv4).
     
     weights: NDArray | list[NDArray]
-      weights as numpy arrays (or list thereof for MSv4).
+      weights as NumPy arrays (or list thereof for MSv4).
 
     channels: Tuple[float, float] | list[Tuple[float, float]]
       base frequency and frequency increments (or list thereof for MSv4).
@@ -68,7 +68,7 @@ class MeasurementSet:
     @property
     def visibilities(self) -> Union[NDArray, list[NDArray]]:
         """
-        Visibilities as numpy arrays (or list thereof for MSv4).
+        Visibilities as NumPy arrays (or list thereof for MSv4).
 
         Returns
         -------
@@ -94,11 +94,11 @@ class MeasurementSet:
     @property
     def uvw(self) -> Union[NDArray, list[NDArray]]:
         """
-        UVW data as numpy arrays (or list thereof for MSv4).
+        UVW data as NumPy arrays (or list thereof for MSv4).
 
         Returns
         -------
-        NumPy array (or list thereof for MSv4) enclosing uvw data.
+        NumPy array (or list thereof for MSv4) enclosing UVW data.
         """
         if type(self.dataframe) == table:
             try:
@@ -120,7 +120,7 @@ class MeasurementSet:
     @property
     def weights(self) -> Union[NDArray, list[NDArray]]:
         """
-        Weights as numpy arrays (or list thereof for MSv4).
+        Weights as NumPy arrays (or list thereof for MSv4).
 
         Returns
         -------
