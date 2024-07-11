@@ -50,6 +50,11 @@ class ProcessingIntent:
     @property
     def visibilities(self) -> NDArray:
         """
+        Visibilities as NumPy arrays.
+
+        Returns
+        -------
+        NumPy array enclosing visibilities.
         """
         try:
             return self.data["VISIBILITY"].values
@@ -60,6 +65,13 @@ class ProcessingIntent:
         
     @property
     def uvw(self) -> NDArray:
+        """
+        UVW data as NumPy arrays.
+
+        Returns
+        -------
+        NumPy array enclosing UVW data.
+        """
         try:
             return self.data["UVW"].values
         except:
@@ -69,6 +81,13 @@ class ProcessingIntent:
         
     @property
     def weights(self) -> NDArray:
+        """
+        Weights as NumPy arrays.
+
+        Returns
+        -------
+        NumPy array enclosing weights.
+        """
         try:
             return self.data["WEIGHT"].values
         except:
