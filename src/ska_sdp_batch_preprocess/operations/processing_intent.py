@@ -7,7 +7,34 @@ from xarray.core.dataset import Dataset
 
 
 class ProcessingIntent:
-    """"""
+    """
+    Class to represent a processing set of MSv4
+    in memory.
+
+    Attributes
+    ----------
+    data: xarray.Dataset
+      XArray representation of the processing set data.
+
+    visibilities: NDArray
+      visibilities as NumPy arrays.
+
+    uvw: NDArray
+      uvw data as NumPy arrays
+
+    weights: NDArray
+      weights as NumPy arrays.
+
+    channels: Tuple[float, float]
+      base frequency and frequency increments.
+
+    Methods
+    -------
+    manual_compute(**args)
+      class method to generate an instance with
+      the data manually loaded into memory as XArrays
+      (using .compute() method).
+    """
 
     def __init__(self, data: Dataset):
         """
