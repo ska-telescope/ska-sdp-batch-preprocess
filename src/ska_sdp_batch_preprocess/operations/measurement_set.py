@@ -1,5 +1,6 @@
 # see license in parent directory
 
+from logging import Logger
 from pathlib import Path
 from typing import Optional, Tuple, Union
 
@@ -14,6 +15,7 @@ from xradio.vis import (
 from operations.processing_intent import (
     ProcessingIntent
 )
+from utils import log_handler
 
 
 class MeasurementSet:
@@ -227,7 +229,8 @@ class MeasurementSet:
         return cls(list_of_intents)
 
 def to_msv4(
-        msin: Path, args: Optional[dict]=None
+        msin: Path, args: Optional[dict]=None, *,
+        logger: Logger
 ) -> None:
     """
     Convert MSv2 to MSv4 on dist using XRadio.
@@ -236,9 +239,13 @@ def to_msv4(
     ---------
     msin: pathlib.Path
       directory for the input MSv2.
+    
     args: dict | None=None
       Dictionary for the optional XRadio conversion 
       function arguments. 
+    
+    logger: logging.Logger
+      logger object to handle pipeline logs.
     """
     try:
         if args is None:
@@ -253,6 +260,5 @@ def to_msv4(
                 **args
             )
     except:
-        raise RuntimeError(
-            "conversion not possible; check input type & whether output already exists"
-        )
+        logger.critical(f"Cannot convert {msin.name} to MSv4")
+        log_handler.exit_pipeline(logger)
