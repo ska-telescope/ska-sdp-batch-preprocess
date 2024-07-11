@@ -39,6 +39,9 @@ class MeasurementSet:
 
     channels: Tuple[float, float] | list[Tuple[float, float]]
       base frequency and frequency increments (or list thereof for MSv4).
+
+    logger: logging.Logger
+      logger object to handle pipeline logs.
     
     Methods
     -------
@@ -56,7 +59,8 @@ class MeasurementSet:
 
     def __init__(
             self, 
-            dataframe: Union[table, list[ProcessingIntent]]
+            dataframe: Union[table, list[ProcessingIntent]],
+            *, logger: Logger
     ):
         """
         Initiates the MeasurementSet class.
@@ -68,6 +72,7 @@ class MeasurementSet:
           or an iterable if MSv4).
         """
         self.dataframe = dataframe
+        self.logger = logger
 
     @property
     def visibilities(self) -> Union[NDArray, list[NDArray]]:
@@ -82,9 +87,8 @@ class MeasurementSet:
             try:
                 output = self.dataframe.getcol("DATA")
             except:
-                raise RuntimeError(
-                    "could not load visibilities from MSv2"
-                )
+                self.logger.critical("Could not read visibilities from MSv2")
+                log_handler.exit_pipeline(self.logger)
             if len(np.asarray(output).shape) > 4:
                 raise ValueError(
                     "unsupported MSv2 DATA with more than 4 dims"
@@ -108,9 +112,8 @@ class MeasurementSet:
             try:
                 output = self.dataframe.getcol("UVW")
             except:
-                raise RuntimeError(
-                    "could not load uvw from MSv2"
-                )
+                self.logger.critical("Could not read UVW from MSv2")
+                log_handler.exit_pipeline(self.logger)
             if len(np.asarray(output).shape) > 3:
                 raise ValueError(
                     "unsupported MSv2 UVW with more than 3 dims"
@@ -134,9 +137,8 @@ class MeasurementSet:
             try:
                 output = self.dataframe.getcol("WEIGHT")
             except:
-                raise RuntimeError(
-                    "could not load weights from MSv2"
-                )
+                self.logger.critical("Could not read weights from MSv2")
+                log_handler.exit_pipeline(self.logger)
             if len(np.asarray(output).shape) > 4:
                 raise ValueError(
                     "unsupported MSv2 WEIGHT with more than 4 dims"
@@ -163,9 +165,8 @@ class MeasurementSet:
                     self.dataframe.getkeyword("SPECTRAL_WINDOW")
                 ).getcol("CHAN_FREQ").flatten()
             except:
-                raise RuntimeError(
-                    "could not load frequency data from MSv2"
-                )
+                self.logger.critical("Could not read frequency data from MSv2")
+                log_handler.exit_pipeline(self.logger)
             if len(chan_freq) == 1:
                 return chan_freq[0], 0.
             return (chan_freq[0], chan_freq[1]-chan_freq[0])
