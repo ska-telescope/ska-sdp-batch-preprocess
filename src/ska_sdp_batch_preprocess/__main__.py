@@ -20,9 +20,14 @@ def parse_args() -> argparse.Namespace:
     """
     Parses command line arguments.
 
-    Current arguments:
-    --config (optional): directory for the YAML configuration file
-    msin: directory for the input measurement set
+    cmd Arguments
+    -------------
+    --config (optional): str 
+      directory for the YAML configuration file,
+      (default /ska-sdp-batch-preprocess/data/config.yml).
+    
+    msin: str
+      directory for the input measurement set (v2 or v4).
     """
     parser = argparse.ArgumentParser(
         description="Batch preprocessing pipeline",
