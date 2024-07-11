@@ -35,8 +35,8 @@ class MeasurementSet:
     weights: NDArray | list[NDArray]
       weights as numpy arrays (or list thereof for MSv4).
 
-    channels: Tuple[float, float]
-      base frequency and frequency increments.
+    channels: Tuple[float, float] | list[Tuple[float, float]]
+      base frequency and frequency increments (or list thereof for MSv4).
     
     Methods
     -------
@@ -134,7 +134,7 @@ class MeasurementSet:
     @property
     def channels(self) -> Union[Tuple[float, float], list[Tuple[float, float]]]:
         """
-        Base frequency and frequency increments.
+        Base frequency and frequency increments (or list thereof for MSv4).
         """
         if type(self.dataframe) == table:
             try:
