@@ -37,10 +37,10 @@ def run(
                 logger.info("Conversion successful")
             elif func.lower() == "load_msv2":
                 logger.info(f"Loading {msin.name} into memory as MSv2")
-                MSv2 = MeasurementSet.ver_2(msin)
+                MSv2 = MeasurementSet.ver_2(msin, logger=logger)
             elif func.lower() == "load_msv4":
                 logger.info(f"Loading {msin.name} into memory as MSv4")
-                MSv4 = MeasurementSet.ver_4(msin)
+                MSv4 = MeasurementSet.ver_4(msin, logger=logger)
             elif func == "convert_msv2_to_msv4_then_load":
                 logger.info(f"Converting {msin.name} to MSv4")
                 to_msv4(msin, args, logger=logger)
@@ -49,5 +49,5 @@ def run(
                     f"Loading {msin.with_suffix('.ms4').name} into memory as MSv4"
                 )
                 MSv4 = MeasurementSet.ver_4(
-                    msin.with_suffix(".ms4")
+                    msin.with_suffix(".ms4"), logger=logger
                 )

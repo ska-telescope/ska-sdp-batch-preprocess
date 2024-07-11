@@ -85,15 +85,12 @@ class MeasurementSet:
         """
         if type(self.dataframe) == table:
             try:
-                output = self.dataframe.getcol("DATA")
+                return np.asarray(
+                    self.dataframe.getcol("DATA")
+                )
             except:
                 self.logger.critical("Could not read visibilities from MSv2")
                 log_handler.exit_pipeline(self.logger)
-            if len(np.asarray(output).shape) > 4:
-                raise ValueError(
-                    "unsupported MSv2 DATA with more than 4 dims"
-                )
-            return np.asarray(output)
         return [
             intent.visibilities
             for intent in self.dataframe
@@ -110,15 +107,12 @@ class MeasurementSet:
         """
         if type(self.dataframe) == table:
             try:
-                output = self.dataframe.getcol("UVW")
+                return np.asarray(
+                    self.dataframe.getcol("UVW")
+                )
             except:
                 self.logger.critical("Could not read UVW from MSv2")
                 log_handler.exit_pipeline(self.logger)
-            if len(np.asarray(output).shape) > 3:
-                raise ValueError(
-                    "unsupported MSv2 UVW with more than 3 dims"
-                )
-            return np.asarray(output)
         return [
             intent.uvw
             for intent in self.dataframe
@@ -135,15 +129,12 @@ class MeasurementSet:
         """
         if type(self.dataframe) == table:
             try:
-                output = self.dataframe.getcol("WEIGHT")
+                return np.asarray(
+                    self.dataframe.getcol("WEIGHT")
+                )
             except:
                 self.logger.critical("Could not read weights from MSv2")
                 log_handler.exit_pipeline(self.logger)
-            if len(np.asarray(output).shape) > 4:
-                raise ValueError(
-                    "unsupported MSv2 WEIGHT with more than 4 dims"
-                )
-            return np.asarray(output)
         return [
             intent.weights
             for intent in self.dataframe
