@@ -9,11 +9,10 @@ from operations import pipeline
 from utils import log_handler
 
 
-def main() -> None:
+def main(logger: Logger) -> None:
     """
     Pipeline entry point.
     """
-    logger = log_handler.generate("Batch Preprocess")
     args = parse_args()
     pipeline.run(
         Path(args.msin), 
@@ -78,4 +77,6 @@ def read_yaml(dir: Path, logger: Logger) -> dict:
 
 
 if __name__ == "__main__":
-    main()
+    logger = log_handler.generate("Batch Preprocess")
+    main(logger)
+    log_handler.exit_pipeline(logger, success=True)
