@@ -49,7 +49,7 @@ def parse_args() -> argparse.Namespace:
 def read_yaml(dir: Path) -> dict:
     """
     Reads YAML configuration file as a dictionary.
-    Raises errors where the load fails or the file does not exist.
+    No custom format checks as of yet.
     """
     with open(f"{dir}", 'r') as file:
         return yaml.safe_load(file)
