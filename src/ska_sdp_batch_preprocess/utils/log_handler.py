@@ -1,6 +1,7 @@
 # see license in parent directory
 
 import logging
+import sys
 
 
 def generate(name: str) -> logging.Logger:
@@ -16,3 +17,14 @@ def generate(name: str) -> logging.Logger:
     )
     logger.addHandler(stream_handler)
     return logger
+
+def exit_pipeline(
+        logger: logging.Logger, *, success: bool=False
+) -> None:
+    """
+    """
+    if success:
+        logger.info("Pipeline run - SUCCESS")
+    else:
+        logger.info("Pipeline run - FAILURE")
+    sys.exit()
