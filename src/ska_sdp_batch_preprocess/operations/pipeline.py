@@ -24,6 +24,9 @@ def run(
     config: dict
       YAML configuration parameters read as Python 
       dictionary.
+
+    logger: logging.Logger
+      logger object to handle pipeline logs.
     """
     logger.info("Entering pipeline")
     if config is not None:
