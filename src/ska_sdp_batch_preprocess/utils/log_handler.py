@@ -23,6 +23,7 @@ def exit_pipeline(
 ) -> None:
     """
     """
+    logger.info("Exiting pipeline")
     if success:
         logger.info("Pipeline run - SUCCESS")
     else:
