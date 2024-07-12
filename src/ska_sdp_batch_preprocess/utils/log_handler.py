@@ -65,8 +65,8 @@ def exit_pipeline(
 
     success: bool=False
       optional argument which if True, the pipeline 
-      declares a successful run of as it ends the 
-      session, but declares a failed run otherwise.
+      declares a successful run as it ends the job, 
+      but declares a failed run otherwise.
     """
     logger.info("Exiting pipeline")
     if success:
