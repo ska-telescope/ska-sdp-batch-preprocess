@@ -185,10 +185,10 @@ class MeasurementSet:
                 dataframe = table(f"{dir}")
             return cls(dataframe, logger=logger)
         except:
-            raise RuntimeError(
-                "could not load MSv2"
-            )
-    
+            tools.reinstate_default_stdout()
+            logger.critical("Could not load MSv2 into memory")
+            log_handler.exit_pipeline(logger)
+                
     @classmethod
     def ver_4(
             cls, dir: Path, *, manual_compute: bool=False,
