@@ -75,9 +75,17 @@ class ProcessingIntent:
         -------
         SKA-Visibility class instance.
         """
-        return create_visibility_from_xradio_xds(
-            self.data_as_xarray
-        )
+        try:
+            with log_handler.temporary_log_disable():
+                return create_visibility_from_xradio_xds(
+                    self.data_as_xarray
+                )
+        except:
+            log_handler.enable_logs_manually()
+            self.logger.critical(
+                "Could not convert XArray data to SKA-Visibility object"
+            )
+            log_handler.exit_pipeline(self.logger)
 
     @property
     def visibilities(self) -> NDArray:
