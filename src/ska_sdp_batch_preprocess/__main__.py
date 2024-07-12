@@ -23,15 +23,15 @@ def main(logger: Logger) -> None:
     logger.info(
         f"Loading {Path(args.config).name} into memory"
     )
-    yaml_file = read_yaml(Path(args.config), logger=logger)
+    yaml_dict = read_yaml(Path(args.config), logger=logger)
     logger.info(
-        f"Successfully loaded {Path(args.config).name}\n  |" 
+        f"Load successful\n  |" 
     )
 
     logger.info("Entering pipeline\n  |")
     pipeline.run(
         Path(args.msin), 
-        read_yaml(Path(args.config), logger=logger),
+        read_yaml(yaml_dict, logger=logger),
         logger=logger
     )
 
