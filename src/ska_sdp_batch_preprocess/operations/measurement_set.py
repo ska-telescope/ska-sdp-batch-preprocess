@@ -211,8 +211,8 @@ class MeasurementSet:
         MeasurementSet class instance.
         """
         list_of_intents = [
-            ProcessingIntent.manual_compute(intent)
-            if manual_compute else ProcessingIntent(intent)
+            ProcessingIntent.manual_compute(intent, logger=logger)
+            if manual_compute else ProcessingIntent(intent, logger=logger)
             for intent in read_processing_set(f"{dir}").values()
         ]
         if len(list_of_intents) == 0:
