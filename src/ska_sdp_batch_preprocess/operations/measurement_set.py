@@ -186,7 +186,7 @@ class MeasurementSet:
             return cls(dataframe, logger=logger)
         except:
             tools.reinstate_default_stdout()
-            logger.critical("Could not load MSv2 into memory")
+            logger.critical(f"Could not load {dir.name} into memory as MSv2")
             log_handler.exit_pipeline(logger)
                 
     @classmethod
