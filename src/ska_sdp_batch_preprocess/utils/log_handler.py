@@ -54,6 +54,10 @@ def exit_pipeline(
 
 def enable_logs_manually() -> None:
     """
+    Reverts the logging premission to default
+    (i.e., logging.NOTSET). Useful where logging
+    is temporarily blocked via a context manager
+    but an exception occurs which executing.
     """
     logging.disable(logging.NOTSET)
 
