@@ -89,7 +89,7 @@ class MeasurementSet:
                     self.dataframe.getcol("DATA")
                 )
             except:
-                self.logger.critical("Could not read visibilities from MSv2")
+                self.logger.critical("Could not read visibilities from MSv2\n  |")
                 log_handler.exit_pipeline(self.logger)
         return [
             intent.visibilities
@@ -111,7 +111,7 @@ class MeasurementSet:
                     self.dataframe.getcol("UVW")
                 )
             except:
-                self.logger.critical("Could not read UVW from MSv2")
+                self.logger.critical("Could not read UVW from MSv2\n  |")
                 log_handler.exit_pipeline(self.logger)
         return [
             intent.uvw
@@ -133,7 +133,7 @@ class MeasurementSet:
                     self.dataframe.getcol("WEIGHT")
                 )
             except:
-                self.logger.critical("Could not read weights from MSv2")
+                self.logger.critical("Could not read weights from MSv2\n  |")
                 log_handler.exit_pipeline(self.logger)
         return [
             intent.weights
@@ -158,7 +158,9 @@ class MeasurementSet:
                     ).getcol("CHAN_FREQ").flatten()
             except:
                 tools.reinstate_default_stdout()
-                self.logger.critical("Could not read frequency data from MSv2")
+                self.logger.critical(
+                    "Could not read frequency data from MSv2\n  |"
+                )
                 log_handler.exit_pipeline(self.logger)
             if len(chan_freq) == 1:
                 return chan_freq[0], 0.
@@ -188,7 +190,9 @@ class MeasurementSet:
             return cls(dataframe, logger=logger)
         except:
             tools.reinstate_default_stdout()
-            logger.critical(f"Could not load {dir.name} into memory as MSv2")
+            logger.critical(
+                f"Could not load {dir.name} into memory as MSv2\n  |"
+            )
             log_handler.exit_pipeline(logger)
                 
     @classmethod
@@ -223,7 +227,9 @@ class MeasurementSet:
                 ]
         except:
             log_handler.enable_logs_manually()
-            logger.critical(f"Could not load {dir.name} into memory as MSv4")
+            logger.critical(
+                f"Could not load {dir.name} into memory as MSv4\n  |"
+            )
             log_handler.exit_pipeline(logger)
         if len(list_of_intents) == 0:
             logger.warning("Loading empty MSv4 into memory")
@@ -263,5 +269,7 @@ def to_msv4(
                 )
     except:
         log_handler.enable_logs_manually()
-        logger.critical(f"Could not convert {msin.name} to MSv4")
+        logger.critical(
+            f"Could not convert {msin.name} to MSv4\n  |"
+        )
         log_handler.exit_pipeline(logger)
