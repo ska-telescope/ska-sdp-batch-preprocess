@@ -191,7 +191,7 @@ class MeasurementSet:
         except:
             tools.reinstate_default_stdout()
             logger.critical(
-                f"Could not load {dir.name} into memory as MSv2\n  |"
+                f"Could not load as MSv2\n  |"
             )
             log_handler.exit_pipeline(logger)
                 
@@ -228,7 +228,7 @@ class MeasurementSet:
         except:
             log_handler.enable_logs_manually()
             logger.critical(
-                f"Could not load {dir.name} into memory as MSv4\n  |"
+                f"Could not load as MSv4\n  |"
             )
             log_handler.exit_pipeline(logger)
         if len(list_of_intents) == 0:
@@ -270,6 +270,6 @@ def to_msv4(
     except:
         log_handler.enable_logs_manually()
         logger.critical(
-            f"Could not convert {msin.name} to MSv4\n  |"
+            "Could not convert to MSv4\n  |"
         )
         log_handler.exit_pipeline(logger)
