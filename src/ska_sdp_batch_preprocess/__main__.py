@@ -30,8 +30,7 @@ def main(logger: Logger) -> None:
 
     logger.info("Entering pipeline\n  |")
     pipeline.run(
-        Path(args.msin), 
-        read_yaml(yaml_dict, logger=logger),
+        Path(args.msin), yaml_dict,
         logger=logger
     )
 
@@ -88,7 +87,7 @@ def read_yaml(dir: Path, *, logger: Logger) -> dict:
         with open(f"{dir}", 'r') as file:
             return yaml.safe_load(file)
     except:
-        logger.critical("Loading {dir.name} failed")
+        logger.critical(f"Loading {dir.name} failed")
         log_handler.exit_pipeline(logger)
 
 
