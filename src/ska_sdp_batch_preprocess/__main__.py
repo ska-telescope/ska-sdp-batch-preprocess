@@ -9,16 +9,14 @@ from operations import pipeline
 from utils import log_handler
 
 
-def main(logger: Logger) -> None:
+def main() -> None:
     """
     Pipeline entry point.
-
-    Arguments
-    ---------
-    logger: logging.Logger
-      logger object to handle pipeline logs.
     """
     args = parse_args()
+    logger = log_handler.generate(
+        "Batch Preprocess", cmd_logs=args.cmd_logs
+    )
 
     logger.info(
         f"Loading {Path(args.config).name} into memory"
@@ -33,6 +31,7 @@ def main(logger: Logger) -> None:
         Path(args.msin), yaml_dict,
         logger=logger
     )
+    log_handler.exit_pipeline(logger, success=True)
 
 def parse_args() -> argparse.Namespace:
     """
@@ -61,6 +60,11 @@ def parse_args() -> argparse.Namespace:
         type=str,
         default=f"{Path.cwd().joinpath('data', 'config.yml')}",
         help="input YAML configuration file"
+    )
+    parser.add_argument(
+        "--cmd_logs",
+        action="store_true",
+        help="generate logs on the command line"
     )
     parser.add_argument(
         "msin",
@@ -92,6 +96,4 @@ def read_yaml(dir: Path, *, logger: Logger) -> dict:
 
 
 if __name__ == "__main__":
-    logger = log_handler.generate("Batch Preprocess")
-    main(logger)
-    log_handler.exit_pipeline(logger, success=True)
+    main()
