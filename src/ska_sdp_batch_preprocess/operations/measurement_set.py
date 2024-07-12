@@ -212,15 +212,19 @@ class MeasurementSet:
         -------
         MeasurementSet class instance.
         """
-        list_of_intents = [
-            ProcessingIntent.manual_compute(intent, logger=logger)
-            if manual_compute else ProcessingIntent(intent, logger=logger)
-            for intent in read_processing_set(f"{dir}").values()
-        ]
+        try:
+            with log_handler.temporary_log_disable():
+                list_of_intents = [
+                    ProcessingIntent.manual_compute(intent, logger=logger)
+                    if manual_compute else ProcessingIntent(intent, logger=logger)
+                    for intent in read_processing_set(f"{dir}").values()
+                ]
+        except:
+            log_handler.enable_logs_manually()
+            logger.critical(f"Could not load {dir.name} into memory as MSv4")
+            log_handler.exit_pipeline(logger)
         if len(list_of_intents) == 0:
-            raise ValueError(
-                "loaded empty MSv4; check it is not MSv2"
-            )
+            logger.warning("Loading empty MSv4 into memory")
         return cls(list_of_intents, logger=logger)
 
 def to_msv4(
