@@ -5,6 +5,12 @@ import os
 import sys
 
 
+def reinstate_default_stdout() -> None:
+    """
+    """
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+
 @contextlib.contextmanager
 def write_to_devnull():
     """
@@ -12,11 +18,5 @@ def write_to_devnull():
     sys.stdout = open(os.devnull, 'w')
     sys.stderr = open(os.devnull, 'w')
     yield
-    sys.stdout = sys.__stdout__
-    sys.stderr = sys.__stderr__
-
-def reinstate_default_stdout() -> None:
-    """
-    """
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
