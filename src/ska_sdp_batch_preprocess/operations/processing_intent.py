@@ -83,7 +83,7 @@ class ProcessingIntent:
         except:
             log_handler.enable_logs_manually()
             self.logger.critical(
-                "Could not convert XArray data to SKA-Visibility object"
+                "Could not convert XArray data to SKA-Visibility object\n  |"
             )
             log_handler.exit_pipeline(self.logger)
 
@@ -100,7 +100,7 @@ class ProcessingIntent:
             return self.data_as_xarray["VISIBILITY"].values
         except:
             self.logger.critical(
-                "Could not read visibilities from MSv4"
+                "Could not read visibilities from MSv4\n  |"
             )
             log_handler.exit_pipeline(self.logger)
         
@@ -117,7 +117,7 @@ class ProcessingIntent:
             return self.data_as_xarray["UVW"].values
         except:
             self.logger.critical(
-                "Could not read UVW data from MSv4"
+                "Could not read UVW data from MSv4\n  |"
             )
             log_handler.exit_pipeline(self.logger)
         
@@ -134,7 +134,7 @@ class ProcessingIntent:
             return self.data_as_xarray["WEIGHT"].values
         except:
             self.logger.critical(
-                "Could not read weights from MSv4"
+                "Could not read weights from MSv4\n  |"
             )
             log_handler.exit_pipeline(self.logger)
     
@@ -154,7 +154,7 @@ class ProcessingIntent:
             return (chan_freq[0], chan_freq[1]-chan_freq[0])
         except:
             self.logger.critical(
-                "Could not read frequency data from MSv4"
+                "Could not read frequency data from MSv4\n  |"
             )
             log_handler.exit_pipeline(self.logger)
 
