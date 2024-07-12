@@ -14,3 +14,9 @@ def write_to_devnull():
     yield
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
+
+def reinstate_default_stdout() -> None:
+    """
+    """
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
