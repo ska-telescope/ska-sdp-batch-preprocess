@@ -7,6 +7,16 @@ import sys
 
 def generate(name: str) -> logging.Logger:
     """
+    Generates a new logging.Logger class instance.
+
+    Arguments
+    ---------
+    name: str
+      name given to the new class instance.
+
+    Returns
+    -------
+    New logging.Logger class instance.
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
