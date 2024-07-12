@@ -31,6 +31,11 @@ def exit_pipeline(
         logger.info("Pipeline run - FAILURE")
     sys.exit()
 
+def enable_logs_manually() -> None:
+    """
+    """
+    logging.disable(logging.NOTSET)
+
 @contextlib.contextmanager
 def temporary_log_disable():
     """
