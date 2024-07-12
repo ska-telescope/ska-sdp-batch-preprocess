@@ -22,7 +22,7 @@ def write_to_devnull():
     """
     Context manager to disable sdtout/stderr to
     the command line (via writing to devnull) while
-    running an piece of code, and subsequently
+    running a piece of code, and subsequently
     reverting to default behaviour.
     """
     sys.stdout = open(os.devnull, 'w')
