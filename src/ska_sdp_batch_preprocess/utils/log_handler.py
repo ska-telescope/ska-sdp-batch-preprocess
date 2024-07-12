@@ -1,5 +1,6 @@
 # see license in parent directory
 
+import contextlib
 import logging
 import sys
 
@@ -29,3 +30,11 @@ def exit_pipeline(
     else:
         logger.info("Pipeline run - FAILURE")
     sys.exit()
+
+@contextlib.contextmanager
+def temporary_log_disable():
+    """
+    """
+    logging.disable(logging.CRITICAL)
+    yield
+    logging.disable(logging.NOTSET)
