@@ -261,5 +261,5 @@ def to_msv4(
                 )
     except:
         log_handler.enable_logs_manually()
-        logger.critical(f"Cannot convert {msin.name} to MSv4")
+        logger.critical(f"Could not convert {msin.name} to MSv4")
         log_handler.exit_pipeline(logger)
