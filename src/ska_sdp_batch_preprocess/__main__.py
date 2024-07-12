@@ -42,6 +42,11 @@ def parse_args() -> argparse.Namespace:
     --config (optional): str 
       directory for the YAML configuration file,
       (default /ska-sdp-batch-preprocess/data/config.yml).
+
+    --cmd_logs (optional): None
+      raising this flag witll prompt the pipeline to output
+      logs on the command line as well as logging into a
+      logfile.
     
     msin: str
       directory for the input measurement set (v2 or v4).
