@@ -49,7 +49,7 @@ class ProcessingIntent:
     manual_compute(**args)
       class method to generate an instance with
       the data manually loaded into memory as XArrays
-      using compute() method.
+      using the compute() method.
     """
 
     def __init__(

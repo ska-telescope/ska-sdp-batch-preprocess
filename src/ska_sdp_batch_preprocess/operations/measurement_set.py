@@ -53,7 +53,7 @@ class MeasurementSet:
 
     Note
     ----
-    Call further casacore/xarray functionalities on the 
+    Call further casacore/XArray functionalities on the 
     class instance where needed.
     """
 
