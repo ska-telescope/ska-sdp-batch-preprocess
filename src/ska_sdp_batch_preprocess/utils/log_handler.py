@@ -33,6 +33,17 @@ def exit_pipeline(
         logger: logging.Logger, *, success: bool=False
 ) -> None:
     """
+    Exits the pipeline gracefully.
+
+    Arguments
+    ---------
+    logger: logging.Logger
+      logger object to exit the pipeline with.
+
+    success: bool=False
+      optional argument which if True, the pipeline 
+      declares a successful run of as it ends the 
+      session, but declares a failed run otherwise.
     """
     logger.info("Exiting pipeline")
     if success:
