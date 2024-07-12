@@ -64,6 +64,9 @@ def enable_logs_manually() -> None:
 @contextlib.contextmanager
 def temporary_log_disable():
     """
+    Context manager to disable logging while
+    running an piece of code, and subsequently
+    reverting to default behaviour.
     """
     logging.disable(logging.CRITICAL)
     yield
