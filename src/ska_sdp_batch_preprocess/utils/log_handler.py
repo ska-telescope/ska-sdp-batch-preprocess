@@ -67,4 +67,4 @@ def temporary_log_disable():
     """
     logging.disable(logging.CRITICAL)
     yield
-    logging.disable(logging.NOTSET)
+    enable_logs_manually()
