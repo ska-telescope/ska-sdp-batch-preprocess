@@ -19,6 +19,16 @@ def main(logger: Logger) -> None:
       logger object to handle pipeline logs.
     """
     args = parse_args()
+
+    logger.info(
+        f"Loading {Path(args.config).name} into memory"
+    )
+    yaml_file = read_yaml(Path(args.config), logger=logger)
+    logger.info(
+        f"Successfully loaded {Path(args.config).name}\n  |" 
+    )
+
+    logger.info("Entering pipeline\n  |")
     pipeline.run(
         Path(args.msin), 
         read_yaml(Path(args.config), logger=logger),
@@ -74,7 +84,6 @@ def read_yaml(dir: Path, *, logger: Logger) -> dict:
     -------
     Python dictionary enclosing the YAML configurations.
     """
-    logger.info(f"Loading {dir.name} into memory")
     try:
         with open(f"{dir}", 'r') as file:
             return yaml.safe_load(file)

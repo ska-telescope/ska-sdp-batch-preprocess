@@ -28,7 +28,6 @@ def run(
     logger: logging.Logger
       logger object to handle pipeline logs.
     """
-    logger.info("Entering pipeline")
     if config is not None:
         for func, args in config.items():
             if func.lower() == "convert_msv2_to_msv4":
