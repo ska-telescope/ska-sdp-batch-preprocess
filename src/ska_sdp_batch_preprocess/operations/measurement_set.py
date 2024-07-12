@@ -209,7 +209,7 @@ class MeasurementSet:
           directory for the input MSv4.
 
         manual_compute: bool=False
-          optional argument which, if true, calls the 
+          optional argument which, if True, calls the 
           ProcessingIntent class with the class method
           manual_compute(**args) on the XRadio MSv4 
           processing intent reads. 
@@ -240,7 +240,7 @@ def to_msv4(
         *, logger: Logger
 ) -> None:
     """
-    Convert MSv2 to MSv4 on dist using XRadio.
+    Converts MSv2 to MSv4 on disk using XRadio.
     
     Arguments
     ---------
