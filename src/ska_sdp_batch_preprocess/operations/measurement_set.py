@@ -15,7 +15,7 @@ from xradio.vis import (
 from operations.processing_intent import (
     ProcessingIntent
 )
-from utils import log_handler
+from utils import log_handler, tools
 
 
 class MeasurementSet:
@@ -181,7 +181,9 @@ class MeasurementSet:
         MeasurementSet class instance.
         """
         try:
-            return cls(table(f"{dir}"), logger=logger)
+            with tools.write_to_devnull():
+                dataframe = table(f"{dir}")
+            return cls(dataframe, logger=logger)
         except:
             raise RuntimeError(
                 "could not load MSv2"
