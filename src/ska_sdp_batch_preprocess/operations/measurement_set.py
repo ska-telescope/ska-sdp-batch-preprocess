@@ -222,8 +222,8 @@ class MeasurementSet:
         return cls(list_of_intents, logger=logger)
 
 def to_msv4(
-        msin: Path, args: Optional[dict]=None, *,
-        logger: Logger
+        msin: Path, args: Optional[dict]=None, 
+        *, logger: Logger
 ) -> None:
     """
     Convert MSv2 to MSv4 on dist using XRadio.
