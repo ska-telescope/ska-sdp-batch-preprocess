@@ -20,7 +20,7 @@ def reinstate_default_stdout() -> None:
 @contextlib.contextmanager
 def write_to_devnull():
     """
-    Context manager to disable sdtout/stderr to
+    Context manager to disable stdout/stderr to
     the command line (via writing to devnull) while
     running a piece of code, and subsequently
     reverting to default behaviour.
