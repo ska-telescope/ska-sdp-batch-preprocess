@@ -3,9 +3,13 @@
 import contextlib
 import logging
 import sys
+from datetime import datetime
+from pathlib import Path
 
 
-def generate(name: str) -> logging.Logger:
+def generate(
+        name: str, *, cmd_logs: bool=False
+) -> logging.Logger:
     """
     Generates a new logging.Logger class instance.
 
@@ -20,13 +24,32 @@ def generate(name: str) -> logging.Logger:
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(
+    
+    log_folder_name = datetime.now().strftime(
+        "%Y-%m-%d_%H-%M-%S"
+    )
+    Path.cwd().joinpath(
+        log_folder_name
+    ).mkdir(parents=True, exist_ok=True)
+    
+    file_handler = logging.FileHandler(
+        f"{Path.cwd().joinpath(log_folder_name, 'logfile.log')}"
+    )
+    file_handler.setFormatter(
         logging.Formatter(
             " +| %(name)s [%(asctime)s - %(levelname)s]: %(message)s"
         )
     )
-    logger.addHandler(stream_handler)
+    logger.addHandler(file_handler)
+    
+    if cmd_logs:
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(
+            logging.Formatter(
+                " +| %(name)s [%(asctime)s - %(levelname)s]: %(message)s"
+            )
+        )
+        logger.addHandler(stream_handler)
     return logger
 
 def exit_pipeline(
