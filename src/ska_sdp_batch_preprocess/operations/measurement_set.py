@@ -152,10 +152,12 @@ class MeasurementSet:
         """
         if type(self.dataframe) == table:
             try:
-                chan_freq = table(
-                    self.dataframe.getkeyword("SPECTRAL_WINDOW")
-                ).getcol("CHAN_FREQ").flatten()
+                with tools.write_to_devnull():
+                    chan_freq = table(
+                        self.dataframe.getkeyword("SPECTRAL_WINDOW")
+                    ).getcol("CHAN_FREQ").flatten()
             except:
+                tools.reinstate_default_stdout()
                 self.logger.critical("Could not read frequency data from MSv2")
                 log_handler.exit_pipeline(self.logger)
             if len(chan_freq) == 1:
