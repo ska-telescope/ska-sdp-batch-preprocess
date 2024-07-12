@@ -241,17 +241,18 @@ def to_msv4(
       logger object to handle pipeline logs.
     """
     try:
-        if args is None:
-            convert_msv2_to_processing_set(
-                f"{msin}", 
-                f"{msin.with_suffix('.ms4')}"
-            )
-        else:
-            convert_msv2_to_processing_set(
-                f"{msin}", 
-                f"{msin.with_suffix('.ms4')}",
-                **args
-            )
+        with log_handler.temporary_log_disable():
+            if args is None:
+                convert_msv2_to_processing_set(
+                    f"{msin}", 
+                    f"{msin.with_suffix('.ms4')}"
+                )
+            else:
+                convert_msv2_to_processing_set(
+                    f"{msin}", 
+                    f"{msin.with_suffix('.ms4')}",
+                    **args
+                )
     except:
         logger.critical(f"Cannot convert {msin.name} to MSv4")
         log_handler.exit_pipeline(logger)
