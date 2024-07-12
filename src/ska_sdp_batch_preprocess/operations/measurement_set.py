@@ -249,7 +249,7 @@ def to_msv4(
         else:
             convert_msv2_to_processing_set(
                 f"{msin}", 
-                f"{msin('.ms4')}",
+                f"{msin.with_suffix('.ms4')}",
                 **args
             )
     except:
