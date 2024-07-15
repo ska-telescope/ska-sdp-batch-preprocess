@@ -19,8 +19,9 @@ def generate(
       name given to the new class instance.
 
     cmd_logs: bool=False
-      if Ture, logs will be generated on the command 
-      line in addition to logging into a logfile.
+      optional arguments which if Ture, logs will 
+      be generated on the command line in addition 
+      to logging into a logfile.
 
     Returns
     -------
