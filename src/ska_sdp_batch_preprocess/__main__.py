@@ -45,7 +45,7 @@ def parse_args() -> argparse.Namespace:
 
     --cmd_logs (optional): None
       raising this flag witll prompt the pipeline to output
-      logs on the command line as well as logging into a
+      logs on the command line in addition to logging into a
       logfile.
     
     msin: str
