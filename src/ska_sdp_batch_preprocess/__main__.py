@@ -44,7 +44,7 @@ def parse_args() -> argparse.Namespace:
       (default /ska-sdp-batch-preprocess/data/config.yml).
 
     --cmd_logs (optional): None
-      raising this flag witll prompt the pipeline to output
+      raising this flag will prompt the pipeline to output
       logs on the command line in addition to logging into a
       logfile.
     
