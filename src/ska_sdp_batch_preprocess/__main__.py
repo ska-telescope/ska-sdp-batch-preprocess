@@ -63,7 +63,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--config",
         type=str,
-        default=f"{Path.cwd().joinpath('data', 'config.yml')}",
+        default=f"{Path.cwd().joinpath('config', 'config.yml')}",
         help="input YAML configuration file"
     )
     parser.add_argument(
