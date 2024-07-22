@@ -8,17 +8,12 @@ stages:
   - build
   - test
   - publish
-  - pages
 
 # Include CI templates
 include:
   # Release automation
   - project: "ska-telescope/templates-repository"
     file: "gitlab-ci/includes/release.gitlab-ci.yml"
-
-  # Docs pages
-  - project: "ska-telescope/templates-repository"
-    file: "gitlab-ci/includes/docs.gitlab-ci.yml"
 
   # .post step finalisers e.g. badges
   - project: "ska-telescope/templates-repository"
