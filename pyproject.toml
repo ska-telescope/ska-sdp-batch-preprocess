@@ -6,10 +6,20 @@ authors = ["Team HIPPO"]
 license = "BSD-3-Clause"
 readme = "README.md"
 
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "skao"
+url = "https://artefact.skao.int/repository/pypi-internal/simple"
+priority = "primary"
+
 [tool.poetry.dependencies]
 python = ">=3.10, <3.12"
 xradio = "^0.0.30"
 ska-sdp-datamodels = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-datamodels.git", rev = "sp-4385-implement-xradio-converter"}
+ska-telmodel = "^1.17"
 numpy = "^1.26"
 python-casacore = "^3.5.2"
 PyYAML = "^6.0.1"
