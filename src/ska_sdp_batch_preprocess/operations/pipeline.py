@@ -12,7 +12,7 @@ def run(
         msin: Path, config: dict, *, logger: Logger
 ) -> None:
     """
-    Principal function in th pipeline where the various
+    Principal function in the pipeline where the various
     functionalities are executed based on the YAML file
     instructions.
 
