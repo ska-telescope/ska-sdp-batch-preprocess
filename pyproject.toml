@@ -10,7 +10,7 @@ readme = "README.md"
 python = ">=3.10, <3.12"
 xradio = "^0.0.30"
 ska-sdp-datamodels = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-datamodels.git", rev = "sp-4385-implement-xradio-converter"}
-numpy = "^2.0.0"
+numpy = "^1.26"
 python-casacore = "^3.5.2"
 PyYAML = "^6.0.1"
 
