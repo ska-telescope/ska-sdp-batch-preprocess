@@ -19,7 +19,7 @@ def generate(
       name given to the new class instance.
 
     cmd_logs: bool=False
-      optional argument which if Ture, logs will 
+      optional argument which, if True, logs will 
       be generated on the command line in addition 
       to logging into a logfile.
 
@@ -69,7 +69,7 @@ def exit_pipeline(
       logger object to exit the pipeline with.
 
     success: bool=False
-      optional argument which if True, the pipeline 
+      optional argument which, if True, the pipeline 
       declares a successful run as it ends the job, 
       but declares a failed run otherwise.
     """
