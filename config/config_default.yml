@@ -2,7 +2,7 @@
 #
 # Default YAML config file.
 #
-# Software will always look for a .yml file in this directory
+# Software will always look for a config_default.yml file in this directory
 #    if no config file is provided manually.
 #
 # Current options include:
