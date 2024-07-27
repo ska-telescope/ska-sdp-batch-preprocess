@@ -25,6 +25,7 @@ python-casacore = "^3.5.2"
 PyYAML = "^6.0.1"
 
 # Install with `poetry install --with docs`
+ska-sdp-func-python = "^0.4.0"
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7.0.0"
 sphinx-rtd-theme = "^1.0.0"
