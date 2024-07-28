@@ -1,4 +1,5 @@
 import numpy as np
+import xarray as xr
 import dask.array as da
 import functions
 from dask.distributed import Client, LocalCluster
@@ -7,7 +8,7 @@ from numpy.typing import NDArray
 #Process 100 time samples for each node
 chunk_size = (100, -1 ,-1, -1)
 
-def Distribute(vis: NDArray[np.float64]) -> NDArray[np.float64]:
+def distribute_dummy_np(vis: NDArray[np.float64]) -> NDArray[np.float64]:
     """
     Distributes the input visibilties on time and processes them.
     Currently only works on local clusters.
@@ -32,3 +33,57 @@ def Distribute(vis: NDArray[np.float64]) -> NDArray[np.float64]:
     cluster.close()
 
     return output
+
+def distribute_xr_time_averaging(vis: xr.Dataset, timestep) -> xr.Dataset:
+    """
+    Distributes the input visibilties on time and processes them.
+    Currently only works on local clusters.
+    
+    :param: vis, xarray dataset complying to the visibility datamodel
+    :param: timestep, integer value of the number of timesamples to be averaged
+
+    Returns:
+    Visibility datamodel as an Xarray Dataset
+    """
+
+    cluster = LocalCluster()
+    client = Client(cluster)
+
+    chunked_vis = vis.chunk({'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':100, 'uvw_index':-1})
+
+    processed = chunked_vis.map_blocks(functions.wrap_time_averager, kwargs={'timestep': timestep})
+
+    output = processed.compute()
+
+    client.close()
+    cluster.close()
+
+    return output
+
+def distribute_xr_freq_averaging(vis: xr.Dataset, timestep) -> xr.Dataset:
+    """
+    Distributes the input visibilties on time and processes them.
+    Currently only works on local clusters.
+    
+    :param: vis, xarray dataset complying to the visibility datamodel
+    :param: timestep, integer value of the number of timesamples to be averaged
+
+    Returns:
+    Visibility datamodel as an Xarray Dataset
+    """
+
+    cluster = LocalCluster()
+    client = Client(cluster)
+
+    chunked_vis = vis.chunk({'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':100, 'uvw_index':-1})
+
+    processed = chunked_vis.map_blocks(functions.wrap_freq_averager, kwargs={'timestep': timestep})
+
+    output = processed.compute()
+
+    client.close()
+    cluster.close()
+
+    return output
+
+
