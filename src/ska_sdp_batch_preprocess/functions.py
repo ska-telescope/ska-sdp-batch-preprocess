@@ -4,18 +4,6 @@ import xarray as xr
 import numpy as np
 from ska_sdp_func_python.preprocessing import averaging,rfi_masks
 
-def dummy_function_np(vis : NDArray[np.float64]) -> NDArray[np.float64]:
-    """
-    Dummy function that does point wise multiplication on numpy arrays (visibilities)
-
-    :param: Numpy Array with 4-dimensional visibilities in double
-    
-    :return: Point wise multiplied numpy array
-    """
-    matrix = np.random.rand(100, 10, 10, 10)
-    vis = matrix * vis
-    return vis
-
 def wrap_time_averager(vis : xr.Dataset, timestep) -> xr.Dataset:
     """
     Wraps the real time processing time averager to work with chunked visibilties
