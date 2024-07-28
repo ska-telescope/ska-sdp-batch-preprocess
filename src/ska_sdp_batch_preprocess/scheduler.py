@@ -60,13 +60,14 @@ def distribute_xr_time_averaging(vis: xr.Dataset, timestep) -> xr.Dataset:
 
     return output
 
-def distribute_xr_freq_averaging(vis: xr.Dataset, timestep) -> xr.Dataset:
+#TODO: Test scaling of distribution on frequency instead of time
+def distribute_xr_freq_averaging(vis: xr.Dataset, freqstep) -> xr.Dataset:
     """
     Distributes the input visibilties on time and processes them.
     Currently only works on local clusters.
     
     :param: vis, xarray dataset complying to the visibility datamodel
-    :param: timestep, integer value of the number of timesamples to be averaged
+    :param: freqstep, integer value of the number of frequency channels to be averaged
 
     Returns:
     Visibility datamodel as an Xarray Dataset
@@ -77,7 +78,7 @@ def distribute_xr_freq_averaging(vis: xr.Dataset, timestep) -> xr.Dataset:
 
     chunked_vis = vis.chunk({'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':100, 'uvw_index':-1})
 
-    processed = chunked_vis.map_blocks(functions.wrap_freq_averager, kwargs={'timestep': timestep})
+    processed = chunked_vis.map_blocks(functions.wrap_freq_averager, kwargs={'freqstep': freqstep})
 
     output = processed.compute()
 

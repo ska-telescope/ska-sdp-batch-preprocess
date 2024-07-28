@@ -27,14 +27,14 @@ def wrap_time_averager(vis : xr.Dataset, timestep) -> xr.Dataset:
     """
     averaging.averaging_time(vis, timestep, 0.5)
 
-def wrap_freq_averager(vis: xr.Dataset, timestep) -> xr.Dataset:
+def wrap_freq_averager(vis: xr.Dataset, freqstep) -> xr.Dataset:
     """
      Wraps the real time processing time averager to work with chunked visibilties
 
     :param: vis, xarray dataset complying to the visibility datamodel
-    :param: timestep,integer value of the number of time samples to average
+    :param: freqstep,integer value of the number of frequency channels to average
 
     :return: Time averaged Xarray dataset complying to the visibility datamodel
     """
 
-    averaging.averaging_time(vis, timestep, 0.5)
+    averaging.averaging_frequency(vis, freqstep, 0.5)
