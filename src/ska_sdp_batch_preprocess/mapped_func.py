@@ -2,22 +2,23 @@
 from numpy.typing import NDArray
 import xarray as xr
 import numpy as np
-from ska_sdp_func_python.preprocessing import averaging,rfi_masks
+from ska_sdp_func_python.preprocessing.averaging import averaging_time, averaging_frequency
+from ska_sdp_func_python.preprocessing.rfi_masks import apply_rfi_masks
 
-def wrap_time_averager(vis : xr.Dataset, timestep) -> xr.Dataset:
+def mapped_time_averager(vis : xr.Dataset, timestep, threshold) -> xr.Dataset:
     """
-    Wraps the real time processing time averager to work with chunked visibilties
+    Maps the real time processing time averager accross chunked visibilties
 
     :param: vis, xarray dataset complying to the visibility datamodel
     :param: timestep, integer value of the number of time samples to average
 
     :return: Time averaged Xarray dataset complying to the visibility datamodel
     """
-    averaging.averaging_time(vis, timestep, 0.5)
+    return vis.map_blocks(averaging_time, args=(timestep,), kwargs={'flag_threshold':threshold})
 
-def wrap_freq_averager(vis: xr.Dataset, freqstep) -> xr.Dataset:
+def mapped_freq_averager(vis: xr.Dataset, freqstep, threshold) -> xr.Dataset:
     """
-    Wraps the real time processing frequency averager to work with chunked visibilties
+    Maps the real time processing frequency averager to accross chunked visibilties
 
     :param: vis, xarray dataset complying to the visibility datamodel
     :param: freqstep,integer value of the number of frequency channels to average
@@ -25,9 +26,10 @@ def wrap_freq_averager(vis: xr.Dataset, freqstep) -> xr.Dataset:
     :return: Freq averaged Xarray dataset complying to the visibility datamodel
     """
 
-    averaging.averaging_frequency(vis, freqstep, 0.5)
+    return vis.map_blocks(averaging_frequency, args=(freqstep,), kwargs={'flag_threshold':threshold})
 
-def wrap_mask(vis: xr.Dataset, masks: NDArray[np.float64]) -> xr.Dataset:
+
+def mapped_rfi_mask(vis: xr.Dataset, masks: NDArray[np.float64]) -> xr.Dataset:
     """
     Wraps the real time processing rfi masking to work with chunked visibilties
 
@@ -37,4 +39,4 @@ def wrap_mask(vis: xr.Dataset, masks: NDArray[np.float64]) -> xr.Dataset:
     :return: Xarray dataset complying to the visibility datamodel with masked frequencies
     """
 
-    rfi_masks.apply_rfi_masks(vis, masks)
+    return vis.map_blocks(apply_rfi_masks, args=(masks,))

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ska-sdp-batch-preprocess"
+name = "ska_sdp_batch_preprocess"
 version = "0.1.0"
 description = "SKA Distributed batch preprocessing pipeline"
 authors = ["Team HIPPO"]
@@ -26,6 +26,7 @@ PyYAML = "^6.0.1"
 
 # Install with `poetry install --with docs`
 ska-sdp-func-python = "^0.4.0"
+pytest = "^8.3.2"
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7.0.0"
 sphinx-rtd-theme = "^1.0.0"
