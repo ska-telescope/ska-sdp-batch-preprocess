@@ -1,6 +1,6 @@
 from ska_sdp_func_python.preprocessing import averaging_time
-from ska_sdp_batch_preprocess.distributed_func import distribute_time_averaging
-from ska_sdp_batch_preprocess.mapped_func import mapped_time_averager
+from ska_sdp_batch_preprocess.functions.distributed_func import distribute_time_averaging
+from ska_sdp_batch_preprocess.functions.mapped_func import mapped_time_averager
 import xarray as xr
 from dask.distributed import Client
 

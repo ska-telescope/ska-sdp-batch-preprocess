@@ -1,7 +1,7 @@
 import xarray as xr
 from dask.distributed import Client
-from ska_sdp_batch_preprocess.distributed_func import distribute_freq_averaging
-from ska_sdp_batch_preprocess.mapped_func import mapped_freq_averager
+from ska_sdp_batch_preprocess.functions.distributed_func import distribute_freq_averaging
+from ska_sdp_batch_preprocess.functions.mapped_func import mapped_freq_averager
 from ska_sdp_func_python.preprocessing import averaging_frequency
 
 def test_distributed_f_avg(test_data: xr.Dataset, client: Client):
