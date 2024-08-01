@@ -4,13 +4,13 @@ from logging import Logger
 from typing import Tuple
 
 from numpy.typing import NDArray
-from xarray.core.dataset import Dataset
+from xradio.vis.schema import VisibilityXds
 
 from ska_sdp_datamodels.visibility import (
     Visibility
 )
 from ska_sdp_datamodels.visibility.vis_xradio import (
-    create_visibility_from_xradio_xds
+    convert_visibility_xds_to_visibility
 )
 
 from utils import log_handler
@@ -23,7 +23,7 @@ class ProcessingIntent:
 
     Attributes
     ----------
-    data_as_xarray: xarray.Dataset
+    data_as_xradio_vis: xradio.vis.schema.VisibilityXds
       XArray representation of the processing set data.
 
     data_as_ska_vis: ska_sdp_datamodels.visibility.Visibility
@@ -53,17 +53,18 @@ class ProcessingIntent:
     """
 
     def __init__(
-            self, data_as_xarray: Dataset, *, logger: Logger
+            self, data_as_xradio_vis: VisibilityXds, 
+            *, logger: Logger
     ):
         """
         Initiates the ProcessingIntent class.
 
         Parameters
         ----------
-        data: xarray.Dataset
+        data: xradio.vis.schema.VisibilityXds
           contains the processing set data.
         """
-        self.data_as_xarray = data_as_xarray
+        self.data_as_xradio_vis = data_as_xradio_vis
         self.logger = logger
 
     @property
@@ -77,13 +78,13 @@ class ProcessingIntent:
         """
         try:
             with log_handler.temporary_log_disable():
-                return create_visibility_from_xradio_xds(
-                    self.data_as_xarray
+                return convert_visibility_xds_to_visibility(
+                    self.data_as_xradio_vis
                 )
         except:
             log_handler.enable_logs_manually()
             self.logger.critical(
-                "Could not convert XArray data to SKA-Visibility object\n  |"
+                "Could not convert XRadio-Visibility to SKA-Visibility\n  |"
             )
             log_handler.exit_pipeline(self.logger)
 
@@ -97,7 +98,7 @@ class ProcessingIntent:
         NumPy array enclosing visibilities.
         """
         try:
-            return self.data_as_xarray["VISIBILITY"].values
+            return self.data_as_xradio_vis["VISIBILITY"].values
         except:
             self.logger.critical(
                 "Could not read visibilities from MSv4\n  |"
@@ -114,7 +115,7 @@ class ProcessingIntent:
         NumPy array enclosing UVW data.
         """
         try:
-            return self.data_as_xarray["UVW"].values
+            return self.data_as_xradio_vis["UVW"].values
         except:
             self.logger.critical(
                 "Could not read UVW data from MSv4\n  |"
@@ -131,7 +132,7 @@ class ProcessingIntent:
         NumPy array enclosing weights.
         """
         try:
-            return self.data_as_xarray["WEIGHT"].values
+            return self.data_as_xradio_vis["WEIGHT"].values
         except:
             self.logger.critical(
                 "Could not read weights from MSv4\n  |"
@@ -148,7 +149,7 @@ class ProcessingIntent:
         Tuple of base frequency and frequency increments.
         """
         try:
-            chan_freq = self.data_as_xarray["frequency"].values.flatten()
+            chan_freq = self.data_as_xradio_vis["frequency"].values.flatten()
             if len(chan_freq) == 1:
                 return chan_freq[0], 0.
             return (chan_freq[0], chan_freq[1]-chan_freq[0])
@@ -160,7 +161,8 @@ class ProcessingIntent:
 
     @classmethod
     def manual_compute(
-            cls, data_as_xarray: Dataset, *, logger: Logger
+            cls, data_as_xradio_vis: VisibilityXds, 
+            *, logger: Logger
     ):
         """
         Class method to generate an instance with
@@ -186,4 +188,6 @@ class ProcessingIntent:
         should not be needed in normal circumstances.
         https://docs.xarray.dev/en/latest/generated/xarray.Dataset.compute.html
         """
-        return cls(data_as_xarray.compute(), logger=logger)
+        return cls(
+            data_as_xradio_vis.compute(), logger=logger
+        )
