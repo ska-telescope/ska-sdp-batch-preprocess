@@ -25,7 +25,7 @@ class ProcessingIntent:
     Attributes
     ----------
     data_as_xradio_vis: xradio.vis.schema.VisibilityXds
-      XArray representation of the processing set data.
+      XRadio-Visibility representation of the processing set data.
 
     data_as_ska_vis: ska_sdp_datamodels.visibility.Visibility
       SKA-Visibility representation of the processing set data.
@@ -62,7 +62,7 @@ class ProcessingIntent:
 
         Parameters
         ----------
-        data: xradio.vis.schema.VisibilityXds
+        data_as_xradio_vis: xradio.vis.schema.VisibilityXds
           contains the processing set data.
         """
         self.data_as_xradio_vis = data_as_xradio_vis
@@ -172,8 +172,8 @@ class ProcessingIntent:
 
         Arguments
         ---------
-        data: xarray.Dataset
-          XArray representation of the processing set data,
+        data_as_xradio_vis: xradio.vis.schema.VisibilityXds
+          XRadio-Visibility representation of the processing set data,
           which are to be loaded manually.
         
         Returns
