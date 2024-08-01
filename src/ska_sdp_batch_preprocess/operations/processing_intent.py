@@ -10,7 +10,8 @@ from ska_sdp_datamodels.visibility import (
     Visibility
 )
 from ska_sdp_datamodels.visibility.vis_xradio import (
-    convert_visibility_xds_to_visibility
+    convert_visibility_xds_to_visibility,
+    convert_visibility_to_visibility_xds
 )
 
 from utils import log_handler
@@ -191,3 +192,19 @@ class ProcessingIntent:
         return cls(
             data_as_xradio_vis.compute(), logger=logger
         )
+    
+def ska_vis_to_xradio_vis(ska_vis: Visibility) -> VisibilityXds:
+    """
+    Standalone function to convert SKA-Visibility 
+    datamodel to XRadio-Visibility datamodel.
+
+    Arguments
+    ---------
+    ska_vis: ska_sdp_datamodels.visibility.Visibility
+       XRadio-Visibility representation of the processing set data.
+
+    Returns
+    -------
+    SKA-Visibility representation of the processing set data.
+    """
+    return convert_visibility_to_visibility_xds(ska_vis)
