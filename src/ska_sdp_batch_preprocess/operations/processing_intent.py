@@ -201,10 +201,10 @@ def ska_vis_to_xradio_vis(ska_vis: Visibility) -> VisibilityXds:
     Arguments
     ---------
     ska_vis: ska_sdp_datamodels.visibility.Visibility
-       XRadio-Visibility representation of the processing set data.
+       SKA-Visibility representation of the processing set data.
 
     Returns
     -------
-    SKA-Visibility representation of the processing set data.
+    XRadio-Visibility representation of the processing set data.
     """
     return convert_visibility_to_visibility_xds(ska_vis)
