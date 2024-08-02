@@ -193,7 +193,9 @@ class ProcessingIntent:
             data_as_xradio_vis.compute(), logger=logger
         )
     
-def ska_vis_to_xradio_vis(ska_vis: Visibility) -> VisibilityXds:
+def ska_vis_to_xradio_vis(
+        ska_vis: Visibility, *, logger: Logger
+) -> VisibilityXds:
     """
     Standalone function to convert SKA-Visibility 
     datamodel to XRadio-Visibility datamodel.
@@ -207,4 +209,12 @@ def ska_vis_to_xradio_vis(ska_vis: Visibility) -> VisibilityXds:
     -------
     XRadio-Visibility representation of the processing set data.
     """
-    return convert_visibility_to_visibility_xds(ska_vis)
+    try:
+        with log_handler.temporary_log_disable():
+            return convert_visibility_to_visibility_xds(ska_vis)
+    except:
+        log_handler.enable_logs_manually()
+        logger.critical(
+            "Could not convert SKA-Visibility to XRadio-Visibility\n  |"
+        )
+        log_handler.exit_pipeline(logger)
