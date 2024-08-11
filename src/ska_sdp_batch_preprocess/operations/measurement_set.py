@@ -11,6 +11,10 @@ from xradio.vis import (
     convert_msv2_to_processing_set,
     read_processing_set
 )
+ 
+from ska_sdp_datamodels.visibility import (
+    create_visibility_from_ms
+)
 
 from operations.processing_intent import (
     ProcessingIntent
@@ -24,9 +28,8 @@ class MeasurementSet:
 
     Attributes
     ----------
-    dataframe: casacore.tables.table | list[ProcessingIntent]
-      contains the MS data (casacore table if MSv2 
-      or an iterable if MSv4).
+    dataframe: list[ProcessingIntent]
+      contains the MS data as a list of ProcessingIntent objects.
 
     visibilities: NDArray | list[NDArray]
       visibilities as NumPy arrays (or list thereof for MSv4).
@@ -53,26 +56,29 @@ class MeasurementSet:
 
     Note
     ----
-    Call further casacore/XArray functionalities on the 
-    class instance where needed.
+    The ProcessingIntent class is designed to incorporate MS data as
+    both SKA-datamodel (Visibility) and XRadio-datamodel (VisibilityXds).
+    Both datamodels are schemas of the xarray.Dataset type. However, 
+    prior to calling as further XArray functionalities on the dataframe,
+    check the relevant documentation of XRadio and SKA-SDP-Datamodels.
     """
 
     def __init__(
-            self, 
-            dataframe: Union[table, list[ProcessingIntent]],
-            *, logger: Logger
+            self, dataframe: list[ProcessingIntent], *, logger: Logger
     ):
         """
         Initiates the MeasurementSet class.
 
         Parameters
         ----------
-        dataframe: casacore.tables.table | list[ProcessingIntent]
-          contains the MS data (casacore table if MSv2 
-          or an iterable if MSv4).
+        dataframe: list[ProcessingIntent]
+          contains the MS data.
         """
         self.dataframe = dataframe
         self.logger = logger
+
+        if len(self.dataframe) == 0:
+            logger.warning("Loaded an empty MS into memory")
 
     @property
     def visibilities(self) -> Union[NDArray, list[NDArray]]:
@@ -171,7 +177,9 @@ class MeasurementSet:
         ]
     
     @classmethod
-    def ver_2(cls, dir: Path, *, logger: Logger):
+    def ver_2(
+            cls, dir: Path, *, logger: Logger, manual_compute: bool=False
+    ):
         """
         Class method to generate an instance with MSv2.
 
@@ -180,25 +188,35 @@ class MeasurementSet:
         dir: pathlib.Path
           directory for the input MSv2.
 
+        logger: logging.Logger
+          logger object to handle pipeline logs.
+
+        manual_compute: bool=False
+          optional argument which, if True, the MSv2 data get
+          loaded as ProcessingIntent objects while calling the 
+          XArray compute() method on them.
+
         Returns
         -------
         MeasurementSet class instance.
         """
         try:
-            with tools.write_to_devnull():
-                dataframe = table(f"{dir}")
-            return cls(dataframe, logger=logger)
+            with log_handler.temporary_log_disable() and tools.write_to_devnull():
+                dataframe = [
+                    ProcessingIntent.load_ska_vis(
+                        item, logger=logger, manual_compute=manual_compute
+                    ) for item in create_visibility_from_ms(f"{dir}")
+                ]
         except:
+            log_handler.enable_logs_manually()
             tools.reinstate_default_stdout()
-            logger.critical(
-                f"Could not load as MSv2\n  |"
-            )
+            logger.critical(f"Could not load {dir.name} as MSv2\n  |")
             log_handler.exit_pipeline(logger)
-                
+        return cls(dataframe, logger=logger)
+     
     @classmethod
     def ver_4(
-            cls, dir: Path, *, manual_compute: bool=False,
-            logger: Logger
+            cls, dir: Path, *, logger: Logger, manual_compute: bool=False
     ):
         """
         Class method to generate an instance with MSv4.
@@ -208,32 +226,31 @@ class MeasurementSet:
         dir: pathlib.Path
           directory for the input MSv4.
 
+        logger: logging.Logger
+          logger object to handle pipeline logs.
+
         manual_compute: bool=False
-          optional argument which, if True, calls the 
-          ProcessingIntent class with the class method
-          manual_compute(**args) on the XRadio MSv4 
-          processing intent reads. 
+          optional argument which, if True, loads MSv4 data as
+          ProcessingIntent objects while calling the XArray 
+          compute() method on them.
 
         Returns
         -------
         MeasurementSet class instance.
         """
         try:
-            with log_handler.temporary_log_disable():
-                list_of_intents = [
-                    ProcessingIntent.manual_compute(intent, logger=logger)
-                    if manual_compute else ProcessingIntent(intent, logger=logger)
-                    for intent in read_processing_set(f"{dir}").values()
+            with log_handler.temporary_log_disable() and tools.write_to_devnull():
+                dataframe = [
+                    ProcessingIntent.load_xradio_vis(
+                        item, logger=logger, manual_compute=manual_compute
+                    ) for item in read_processing_set(f"{dir}").values()
                 ]
         except:
             log_handler.enable_logs_manually()
-            logger.critical(
-                f"Could not load as MSv4\n  |"
-            )
+            tools.reinstate_default_stdout()
+            logger.critical(f"Could not load {dir.name} as MSv4\n  |")
             log_handler.exit_pipeline(logger)
-        if len(list_of_intents) == 0:
-            logger.warning("Loading empty MSv4 into memory")
-        return cls(list_of_intents, logger=logger)
+        return cls(dataframe, logger=logger)
 
 def to_msv4(
         msin: Path, args: Optional[dict]=None, 
@@ -255,21 +272,17 @@ def to_msv4(
       logger object to handle pipeline logs.
     """
     try:
-        with log_handler.temporary_log_disable():
+        with log_handler.temporary_log_disable() and tools.write_to_devnull():
             if args is None:
                 convert_msv2_to_processing_set(
-                    f"{msin}", 
-                    f"{msin.with_suffix('.ms4')}"
+                    f"{msin}", f"{msin.with_suffix('.ms4')}"
                 )
             else:
                 convert_msv2_to_processing_set(
-                    f"{msin}", 
-                    f"{msin.with_suffix('.ms4')}",
-                    **args
+                    f"{msin}", f"{msin.with_suffix('.ms4')}", **args
                 )
     except:
         log_handler.enable_logs_manually()
-        logger.critical(
-            "Could not convert to MSv4\n  |"
-        )
+        tools.reinstate_default_stdout()
+        logger.critical(f"Could not convert {msin.name} to MSv4\n  |")
         log_handler.exit_pipeline(logger)

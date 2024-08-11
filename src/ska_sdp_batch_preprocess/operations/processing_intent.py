@@ -161,9 +161,26 @@ class ProcessingIntent:
             log_handler.exit_pipeline(self.logger)
 
     @classmethod
+    def load_ska_vis(
+            cls, data_as_ska_vis: Visibility, *, logger: Logger,
+            manual_compute: bool=False
+    ):
+        """
+        """
+        raise NotImplementedError("TODO")
+
+    @classmethod
+    def load_xradio_vis(
+            cls, data_as_xradio_vis: VisibilityXds, *, logger: Logger,
+            manual_compute: bool=False
+    ):
+        """
+        """
+        raise NotImplementedError("TODO")
+
+    @classmethod
     def manual_compute(
-            cls, data_as_xradio_vis: VisibilityXds, 
-            *, logger: Logger
+            cls, data_as_xradio_vis: VisibilityXds, *, logger: Logger
     ):
         """
         Class method to generate an instance with
