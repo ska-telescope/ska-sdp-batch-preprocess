@@ -2,10 +2,8 @@
 
 from logging import Logger
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
-import numpy as np
-from casacore.tables import table
 from numpy.typing import NDArray
 from xradio.vis import (
     convert_msv2_to_processing_set,

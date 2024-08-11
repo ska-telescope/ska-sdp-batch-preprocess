@@ -1,7 +1,7 @@
 # see license in parent directory
 
 from logging import Logger
-from typing import Any, Tuple, Union
+from typing import Any, Union
 
 from numpy.typing import NDArray
 from xradio.vis.schema import VisibilityXds
