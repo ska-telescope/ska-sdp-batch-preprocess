@@ -70,6 +70,15 @@ class ProcessingIntent:
       class method to generate an instance with
       the data manually loaded into memory as XArrays
       using the compute() method.
+
+    Notes
+    -----
+    1- This class avoids checking for VisibilityXds datatype (e.g., using
+       isinstance). This is because The current version of XRadio still 
+       outputs xarray.Dataset type instead of the newly developed VisibilityXds 
+       schema.
+    2- The Visibility <-> VisibilityXds conversion only works as long as the
+       relevant imported functions work.
     """
 
     def __init__(
