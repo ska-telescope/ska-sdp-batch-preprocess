@@ -1,7 +1,7 @@
 # see license in parent directory
 
 from logging import Logger
-from typing import Tuple
+from typing import Any, Tuple, Union
 
 from numpy.typing import NDArray
 from xradio.vis.schema import VisibilityXds
@@ -14,21 +14,40 @@ from ska_sdp_datamodels.visibility.vis_xradio import (
     convert_visibility_to_visibility_xds
 )
 
-from utils import log_handler
+from utils import log_handler, tools
 
 
 class ProcessingIntent:
     """
-    Class to represent a processing set of MSv4
-    in memory.
+    Class to represent an assemblage of data within the MS in memory,
+    which are intended to be processed jointly. In MSv4, data may be 
+    partitioned into separate processing sets for discrete processing; 
+    this class is designed to efficiently represent such partitioned data 
+    in memory. MSv2 is unlikely to be partitioned by default; hence, in such 
+    a case the full MS will be represented by a single instance of this class.
+    Such representation can aid in future endeavours for partitioning MSv2
+    data and/or converting into processing sets while loaded in memory.
 
     Attributes
     ----------
+    _input_data: ska_sdp_datamodels.visibility.Visibility | xradio.vis.schema.VisibilityXds
+      THIS IS A PRIVATE CLASS ATTRIBUTE.
+      If data are loded as SKA-Visibility they will be automatically made
+      available as XRadio-Visibility, and vice versa. This holds true as
+      long as the functions 'convert_visibility_xds_to_visibility' and
+      'convert_visibility_to_visibility_xds' as operational.
+    
+    data_as_ska_vis: ska_sdp_datamodels.visibility.Visibility
+      SKA-Visibility representation of the processing set data. 
+      If the data were loaded by the user as XRadio-Visibility, then this
+      attribute will only work if 'convert_visibility_xds_to_visibility'
+      is operational.
+
     data_as_xradio_vis: xradio.vis.schema.VisibilityXds
       XRadio-Visibility representation of the processing set data.
-
-    data_as_ska_vis: ska_sdp_datamodels.visibility.Visibility
-      SKA-Visibility representation of the processing set data.
+      If the data were loaded by the user as XRadio-Visibility, then this
+      attribute will only work if 'convert_visibility_to_visibility_xds'
+      is operational.
 
     visibilities: NDArray
       visibilities as NumPy arrays.
@@ -54,7 +73,7 @@ class ProcessingIntent:
     """
 
     def __init__(
-            self, data_as_xradio_vis: VisibilityXds, 
+            self, input_data: Union[Visibility, VisibilityXds],
             *, logger: Logger
     ):
         """
@@ -62,30 +81,74 @@ class ProcessingIntent:
 
         Parameters
         ----------
-        data_as_xradio_vis: xradio.vis.schema.VisibilityXds
-          contains the processing set data.
+        input_data: ska_sdp_datamodels.visibility.Visibility | xradio.vis.schema.VisibilityXds
+          contains the input class data.
+          If data are loded as SKA-Visibility they will be automatically made
+          available as XRadio-Visibility, and vice versa. This holds true as
+          long as the functions 'convert_visibility_xds_to_visibility' and
+          'convert_visibility_to_visibility_xds' as operational.
+
+        logger: logging.Logger
+          logger object to handle pipeline logs.
         """
-        self.data_as_xradio_vis = data_as_xradio_vis
+        self._input_data = input_data
         self.logger = logger
+
+    def __setattr__(self, key: str, value: Any) -> None:
+        """
+        The setter method of this class is amended here to inhibit external
+        manipulation of private attributes (i.e., those starting with '_').
+        """
+        if key[0] == '_':
+            self.logger.warning(f"Attribute {key} is private and cannot be changed")
+            return
+        self.__dict__[f"{key}"] = value
 
     @property
     def data_as_ska_vis(self) -> Visibility:
         """
-        SKA-Visibility representation of the processing set data.
+        SKA-Visibility representation of the class data.
+        If data were loded as XRadio-Visibility, this method will only work if  
+        'convert_visibility_xds_to_visibility' is operational.
 
         Returns
         -------
         SKA-Visibility class instance.
         """
+        if isinstance(self._input_data, Visibility):
+            return self._input_data
         try:
-            with log_handler.temporary_log_disable():
-                return convert_visibility_xds_to_visibility(
-                    self.data_as_xradio_vis
-                )
+            with log_handler.temporary_log_disable() and tools.write_to_devnull():
+                return convert_visibility_xds_to_visibility(self._input_data)
         except:
             log_handler.enable_logs_manually()
+            tools.reinstate_default_stdout()
             self.logger.critical(
                 "Could not convert XRadio-Visibility to SKA-Visibility\n  |"
+            )
+            log_handler.exit_pipeline(self.logger)
+        
+    @property
+    def data_as_xradio_vis(self) -> VisibilityXds:
+        """
+        XRadio-Visibility representation of the class data.
+        If data were loded as SKA-Visibility, this method will only work if  
+        'convert_visibility_to_visibility_xds' is operational.
+
+        Returns
+        -------
+        XRadio-Visibility class instance.
+        """
+        if isinstance(self._input_data, VisibilityXds):
+            return self._input_data
+        try:
+            with log_handler.temporary_log_disable() and tools.write_to_devnull():
+                return convert_visibility_to_visibility_xds(self._input_data)
+        except:
+            log_handler.enable_logs_manually()
+            tools.reinstate_default_stdout()
+            self.logger.critical(
+                "Could not convert SKA-Visibility to XRadio-Visibility\n  |"
             )
             log_handler.exit_pipeline(self.logger)
 
@@ -161,37 +224,21 @@ class ProcessingIntent:
             log_handler.exit_pipeline(self.logger)
 
     @classmethod
-    def load_ska_vis(
-            cls, data_as_ska_vis: Visibility, *, logger: Logger,
-            manual_compute: bool=False
-    ):
-        """
-        """
-        raise NotImplementedError("TODO")
-
-    @classmethod
-    def load_xradio_vis(
-            cls, data_as_xradio_vis: VisibilityXds, *, logger: Logger,
-            manual_compute: bool=False
-    ):
-        """
-        """
-        raise NotImplementedError("TODO")
-
-    @classmethod
     def manual_compute(
-            cls, data_as_xradio_vis: VisibilityXds, *, logger: Logger
+            cls, input_data: Union[Visibility, VisibilityXds], 
+            *, logger: Logger
     ):
         """
-        Class method to generate an instance with
-        the data manually loaded into memory as XArrays
-        using the compute() method.
+        Class method to generate an instance with the data manually loaded 
+        into memory using the xarray compute() method.
 
         Arguments
         ---------
-        data_as_xradio_vis: xradio.vis.schema.VisibilityXds
-          XRadio-Visibility representation of the processing set data,
-          which are to be loaded manually.
+        input_data: ska_sdp_datamodels.visibility.Visibility | xradio.vis.schema.VisibilityXds
+          the input data, which are to be loaded manually.
+
+        logger: logging.Logger
+          logger object to handle pipeline logs.
         
         Returns
         -------
@@ -199,39 +246,10 @@ class ProcessingIntent:
 
         Note
         ----
-        This manual_compute() method does not support 
-        slicing/partial data loading due to the default XArray
-        functionality stipulating that data are normally loaded
-        automatically. Hence, this manual_compute() class method
-        should not be needed in normal circumstances.
+        This manual_compute() method does not support slicing/partial data loading 
+        due to the default xarray functionality stipulating that data are normally 
+        loaded automatically. Hence, this manual_compute() class method should not 
+        be needed in normal circumstances.
         https://docs.xarray.dev/en/latest/generated/xarray.Dataset.compute.html
         """
-        return cls(
-            data_as_xradio_vis.compute(), logger=logger
-        )
-    
-def ska_vis_to_xradio_vis(
-        ska_vis: Visibility, *, logger: Logger
-) -> VisibilityXds:
-    """
-    Standalone function to convert SKA-Visibility 
-    datamodel to XRadio-Visibility datamodel.
-
-    Arguments
-    ---------
-    ska_vis: ska_sdp_datamodels.visibility.Visibility
-       SKA-Visibility representation of the processing set data.
-
-    Returns
-    -------
-    XRadio-Visibility representation of the processing set data.
-    """
-    try:
-        with log_handler.temporary_log_disable():
-            return convert_visibility_to_visibility_xds(ska_vis)
-    except:
-        log_handler.enable_logs_manually()
-        logger.critical(
-            "Could not convert SKA-Visibility to XRadio-Visibility\n  |"
-        )
-        log_handler.exit_pipeline(logger)
+        return cls(input_data.compute(), logger=logger)

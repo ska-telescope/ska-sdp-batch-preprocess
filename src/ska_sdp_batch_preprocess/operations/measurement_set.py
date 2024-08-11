@@ -203,9 +203,9 @@ class MeasurementSet:
         try:
             with log_handler.temporary_log_disable() and tools.write_to_devnull():
                 dataframe = [
-                    ProcessingIntent.load_ska_vis(
-                        item, logger=logger, manual_compute=manual_compute
-                    ) for item in create_visibility_from_ms(f"{dir}")
+                    ProcessingIntent.manual_compute(intent, logger=logger)
+                    if manual_compute else ProcessingIntent(intent, logger=logger)
+                    for intent in create_visibility_from_ms(f"{dir}")
                 ]
         except:
             log_handler.enable_logs_manually()
@@ -241,9 +241,9 @@ class MeasurementSet:
         try:
             with log_handler.temporary_log_disable() and tools.write_to_devnull():
                 dataframe = [
-                    ProcessingIntent.load_xradio_vis(
-                        item, logger=logger, manual_compute=manual_compute
-                    ) for item in read_processing_set(f"{dir}").values()
+                    ProcessingIntent.manual_compute(intent, logger=logger)
+                    if manual_compute else ProcessingIntent(intent, logger=logger)
+                    for intent in read_processing_set(f"{dir}").values()
                 ]
         except:
             log_handler.enable_logs_manually()
