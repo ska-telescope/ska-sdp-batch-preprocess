@@ -201,14 +201,13 @@ class MeasurementSet:
         MeasurementSet class instance.
         """
         try:
-            with log_handler.temporary_log_disable() and tools.write_to_devnull():
+            with tools.write_to_devnull():
                 dataframe = [
                     ProcessingIntent.manual_compute(intent, logger=logger)
                     if manual_compute else ProcessingIntent(intent, logger=logger)
                     for intent in create_visibility_from_ms(f"{dir}")
                 ]
         except:
-            log_handler.enable_logs_manually()
             tools.reinstate_default_stdout()
             logger.critical(f"Could not load {dir.name} as MSv2\n  |")
             log_handler.exit_pipeline(logger)
@@ -239,7 +238,7 @@ class MeasurementSet:
         MeasurementSet class instance.
         """
         try:
-            with log_handler.temporary_log_disable() and tools.write_to_devnull():
+            with log_handler.temporary_log_disable():
                 dataframe = [
                     ProcessingIntent.manual_compute(intent, logger=logger)
                     if manual_compute else ProcessingIntent(intent, logger=logger)
@@ -247,7 +246,6 @@ class MeasurementSet:
                 ]
         except:
             log_handler.enable_logs_manually()
-            tools.reinstate_default_stdout()
             logger.critical(f"Could not load {dir.name} as MSv4\n  |")
             log_handler.exit_pipeline(logger)
         return cls(dataframe, logger=logger)
@@ -272,7 +270,7 @@ def to_msv4(
       logger object to handle pipeline logs.
     """
     try:
-        with log_handler.temporary_log_disable() and tools.write_to_devnull():
+        with log_handler.temporary_log_disable():
             if args is None:
                 convert_msv2_to_processing_set(
                     f"{msin}", f"{msin.with_suffix('.ms4')}"
@@ -283,6 +281,5 @@ def to_msv4(
                 )
     except:
         log_handler.enable_logs_manually()
-        tools.reinstate_default_stdout()
         logger.critical(f"Could not convert {msin.name} to MSv4\n  |")
         log_handler.exit_pipeline(logger)

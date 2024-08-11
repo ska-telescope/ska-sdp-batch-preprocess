@@ -99,8 +99,8 @@ class ProcessingIntent:
         The setter method of this class is amended here to inhibit external
         manipulation of private attributes (i.e., those starting with '_').
         """
-        if key[0] == '_':
-            self.logger.warning(f"Attribute {key} is private and cannot be changed")
+        if hasattr(self, key) and key[0] == '_':
+            self.logger.warning(f"Attribute '{key}' is private and cannot be changed")
             return
         self.__dict__[f"{key}"] = value
 
@@ -118,10 +118,9 @@ class ProcessingIntent:
         if isinstance(self._input_data, Visibility):
             return self._input_data
         try:
-            with log_handler.temporary_log_disable() and tools.write_to_devnull():
+            with tools.write_to_devnull():
                 return convert_visibility_xds_to_visibility(self._input_data)
         except:
-            log_handler.enable_logs_manually()
             tools.reinstate_default_stdout()
             self.logger.critical(
                 "Could not convert XRadio-Visibility to SKA-Visibility\n  |"
@@ -142,10 +141,9 @@ class ProcessingIntent:
         if isinstance(self._input_data, VisibilityXds):
             return self._input_data
         try:
-            with log_handler.temporary_log_disable() and tools.write_to_devnull():
+            with tools.write_to_devnull():
                 return convert_visibility_to_visibility_xds(self._input_data)
         except:
-            log_handler.enable_logs_manually()
             tools.reinstate_default_stdout()
             self.logger.critical(
                 "Could not convert SKA-Visibility to XRadio-Visibility\n  |"
