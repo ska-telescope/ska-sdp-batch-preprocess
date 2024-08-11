@@ -81,100 +81,37 @@ class MeasurementSet:
             logger.warning("Loaded an empty MS into memory")
 
     @property
-    def visibilities(self) -> Union[NDArray, list[NDArray]]:
+    def visibilities(self) -> list[NDArray]:
         """
-        Visibilities as NumPy arrays (or list thereof for MSv4).
+        Visibilities as list of NumPy arrays.
 
         Returns
         -------
-        NumPy array (or list thereof for MSv4) enclosing visibilities.
+        list of NumPy arrays enclosing visibilities.
         """
-        if type(self.dataframe) == table:
-            try:
-                return np.asarray(
-                    self.dataframe.getcol("DATA")
-                )
-            except:
-                self.logger.critical("Could not read visibilities from MSv2\n  |")
-                log_handler.exit_pipeline(self.logger)
-        return [
-            intent.visibilities
-            for intent in self.dataframe
-        ]
+        return [intent.visibilities for intent in self.dataframe]
     
     @property
-    def uvw(self) -> Union[NDArray, list[NDArray]]:
+    def uvw(self) -> list[NDArray]:
         """
-        UVW data as NumPy arrays (or list thereof for MSv4).
+        UVW data as list of NumPy arrays.
 
         Returns
         -------
-        NumPy array (or list thereof for MSv4) enclosing UVW data.
+        list of NumPy arrays enclosing UVW data.
         """
-        if type(self.dataframe) == table:
-            try:
-                return np.asarray(
-                    self.dataframe.getcol("UVW")
-                )
-            except:
-                self.logger.critical("Could not read UVW from MSv2\n  |")
-                log_handler.exit_pipeline(self.logger)
-        return [
-            intent.uvw
-            for intent in self.dataframe
-        ]
+        return [intent.uvw for intent in self.dataframe]
     
     @property
     def weights(self) -> Union[NDArray, list[NDArray]]:
         """
-        Weights as NumPy arrays (or list thereof for MSv4).
+        Weights as list of NumPy arrays.
 
         Returns
         -------
-        NumPy array (or list thereof for MSv4) enclosing weights.
+        list of NumPy arrays enclosing weights.
         """
-        if type(self.dataframe) == table:
-            try:
-                return np.asarray(
-                    self.dataframe.getcol("WEIGHT")
-                )
-            except:
-                self.logger.critical("Could not read weights from MSv2\n  |")
-                log_handler.exit_pipeline(self.logger)
-        return [
-            intent.weights
-            for intent in self.dataframe
-        ]
-
-    @property
-    def channels(self) -> Union[Tuple[float, float], list[Tuple[float, float]]]:
-        """
-        Base frequency and frequency increments (or list thereof for MSv4).
-
-        Returns
-        -------
-        Tuple of base frequency and frequency increments (or list thereof 
-        for MSv4) enclosing weights.
-        """
-        if type(self.dataframe) == table:
-            try:
-                with tools.write_to_devnull():
-                    chan_freq = table(
-                        self.dataframe.getkeyword("SPECTRAL_WINDOW")
-                    ).getcol("CHAN_FREQ").flatten()
-            except:
-                tools.reinstate_default_stdout()
-                self.logger.critical(
-                    "Could not read frequency data from MSv2\n  |"
-                )
-                log_handler.exit_pipeline(self.logger)
-            if len(chan_freq) == 1:
-                return chan_freq[0], 0.
-            return (chan_freq[0], chan_freq[1]-chan_freq[0])
-        return [
-            intent.channels
-            for intent in self.dataframe
-        ]
+        return [intent.weights for intent in self.dataframe]
     
     @classmethod
     def ver_2(

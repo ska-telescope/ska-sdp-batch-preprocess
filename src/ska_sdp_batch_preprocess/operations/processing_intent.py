@@ -212,26 +212,6 @@ class ProcessingIntent:
         except:
             self.logger.critical("Could not read weights from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
-    
-    @property
-    def channels(self) -> Tuple[float, float]:
-        """
-        Base frequency and frequency increments.
-
-        Returns
-        -------
-        Tuple of base frequency and frequency increments.
-        """
-        try:
-            chan_freq = self.data_as_xradio_vis["frequency"].values.flatten()
-            if len(chan_freq) == 1:
-                return chan_freq[0], 0.
-            return (chan_freq[0], chan_freq[1]-chan_freq[0])
-        except:
-            self.logger.critical(
-                "Could not read frequency data from MSv4\n  |"
-            )
-            log_handler.exit_pipeline(self.logger)
 
     @classmethod
     def manual_compute(
