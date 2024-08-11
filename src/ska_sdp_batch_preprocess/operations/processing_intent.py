@@ -138,17 +138,17 @@ class ProcessingIntent:
         -------
         XRadio-Visibility class instance.
         """
-        if isinstance(self._input_data, VisibilityXds):
-            return self._input_data
-        try:
-            with tools.write_to_devnull():
-                return convert_visibility_to_visibility_xds(self._input_data)
-        except:
-            tools.reinstate_default_stdout()
-            self.logger.critical(
-                "Could not convert SKA-Visibility to XRadio-Visibility\n  |"
-            )
-            log_handler.exit_pipeline(self.logger)
+        if isinstance(self._input_data, Visibility):
+            try:
+                with tools.write_to_devnull():
+                    return convert_visibility_to_visibility_xds(self._input_data)
+            except:
+                tools.reinstate_default_stdout()
+                self.logger.critical(
+                    "Could not convert SKA-Visibility to XRadio-Visibility\n  |"
+                )
+                log_handler.exit_pipeline(self.logger)
+        return self._input_data
 
     @property
     def visibilities(self) -> NDArray:
@@ -160,11 +160,12 @@ class ProcessingIntent:
         NumPy array enclosing visibilities.
         """
         try:
-            return self.data_as_xradio_vis["VISIBILITY"].values
+            return self._input_data[
+                "vis" if isinstance(self._input_data, Visibility)
+                else "VISIBILITY"
+            ].values
         except:
-            self.logger.critical(
-                "Could not read visibilities from MSv4\n  |"
-            )
+            self.logger.critical("Could not read visibilities from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
         
     @property
@@ -177,11 +178,12 @@ class ProcessingIntent:
         NumPy array enclosing UVW data.
         """
         try:
-            return self.data_as_xradio_vis["UVW"].values
+            return self._input_data[
+                "uvw" if isinstance(self._input_data, Visibility)
+                else "UVW"
+            ].values
         except:
-            self.logger.critical(
-                "Could not read UVW data from MSv4\n  |"
-            )
+            self.logger.critical("Could not read UVW data from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
         
     @property
@@ -194,11 +196,12 @@ class ProcessingIntent:
         NumPy array enclosing weights.
         """
         try:
-            return self.data_as_xradio_vis["WEIGHT"].values
+            return self._input_data[
+                "weight" if isinstance(self._input_data, Visibility)
+                else "WEIGHT"
+            ].values
         except:
-            self.logger.critical(
-                "Could not read weights from MSv4\n  |"
-            )
+            self.logger.critical("Could not read weights from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
     
     @property
