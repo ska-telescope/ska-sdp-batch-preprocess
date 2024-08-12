@@ -11,7 +11,8 @@ from xradio.vis import (
 )
  
 from ska_sdp_datamodels.visibility import (
-    create_visibility_from_ms
+    create_visibility_from_ms,
+    export_visibility_to_ms
 )
 
 from operations.processing_intent import (
@@ -46,6 +47,9 @@ class MeasurementSet:
     
     Methods
     -------
+    export_to_msv2(**args)
+      generates an MSv2 on disk using SKA-Visibility datatype.
+
     ver_2(**args)
       class method to generate an instance with MSv2.
 
@@ -111,6 +115,32 @@ class MeasurementSet:
         """
         return [intent.weights for intent in self.dataframe]
     
+    def export_to_msv2(self, msout: Path) -> None:
+        """
+        Exports SKA-Visibility as MSv2 on disk.
+
+        Arguments
+        ---------
+        msout: pathlib.Path
+          path and name of the intended output MSv2.
+
+        Note
+        ----
+        If the original input MS was loaded as XRadio-Visibility datatype, 
+        then the conversion to SKA-Visibility (required here as input) will 
+        only work if 'convert_visibility_xds_to_visibility' is operational.
+        """
+        try:
+            with tools.write_to_devnull():
+                export_visibility_to_ms(
+                    f"{msout.resolve()}",
+                    [intent.data_as_ska_vis for intent in self.dataframe]
+                )
+        except:
+            tools.reinstate_default_stdout()
+            self.logger.critical("Could not generate MSv2")
+            log_handler.exit_pipeline(self.logger)
+
     @classmethod
     def ver_2(
             cls, dir: Path, *, logger: Logger, manual_compute: bool=False
@@ -185,9 +215,8 @@ class MeasurementSet:
             log_handler.exit_pipeline(logger)
         return cls(dataframe, logger=logger)
 
-def to_msv4(
-        msin: Path, args: Optional[dict]=None, 
-        *, logger: Logger
+def convert_msv2_to_msv4(
+        msin: Path, args: Optional[dict]=None, *, logger: Logger
 ) -> None:
     """
     Converts MSv2 to MSv4 on disk using XRadio.
