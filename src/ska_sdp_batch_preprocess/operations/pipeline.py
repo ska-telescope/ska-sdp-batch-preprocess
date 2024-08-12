@@ -37,26 +37,15 @@ def run(
 
             elif func.lower() == "load_msv2":
                 logger.info(f"Loading {msin.name} into memory as MSv2")
-                MSv2 = MeasurementSet.ver_2(msin, logger=logger)
+                ms = MeasurementSet.ver_2(msin, args, logger=logger)
                 logger.info("Load successful\n  |")
 
             elif func.lower() == "load_msv4":
                 logger.info(f"Loading {msin.name} into memory as MSv4")
-                MSv4 = MeasurementSet.ver_4(msin, logger=logger)
+                ms = MeasurementSet.ver_4(msin, args, logger=logger)
                 logger.info("Load successful\n  |")
 
-            elif func.lower() == "load_msv2_then_export_to_msv2":
-                logger.info(f"Loading {msin.name} into memory as MSv2")
-                MSv2 = MeasurementSet.ver_2(msin, logger=logger)
-                logger.info("Load successful\n  |")
+            elif func.lower() == "export_to_msv2":
                 logger.info("Exporting list of processing intents to MSv2")
-                MSv2.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"))
+                ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
                 logger.info(f"{msin.stem}-output.ms generated successfully")
-
-            elif func == "convert_msv2_to_msv4_then_load":
-                logger.info(f"Converting {msin.name} to MSv4")
-                convert_msv2_to_msv4(msin, args, logger=logger)
-                logger.info("Conversion successful\n  |")
-                logger.info(f"Loading {msin.with_suffix('.ms4').name} into memory as MSv4")
-                MSv4 = MeasurementSet.ver_4(msin.with_suffix(".ms4"), logger=logger)
-                logger.info("Load successful\n  |")

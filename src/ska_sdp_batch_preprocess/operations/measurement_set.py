@@ -2,7 +2,7 @@
 
 from logging import Logger
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 from numpy.typing import NDArray
 from xradio.vis import (
@@ -89,7 +89,7 @@ class MeasurementSet:
         list of NumPy arrays enclosing visibilities.
         """
         return [intent.visibilities for intent in self.dataframe]
-    
+
     @property
     def uvw(self) -> list[NDArray]:
         """
@@ -100,7 +100,7 @@ class MeasurementSet:
         list of NumPy arrays enclosing UVW data.
         """
         return [intent.uvw for intent in self.dataframe]
-    
+
     @property
     def weights(self) -> list[NDArray]:
         """
@@ -111,8 +111,10 @@ class MeasurementSet:
         list of NumPy arrays enclosing weights.
         """
         return [intent.weights for intent in self.dataframe]
-    
-    def export_to_msv2(self, msout: Path) -> None:
+
+    def export_to_msv2(
+            self, msout: Path, args: Optional[dict]=None
+    ) -> None:
         """
         Exports SKA-Visibility as MSv2 on disk.
 
@@ -120,6 +122,10 @@ class MeasurementSet:
         ---------
         msout: pathlib.Path
           path and name of the intended output MSv2.
+
+        args: dict | None=None
+          dictionary for the optional SKA-SDP-Datamodels exporting 
+          function arguments.
 
         Note
         ----
@@ -129,10 +135,17 @@ class MeasurementSet:
         """
         try:
             with tools.write_to_devnull():
-                export_visibility_to_ms(
-                    f"{msout.resolve()}",
-                    [intent.data_as_ska_vis for intent in self.dataframe]
-                )
+                if args is None:
+                    export_visibility_to_ms(
+                        f"{msout.resolve()}",
+                        [intent.data_as_ska_vis for intent in self.dataframe]
+                    )
+                else:
+                    export_visibility_to_ms(
+                        f"{msout.resolve()}",
+                        [intent.data_as_ska_vis for intent in self.dataframe],
+                        **args
+                    )
         except:
             tools.reinstate_default_stdout()
             self.logger.critical("Could not generate MSv2")
@@ -140,7 +153,8 @@ class MeasurementSet:
 
     @classmethod
     def ver_2(
-            cls, dir: Path, *, logger: Logger, manual_compute: bool=False
+            cls, dir: Path, args: Optional[dict]=None,
+            *, logger: Logger, manual_compute: bool=False
     ):
         """
         Class method to generate an instance with MSv2.
@@ -149,6 +163,10 @@ class MeasurementSet:
         ---------
         dir: pathlib.Path
           directory for the input MSv2.
+
+        args: dict | None=None
+          dictionary for the optional SKA-SDP-Datamodels loading 
+          function arguments.
 
         logger: logging.Logger
           logger object to handle pipeline logs.
@@ -164,10 +182,14 @@ class MeasurementSet:
         """
         try:
             with tools.write_to_devnull():
+                if args is None:
+                    intents = create_visibility_from_ms(f"{dir}", **args)
+                else:
+                    intents = create_visibility_from_ms(f"{dir}", **args)
                 dataframe = [
                     ProcessingIntent.manual_compute(intent, logger=logger)
                     if manual_compute else ProcessingIntent(intent, logger=logger)
-                    for intent in create_visibility_from_ms(f"{dir}")
+                    for intent in intents
                 ]
         except:
             tools.reinstate_default_stdout()
@@ -177,7 +199,8 @@ class MeasurementSet:
      
     @classmethod
     def ver_4(
-            cls, dir: Path, *, logger: Logger, manual_compute: bool=False
+            cls, dir: Path, args: Optional[dict]=None,
+            *, logger: Logger, manual_compute: bool=False
     ):
         """
         Class method to generate an instance with MSv4.
@@ -186,6 +209,10 @@ class MeasurementSet:
         ---------
         dir: pathlib.Path
           directory for the input MSv4.
+
+        args: dict | None=None
+          dictionary for the optional XRadio loading 
+          function arguments.
 
         logger: logging.Logger
           logger object to handle pipeline logs.
@@ -201,10 +228,14 @@ class MeasurementSet:
         """
         try:
             with log_handler.temporary_log_disable():
+                if args is None:
+                    intents = read_processing_set(f"{dir}").values()
+                else:
+                    intents = read_processing_set(f"{dir}", **args).values()
                 dataframe = [
                     ProcessingIntent.manual_compute(intent, logger=logger)
                     if manual_compute else ProcessingIntent(intent, logger=logger)
-                    for intent in read_processing_set(f"{dir}").values()
+                    for intent in intents
                 ]
         except:
             log_handler.enable_logs_manually()
@@ -224,7 +255,7 @@ def convert_msv2_to_msv4(
       directory for the input MSv2.
     
     args: dict | None=None
-      Dictionary for the optional XRadio conversion 
+      dictionary for the optional XRadio conversion 
       function arguments. 
     
     logger: logging.Logger
