@@ -10,25 +10,26 @@
 #      https://github.com/casangi/xradio/blob/c683d8927c431e2b81a1e0ae1fdabc36b77f05d4/src/xradio/vis/convert_msv2_to_processing_set.py#L13
 #
 #   2- load_msv2
-#      uses casacore
+#      uses ska-sdp-datamodels to load as SKA-Visibility datatype (takes all relevant optional arguments)
 #
 #   3- load_msv4
-#      currently only loads full datasets without any slicing
+#      currently only loads full datasets without any slicing (takes all relevant XRadio optional arguments)
 # 
-#   4- convert_msv2_to_msv4_then_load
-#      combines (1) and (3)
+#   4- export_to_msv2
+#      uses ska-sdp-datamodels to export SKA-Visibility datatype to MSv2 (takes all relevant optional arguments)
+#      
 
 
-convert_msv2_to_msv4_then_load:
+load_msv2:
 
-processing_functions:
-  apply_rfi_masks:
-    rfi_frequency_masks: [[1.3440e08, 1.3444e08]]
-  averaging_frequency:
-    freqstep: 4
-    flag_threshold: 0.4
-  averaging_time:
-    timestep: 2
-    flag_threshold: 0.4
-  ao_flagger:
-  
+apply_rfi_masks:
+  rfi_frequency_masks: [[1.3440e08, 1.3444e08]] # This is not YAML standard
+averaging_frequency:
+  freqstep: 4
+  flag_threshold: 0.4
+averaging_time:
+  timestep: 2
+  flag_threshold: 0.4
+ao_flagger:
+
+export_to_msv2:
