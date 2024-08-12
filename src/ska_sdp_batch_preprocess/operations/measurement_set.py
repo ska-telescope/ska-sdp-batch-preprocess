@@ -30,17 +30,14 @@ class MeasurementSet:
     dataframe: list[ProcessingIntent]
       contains the MS data as a list of ProcessingIntent objects.
 
-    visibilities: NDArray | list[NDArray]
-      visibilities as NumPy arrays (or list thereof for MSv4).
+    visibilities: list[NDArray]
+      visibilities as list of NumPy arrays.
 
-    uvw: NDArray | list[NDArray]
-      uvw data as NumPy arrays (or list thereof for MSv4).
+    uvw: list[NDArray]
+      uvw data as list of NumPy arrays.
     
-    weights: NDArray | list[NDArray]
-      weights as NumPy arrays (or list thereof for MSv4).
-
-    channels: Tuple[float, float] | list[Tuple[float, float]]
-      base frequency and frequency increments (or list thereof for MSv4).
+    weights: list[NDArray]
+      weights as list of NumPy arrays.
 
     logger: logging.Logger
       logger object to handle pipeline logs.
@@ -48,7 +45,7 @@ class MeasurementSet:
     Methods
     -------
     export_to_msv2(**args)
-      generates an MSv2 on disk using SKA-Visibility datatype.
+      exports SKA-Visibility as MSv2 on disk.
 
     ver_2(**args)
       class method to generate an instance with MSv2.
@@ -61,7 +58,7 @@ class MeasurementSet:
     The ProcessingIntent class is designed to incorporate MS data as
     both SKA-datamodel (Visibility) and XRadio-datamodel (VisibilityXds).
     Both datamodels are schemas of the xarray.Dataset type. However, 
-    prior to calling as further XArray functionalities on the dataframe,
+    prior to calling any further XArray functionalities on the dataframe,
     check the relevant documentation of XRadio and SKA-SDP-Datamodels.
     """
 
@@ -105,7 +102,7 @@ class MeasurementSet:
         return [intent.uvw for intent in self.dataframe]
     
     @property
-    def weights(self) -> Union[NDArray, list[NDArray]]:
+    def weights(self) -> list[NDArray]:
         """
         Weights as list of NumPy arrays.
 
@@ -159,7 +156,7 @@ class MeasurementSet:
         manual_compute: bool=False
           optional argument which, if True, the MSv2 data get
           loaded as ProcessingIntent objects while calling the 
-          XArray compute() method on them.
+          xarray compute() method on them.
 
         Returns
         -------
@@ -194,9 +191,9 @@ class MeasurementSet:
           logger object to handle pipeline logs.
 
         manual_compute: bool=False
-          optional argument which, if True, loads MSv4 data as
-          ProcessingIntent objects while calling the XArray 
-          compute() method on them.
+          optional argument which, if True, the MSv4 data get
+          loaded as ProcessingIntent objects while calling the 
+          xarray compute() method on them.
 
         Returns
         -------

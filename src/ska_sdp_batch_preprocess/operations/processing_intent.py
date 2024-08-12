@@ -35,7 +35,7 @@ class ProcessingIntent:
       If data are loded as SKA-Visibility they will be automatically made
       available as XRadio-Visibility, and vice versa. This holds true as
       long as the functions 'convert_visibility_xds_to_visibility' and
-      'convert_visibility_to_visibility_xds' as operational.
+      'convert_visibility_to_visibility_xds' are operational.
     
     data_as_ska_vis: ska_sdp_datamodels.visibility.Visibility
       SKA-Visibility representation of the processing set data. 
@@ -45,7 +45,7 @@ class ProcessingIntent:
 
     data_as_xradio_vis: xradio.vis.schema.VisibilityXds
       XRadio-Visibility representation of the processing set data.
-      If the data were loaded by the user as XRadio-Visibility, then this
+      If the data were loaded by the user as SKA-Visibility, then this
       attribute will only work if 'convert_visibility_to_visibility_xds'
       is operational.
 
@@ -58,23 +58,19 @@ class ProcessingIntent:
     weights: NDArray
       weights as NumPy arrays.
 
-    channels: Tuple[float, float]
-      base frequency and frequency increments.
-
     logger: logging.Logger
       logger object to handle pipeline logs.
 
     Methods
     -------
     manual_compute(**args)
-      class method to generate an instance with
-      the data manually loaded into memory as XArrays
-      using the compute() method.
+      class method to generate an instance with the data manually loaded into 
+      memory as xarrays using the compute() method.
 
     Notes
     -----
     1- This class avoids checking for VisibilityXds datatype (e.g., using
-       isinstance). This is because The current version of XRadio still 
+       isinstance). This is because, the current version of XRadio still 
        outputs xarray.Dataset type instead of the newly developed VisibilityXds 
        schema.
     2- The Visibility <-> VisibilityXds conversion only works as long as the
