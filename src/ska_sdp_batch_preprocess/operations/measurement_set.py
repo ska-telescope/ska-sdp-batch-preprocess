@@ -183,7 +183,7 @@ class MeasurementSet:
         try:
             with tools.write_to_devnull():
                 if args is None:
-                    intents = create_visibility_from_ms(f"{dir}", **args)
+                    intents = create_visibility_from_ms(f"{dir}")
                 else:
                     intents = create_visibility_from_ms(f"{dir}", **args)
                 dataframe = [
