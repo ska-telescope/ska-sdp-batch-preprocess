@@ -20,3 +20,15 @@
 
 
 convert_msv2_to_msv4_then_load:
+
+processing_functions:
+  apply_rfi_masks:
+    rfi_frequency_masks: [[1.3440e08, 1.3444e08]]
+  averaging_frequency:
+    freqstep: 4
+    flag_threshold: 0.4
+  averaging_time:
+    timestep: 2
+    flag_threshold: 0.4
+  ao_flagger:
+  
