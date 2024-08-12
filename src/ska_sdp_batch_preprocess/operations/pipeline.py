@@ -70,6 +70,7 @@ def run(
                 ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"))
                 logger.info(f"{msin.stem}-output.ms generated successfully")
 
+            ###### Add processing functions here please ###### 
             elif func.lower() == "apply_rfi_masks":
                 pass
 
