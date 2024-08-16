@@ -9,12 +9,13 @@ from xradio.vis.schema import VisibilityXds
 from ska_sdp_datamodels.visibility import (
     Visibility
 )
+from ska_sdp_batch_preprocess.utils import (
+    log_handler, tools
+)
 from ska_sdp_datamodels.visibility.vis_xradio import (
     convert_visibility_xds_to_visibility,
     convert_visibility_to_visibility_xds
 )
-
-from utils import log_handler, tools
 
 
 class ProcessingIntent:

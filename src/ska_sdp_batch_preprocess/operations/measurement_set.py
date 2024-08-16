@@ -9,16 +9,17 @@ from xradio.vis import (
     convert_msv2_to_processing_set,
     read_processing_set
 )
- 
+
+from ska_sdp_batch_preprocess.operations.processing_intent import (
+    ProcessingIntent
+)
+from ska_sdp_batch_preprocess.utils import (
+    log_handler, tools
+)
 from ska_sdp_datamodels.visibility import (
     create_visibility_from_ms,
     export_visibility_to_ms
 )
-
-from operations.processing_intent import (
-    ProcessingIntent
-)
-from utils import log_handler, tools
 
 
 class MeasurementSet:
@@ -180,23 +181,17 @@ class MeasurementSet:
         -------
         MeasurementSet class instance.
         """
-        try:
-            with tools.write_to_devnull():
-                if args is None:
-                    intents = create_visibility_from_ms(f"{dir}")
-                else:
-                    intents = create_visibility_from_ms(f"{dir}", **args)
-                dataframe = [
-                    ProcessingIntent.manual_compute(intent, logger=logger)
-                    if manual_compute else ProcessingIntent(intent, logger=logger)
-                    for intent in intents
-                ]
-        except:
-            tools.reinstate_default_stdout()
-            logger.critical(f"Could not load {dir.name} as MSv2\n  |")
-            log_handler.exit_pipeline(logger)
+        if args is None:
+            intents = create_visibility_from_ms(f"{dir}")
+        else:
+            intents = create_visibility_from_ms(f"{dir}", **args)
+        dataframe = [
+            ProcessingIntent.manual_compute(intent, logger=logger)
+            if manual_compute else ProcessingIntent(intent, logger=logger)
+            for intent in intents
+        ]
         return cls(dataframe, logger=logger)
-     
+    
     @classmethod
     def ver_4(
             cls, dir: Path, args: Optional[dict]=None,
@@ -226,21 +221,16 @@ class MeasurementSet:
         -------
         MeasurementSet class instance.
         """
-        try:
-            with log_handler.temporary_log_disable():
-                if args is None:
-                    intents = read_processing_set(f"{dir}").values()
-                else:
-                    intents = read_processing_set(f"{dir}", **args).values()
-                dataframe = [
-                    ProcessingIntent.manual_compute(intent, logger=logger)
-                    if manual_compute else ProcessingIntent(intent, logger=logger)
-                    for intent in intents
-                ]
-        except:
-            log_handler.enable_logs_manually()
-            logger.critical(f"Could not load {dir.name} as MSv4\n  |")
-            log_handler.exit_pipeline(logger)
+        with tools.write_to_devnull():
+            if args is None:
+                intents = read_processing_set(f"{dir}").values()
+            else:
+                intents = read_processing_set(f"{dir}", **args).values()
+        dataframe = [
+            ProcessingIntent.manual_compute(intent, logger=logger)
+            if manual_compute else ProcessingIntent(intent, logger=logger)
+            for intent in intents
+        ]
         return cls(dataframe, logger=logger)
 
 def convert_msv2_to_msv4(
