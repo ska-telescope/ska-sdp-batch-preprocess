@@ -20,7 +20,7 @@
 #      
 
 
-load_msv2:
+load_ms:
 
 apply_rfi_masks:
   rfi_frequency_masks: [[1.3440e08, 1.3444e08]] # This is not YAML standard

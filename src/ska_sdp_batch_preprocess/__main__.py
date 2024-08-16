@@ -5,8 +5,8 @@ import yaml
 from logging import Logger
 from pathlib import Path
 
-from operations import pipeline
-from utils import log_handler
+from ska_sdp_batch_preprocess.operations import pipeline
+from ska_sdp_batch_preprocess.utils import log_handler
 
 
 def main() -> None:
