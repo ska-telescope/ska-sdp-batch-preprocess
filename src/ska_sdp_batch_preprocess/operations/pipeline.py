@@ -16,7 +16,7 @@ from ska_sdp_func_python.preprocessing import (
 
 
 def run(
-        msin: Path, config: dict, *, logger: Logger
+        msin: Path, config: dict, client: Client, t_chunk: int, f_chunk: int, *, logger: Logger
 ) -> None:
     """
     Principal function in the pipeline where the various
@@ -35,24 +35,7 @@ def run(
     logger: logging.Logger
       logger object to handle pipeline logs.
     """
-    ###### This needs changing ######
-    #data = create_visibility_from_ms(str(msin))[0]
     if config is not None:
-        ###### This needs changing ######
-        #for process,val in config['processing_functions'].items():
-        #    if val is None:
-        #        data = eval(process)(data)
-        #    else:
-        #        for params in config['processing_functions'][process]:
-        #            
-        #            if isinstance(config['processing_functions'][process][params], list):
-        #                
-        #                x = numpy.array(config['processing_functions'][process][params]).astype(numpy.float32)
-        #                config['processing_functions'][process][params] = x
-        #        
-        #        arguments = config['processing_functions'][process]
-        #        
-        #        data = eval(process) (data, **arguments)
         for func, args in config.items():
             if func.lower() == "convert_msv2_to_msv4":
                 logger.info(f"Converting {msin.name} to MSv4")
@@ -80,16 +63,40 @@ def run(
                 logger.info("Exporting list of processing intents to MSv2")
                 ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"))
                 logger.info(f"{msin.stem}-output.ms generated successfully")
+                
 
-            ###### Add processing functions here please ###### 
-            elif func.lower() == "apply_rfi_masks":
-                pass
 
-            elif func.lower() == "averaging_frequency":
-                pass
+def processing_functions(
+     ms: MeasurementSet, config: dict, client: Client, t_chunk: int, f_chunk: int, *, logger: Logger
+) -> None:
+        """
+        Chain of distributed processing functions that can be configured from the YAML config file.
 
-            elif func.lower() == "averaging_time":
-                pass
+        param:
+        param:
+        param:
+        param:
+        param:
+        """
 
-            elif func.lower() == "ao_flagger":
-                pass
+        if config['.apply_rfi_masks']:
+                    logger.info("Applying rfi masks ...")
+                    masks = config['.apply_rfi_masks']['rfi_frequency_masks']
+                    ms = distribute_rfi_masking(ms, masks, f_chunk, client)
+                
+        if config['.averaging_frequency']:
+                    logger.info("Averaging frequency ...")
+                    freqstep = config['.averaging_frequency']['freqstep']
+                    f_threshold = config['.averaging_frequency']['flag_threshold']
+                    ms = distribute_averaging_freq(ms, freqstep, f_chunk, client, f_threshold)
+
+        if config['.averaging_time']:
+                    logger.info("Averaging time ...")
+                    timestep = config['.averaging_time']['timestep']
+                    t_threshold = config['.averaging_time']['flag_threshold']
+                    ms = distribute_averaging_time(ms, timestep, t_chunk, client, t_threshold)
+
+        if config['rfi_flagger']:
+            pass
+
+

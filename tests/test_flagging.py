@@ -19,3 +19,4 @@ def test_distributed_rfi_flagger(test_data:xr.Dataset, client:Client):
 def test_distributed_aoflagger():
     """
     """
+    pass

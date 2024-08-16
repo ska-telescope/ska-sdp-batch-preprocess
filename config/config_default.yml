@@ -1,35 +1,32 @@
 # see license in parent directory
 #
 # Default YAML config file.
-#
-# Software will always look for a config_default.yml file in this directory
-#    if no config file is provided manually.
-#
+# NOTE: The functions below can be changed with the MSv2 versions if needed and if MSv4 datasets are available.
 # Current options include:
 #   1- convert_msv2_to_msv4 (takes all relevant XRadio optional arguments)
 #      https://github.com/casangi/xradio/blob/c683d8927c431e2b81a1e0ae1fdabc36b77f05d4/src/xradio/vis/convert_msv2_to_processing_set.py#L13
 #
-#   2- load_msv2
-#      uses ska-sdp-datamodels to load as SKA-Visibility datatype (takes all relevant optional arguments)
-#
-#   3- load_msv4
+#   2- load_msv4
 #      currently only loads full datasets without any slicing (takes all relevant XRadio optional arguments)
 # 
-#   4- export_to_msv2
+#   3- export_to_msv2
 #      uses ska-sdp-datamodels to export SKA-Visibility datatype to MSv2 (takes all relevant optional arguments)
-#      
+)
 
 
 load_ms:
 
-apply_rfi_masks:
-  rfi_frequency_masks: [[1.3440e08, 1.3444e08]] # This is not YAML standard
-averaging_frequency:
-  freqstep: 4
-  flag_threshold: 0.4
-averaging_time:
-  timestep: 2
-  flag_threshold: 0.4
-ao_flagger:
+.apply_rfi_masks: 
+  rfi_frequency_masks: 
+  - [1.3440e08, 1.3444e08]
 
-export_to_msv2:
+.averaging_frequency:
+  - freqstep: 4
+  - flag_threshold: 0.4
+
+.averaging_time:
+  - timestep: 2
+  - flag_threshold: 0.4
+
+.rfi_flagger:
+  - 

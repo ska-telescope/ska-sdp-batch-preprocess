@@ -5,9 +5,9 @@ import yaml
 from logging import Logger
 from pathlib import Path
 
-from ska_sdp_batch_preprocess.operations import pipeline
-from ska_sdp_batch_preprocess.utils import log_handler
-
+from operations import pipeline
+from utils import log_handler
+from dask.distributed import Client, LocalCluster
 
 def main() -> None:
     """
@@ -26,9 +26,29 @@ def main() -> None:
         f"Load successful\n  |" 
     )
 
-    logger.info("Entering pipeline\n  |")
+    if(args.scheduler):
+        logger.info(f"Utilizing the cluster provided: {args.scheduler}")
+        client = Client(args.scheduler)
+    else:
+        logger.info("Utilizing the local cluster")
+        cluster = LocalCluster
+        client = Client(cluster)
+
+    if(args.time_chunksize):
+        logger.info(f"Setting time chunk size to {args.time_chunksize}")
+        t_chunksize = args.time_chunksize
+    else:
+        t_chunksize = 4
+
+    if(args.frequency_chunksize):
+        logger.info(f"Setting frequency chunk size to {args.frequency_chunksize}")
+        f_chunksize = args.frequency_chunksize
+    else:
+        f_chunksize = 6   
+
+    logger.info("Pipeline running\n  |")
     pipeline.run(
-        Path(args.msin), yaml_dict,
+        Path(args.msin), yaml_dict, client, t_chunksize, f_chunksize,
         logger=logger
     )
     log_handler.exit_pipeline(logger, success=True)
@@ -61,20 +81,42 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
+        "-c"
         "--config",
         type=str,
         default=f"{Path.cwd().joinpath('config', 'config_default.yml')}",
-        help="input YAML configuration file"
+        help="Input YAML configuration file"
     )
     parser.add_argument(
         "--cmd_logs",
         action="store_true",
-        help="generate logs on the command line"
+        help="Generates detailed logs on the command line"
     )
     parser.add_argument(
-        "msin",
+        "-ms"
+        "--msin",
         type=str,
-        help="measurement set (v2 or v4) directory"
+        help="Measurement set (v2 or v4) directory"
+    )
+
+    dask_args = parser.add_argument_group("dask")
+    dask_args.add_argument(
+        "-s",
+        "--scheduler",
+        type=str, 
+        help="Address of a dask scheduler to use for distribution"
+    )
+    dask_args.add_argument(
+        "-t",
+        "--time_chunksize",
+        type=int, 
+        help="Set chunksize for the time distributed functions"
+    )
+    dask_args.add_argument(
+        "-f", 
+        "--frequency_chunksize",
+        type=int, 
+        help="Set chunksize for the frequency distributed functions"
     )
     return parser.parse_args()
 
