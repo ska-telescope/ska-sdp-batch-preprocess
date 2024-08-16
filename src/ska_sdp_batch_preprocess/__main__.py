@@ -68,6 +68,7 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
+        "-c"
         "--config",
         type=str,
         default=f"{Path.cwd().joinpath('config', 'config_default.yml')}",
@@ -79,7 +80,8 @@ def parse_args() -> argparse.Namespace:
         help="Generates detailed logs on the command line"
     )
     parser.add_argument(
-        "msin",
+        "-ms"
+        "--msin",
         type=str,
         help="Measurement set (v2 or v4) directory"
     )
