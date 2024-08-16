@@ -21,9 +21,7 @@ def distribute_averaging_time(vis: xr.Dataset, timestep, chunksize, client: Clie
 
     processed = client.submit(averaging_time, chunked_vis, timestep, threshold)
 
-    output = processed.result()
-
-    return output
+    return processed.result()
 
 
 #TODO: Test scaling of distribution on time instead of frequency
@@ -41,9 +39,7 @@ def distribute_averaging_freq(vis: xr.Dataset, freqstep, chunksize, client: Clie
 
     processed = client.submit(averaging_frequency, chunked_vis, freqstep, threshold)
 
-    output = processed.result()
-
-    return output
+    return processed.result()
 
 
 def distribute_rfi_masking(vis: xr.Dataset, masks: NDArray[np.float64], chunksize, client:Client) -> xr.Dataset:
@@ -61,9 +57,7 @@ def distribute_rfi_masking(vis: xr.Dataset, masks: NDArray[np.float64], chunksiz
 
     processed = client.submit(apply_rfi_masks, chunked_vis, masks)        
     
-    output = processed.result()
-
-    return output
+    return processed.result()
 
 
 def distribute_rfi_flagger(vis: xr.Dataset,
@@ -94,9 +88,7 @@ def distribute_rfi_flagger(vis: xr.Dataset,
 
     processed = client.submit(rfi_flagger, chunked_vis, alpha, threshold_magnitude, threshold_variation, threshold_broadband, sampling, window, window_median_history)
 
-    output = processed.result()
-
-    return output
+    return processed.result()
 
 
 def distribute_ao_flagger(vis:xr.Dataset, chunksize, client:Client, path=None):
@@ -112,8 +104,6 @@ def distribute_ao_flagger(vis:xr.Dataset, chunksize, client:Client, path=None):
 
     processed = client.submit(ao_flagger, chunked_vis, path)
 
-    output = processed.result()
-
-    return output
+    return processed.result()
 
 
