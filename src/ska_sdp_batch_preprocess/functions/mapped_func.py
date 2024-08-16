@@ -44,43 +44,6 @@ def mapped_rfi_masking(vis: xr.Dataset, masks: NDArray[np.float64]) -> xr.Datase
     return vis.map_blocks(apply_rfi_masks, args=(masks,))
 
 
-def mapped_rfi_flagger(vis: xr.Dataset, alpha, threshold_magnitudes, threshold_variations, threshold_broadband, sampling, window, window_median_history) -> xr.Dataset:
-    """
-    Maps RFI flagger (FluctuFlagger) across chunked visibilities
-
-    :param vis: xarray dataset complying to the visibility datamodel
-    :param alpha: historical memory coefficient
-    :param threshold_magnitude: threshold for the magnitude
-    :param threshold_variation: threshold for the variations
-    :param threshold_broadband: threshold for the broadband RFI
-    :param sampling: sampling step
-    :param wibdow: window for side channels
-    :param window_median_history: window for broadband
-
-    :return: Xarray dataset complying to the visibility datamodel with flags
-    """
-
-    return vis.map_blocks(rfi_flagger, kwargs={'alpha': alpha,
-                                               'threshold_magnitudes': threshold_magnitudes,
-                                               'threshold_variations': threshold_variations, 
-                                               'threshold_broadband': threshold_broadband,
-                                               'sampling': sampling,
-                                               'window': window,
-                                               'window_median_history': window_median_history })
-
-
-def mapped_ao_flagger(vis: xr.Dataset, path) -> xr.Dataset:
-    """
-    Maps RFI flagger (AOFlagger) across chunked visibilities
-
-    :param vis: xarray dataset complying to the visibility datamodel
-    :param path: location of the Lua strategy for AOFlagger
-
-    :return: Xarray dataset complying to the visibility datamodel with flags
-    """
-
-    return vis.map_blocks(ao_flagger, kwargs={'path':path})
-
 
 
 
