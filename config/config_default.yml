@@ -11,22 +11,31 @@
 # 
 #   3- export_to_msv2
 #      uses ska-sdp-datamodels to export SKA-Visibility datatype to MSv2 (takes all relevant optional arguments)
-)
-
+#
+# To choose between the PFL flagger and AOFlagger the following options are available:
+#   1- .rfi_flagger
+#       Uses the rfi flagger in PFL
+#   2- .ao_rfi_flagger
+#       Utilises the AOFlagger, (the user must ensure that aoflagger's dependencies are installed globally)
+#
 
 load_ms:
 
-.apply_rfi_masks: 
+apply_rfi_masks: 
+  f_chunk: 5
   rfi_frequency_masks: 
-  - [1.3440e08, 1.3444e08]
+  - 1.3440e08 
+  - 1.3444e08
 
-.averaging_frequency:
-  - freqstep: 4
-  - flag_threshold: 0.4
+averaging_frequency:
+  f_chunk: 5
+  freqstep: 4
+  flag_threshold: 0.4
 
-.averaging_time:
-  - timestep: 2
-  - flag_threshold: 0.4
+averaging_time:
+  t_chunk: 5
+  timestep: 2
+  flag_threshold: 0.4
 
-.rfi_flagger:
-  - 
+rfi_flagger: null
+

@@ -37,8 +37,8 @@ sphinx-rtd-theme = "^1.0.0"
 
 [tool.poetry.extras]
 ska-sdp-func = ["ska-sdp-func"]
-aoflagger = ["aoflagger"]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+

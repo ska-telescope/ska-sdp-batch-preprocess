@@ -16,7 +16,7 @@ from ska_sdp_func_python.preprocessing import (
 
 
 def run(
-        msin: Path, config: dict, client: Client, t_chunk: int, f_chunk: int, *, logger: Logger
+        msin: Path, config: dict, client: Client, *, logger: Logger
 ) -> None:
     """
     Principal function in the pipeline where the various
@@ -36,11 +36,11 @@ def run(
       logger object to handle pipeline logs.
     """
     if config is not None:
-        for func, args in config.items():
-            if func.lower() == "convert_msv2_to_msv4":
-                logger.info(f"Converting {msin.name} to MSv4")
-                convert_msv2_to_msv4(msin, args, logger=logger)
-                logger.info("Conversion successful\n  |")
+        if 'convert_msv2_to_msv4' in config:
+            args = config['convert_msv2_to_msv4']
+            logger.info(f"Converting {msin.name} to MSv4")
+            convert_msv2_to_msv4(msin, args, logger=logger)
+            logger.info("Conversion successful\n  |")
 
             elif func.lower() == "load_ms":
                 logger.info(f"Loading {msin.name} into memory")
@@ -67,36 +67,41 @@ def run(
 
 
 def processing_functions(
-     ms: MeasurementSet, config: dict, client: Client, t_chunk: int, f_chunk: int, *, logger: Logger
+     ms: xr.Dataset, config: dict, client: Client, *, logger: Logger
 ) -> None:
         """
         Chain of distributed processing functions that can be configured from the YAML config file.
 
-        param:
-        param:
-        param:
-        param:
-        param:
+        param: ms - Measurement Set data represented by the Measurement Set class 
+        param: config - Dictionary of configuration parameters read from a YAML file
+        param: client - Dask Client provided by a scheduler or a local cluster
+        param: logger - logger class to store and print logs
         """
-
-        if config['.apply_rfi_masks']:
+        
+        if config is not None:
+            for func in config.keys():
+                if func == "apply_rfi_masks":
                     logger.info("Applying rfi masks ...")
-                    masks = config['.apply_rfi_masks']['rfi_frequency_masks']
+                    masks = config['apply_rfi_masks']['rfi_frequency_masks']
+                    f_chunk = config['apply_rfi_masks']['f_chunk']
                     ms = distribute_rfi_masking(ms, masks, f_chunk, client)
-                
-        if config['.averaging_frequency']:
-                    logger.info("Averaging frequency ...")
-                    freqstep = config['.averaging_frequency']['freqstep']
-                    f_threshold = config['.averaging_frequency']['flag_threshold']
+    
+                elif func == "averaging_frequency":
+                    logger.info("Averaging in frequency ...")
+                    freqstep = config['averaging_frequency']['freqstep']
+                    f_threshold = config['averaging_frequency']['flag_threshold']
+                    f_chunk = config['averaging_frequency']['f_chunk']
                     ms = distribute_averaging_freq(ms, freqstep, f_chunk, client, f_threshold)
 
-        if config['.averaging_time']:
-                    logger.info("Averaging time ...")
-                    timestep = config['.averaging_time']['timestep']
-                    t_threshold = config['.averaging_time']['flag_threshold']
+                elif func == "averaging_time":
+                    logger.info("Averaging in time ...")
+                    timestep = config['averaging_time']['timestep']
+                    t_threshold = config['averaging_time']['flag_threshold']
+                    t_chunk = config['averaging_time']['t_chunk']
                     ms = distribute_averaging_time(ms, timestep, t_chunk, client, t_threshold)
 
-        if config['rfi_flagger']:
-            pass
+                elif func == "rfi_flagger":
+                    logger.info("Flagging ...")
+                    pass
 
 

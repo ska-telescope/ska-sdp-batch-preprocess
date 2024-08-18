@@ -5,7 +5,6 @@ from numpy.typing import NDArray
 from ska_sdp_func_python.preprocessing.averaging import averaging_time, averaging_frequency
 from ska_sdp_func_python.preprocessing.rfi_masks import apply_rfi_masks
 from ska_sdp_func_python.preprocessing.flagger import rfi_flagger
-from ska_sdp_func_python.preprocessing.ao_flagger import ao_flagger
 
 def distribute_averaging_time(vis: xr.Dataset, timestep, chunksize, client: Client, threshold: float) -> xr.Dataset:
     """
