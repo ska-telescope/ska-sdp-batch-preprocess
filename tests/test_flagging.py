@@ -15,6 +15,7 @@ def test_distributed_rfi_flagger(test_data:xr.Dataset, client:Client):
     assert dist_result == result
 
 #TODO: Implement a quick test for aoflagger with a simple lua strategy?
+# Once aoflagger dependency is resolved
 def test_distributed_aoflagger():
     """
     """

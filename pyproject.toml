@@ -23,7 +23,8 @@ xradio = "^0.0.30"
 ska-sdp-datamodels = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-datamodels.git", rev = "sp-4385-implement-xradio-converter"}
 ska-sdp-func-python = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-func-python.git", rev = "hip-975_bug_fixing"}
 ska-sdp-func = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-func.git", rev= "hip-947_flagger_unit_tests"}
-aoflagger = {git = "https://gitlab.com/aroffringa/aoflagger.git"}
+#NOTE: Not adding aoflagger right now since it's causing import issues.
+#aoflagger = {git = "https://gitlab.com/aroffringa/aoflagger.git"}
 ska-telmodel = "^1.17"
 numpy = "^1.26"
 python-casacore = "^3.5.2"
@@ -38,7 +39,7 @@ sphinx-rtd-theme = "^1.0.0"
 [tool.poetry.extras]
 ska-sdp-func = ["ska-sdp-func"]
 ska-sdp-func-python = ["ska-sdp-func-python"]
-aoflagger = ["aoflagger"]
+#aoflagger = ["aoflagger"]
 
 [build-system]
 requires = ["poetry-core"]
