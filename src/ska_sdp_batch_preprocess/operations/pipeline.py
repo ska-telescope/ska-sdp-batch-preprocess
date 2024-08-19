@@ -2,17 +2,23 @@
 
 from logging import Logger
 from pathlib import Path
-
+from operations.processing_intent import ProcessingIntent
 from ska_sdp_batch_preprocess.operations.measurement_set import (
     convert_msv2_to_msv4, MeasurementSet
 )
 from ska_sdp_batch_preprocess.utils import (
     log_handler, tools
 )
-from ska_sdp_func_python.preprocessing import (
-    apply_rfi_masks, averaging_frequency, 
-    averaging_time
+from functions.distributed_func import (
+    distribute_averaging_time, distribute_rfi_flagger, 
+    distribute_rfi_masking, distribute_averaging_freq,
 )
+from dask.distributed import (
+    Client, performance_report, 
+    get_task_stream
+)
+import numpy as np
+
 
 
 def run(
@@ -36,34 +42,44 @@ def run(
       logger object to handle pipeline logs.
     """
     if config is not None:
+        
+        if 'load_ms' in config:
+            args = config['load_ms']
+            logger.info(f"Loading {msin.name} into memory")
+            try:
+                with tools.write_to_devnull():
+                    ms = MeasurementSet.ver_2(msin, args, logger=logger)
+                logger.info(f"Successfully loaded {msin.name} as MSv2\n  |")
+            except:
+                tools.reinstate_default_stdout()
+                try:
+                    with log_handler.temporary_log_disable():
+                        ms = MeasurementSet.ver_4(msin, args, logger=logger)
+                    logger.info(f"Successfully loaded {msin.name} as MSv4\n  |")
+                except:
+                    log_handler.enable_logs_manually()
+                    logger.critical(f"Could not load {msin.name} as either Msv2 or MSv4\n  |")
+                    log_handler.exit_pipeline(logger)
+            
+            logger.info("Processing measurement set intents ...")
+            try: 
+                with tools.write_to_devnull():
+                    processing_functions(ms.dataframe, config, client, logger=logger)
+            except:
+                tools.reinstate_default_stdout()
+        
+        if 'export_to_msv2' in config:
+            logger.info("Exporting list of processing intents to MSv2")
+            ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"))
+            logger.info(f"{msin.stem}-output.ms generated successfully")
+
         if 'convert_msv2_to_msv4' in config:
             args = config['convert_msv2_to_msv4']
             logger.info(f"Converting {msin.name} to MSv4")
             convert_msv2_to_msv4(msin, args, logger=logger)
             logger.info("Conversion successful\n  |")
 
-            elif func.lower() == "load_ms":
-                logger.info(f"Loading {msin.name} into memory")
-                try:
-                    with tools.write_to_devnull():
-                        ms = MeasurementSet.ver_2(msin, args, logger=logger)
-                    logger.info(f"Successfully loaded {msin.name} as MSv2\n  |")
-                except:
-                    tools.reinstate_default_stdout()
-                    try:
-                        with log_handler.temporary_log_disable():
-                            ms = MeasurementSet.ver_4(msin, args, logger=logger)
-                        logger.info(f"Successfully loaded {msin.name} as MSv4\n  |")
-                    except:
-                        log_handler.enable_logs_manually()
-                        logger.critical(f"Could not load {msin.name} as either Msv2 or MSv4\n  |")
-                        log_handler.exit_pipeline(logger)
-
-            elif func.lower() == "export_to_msv2":
-                logger.info("Exporting list of processing intents to MSv2")
-                ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"))
-                logger.info(f"{msin.stem}-output.ms generated successfully")
-                
+           
 
 
 def processing_functions(
