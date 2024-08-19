@@ -22,10 +22,9 @@
 load_ms:
 
 apply_rfi_masks: 
-  f_chunk: 5
+  f_chunk: 10
   rfi_frequency_masks: 
-  - 1.3440e08 
-  - 1.3444e08
+  - [1.3440e08,1.3444e08]
 
 averaging_frequency:
   f_chunk: 5

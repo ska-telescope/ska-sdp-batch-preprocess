@@ -67,7 +67,7 @@ def run(
 
 
 def processing_functions(
-     ms: xr.Dataset, config: dict, client: Client, *, logger: Logger
+     ms: list[ProcessingIntent], config: dict, client: Client, *, logger: Logger
 ) -> None:
         """
         Chain of distributed processing functions that can be configured from the YAML config file.
@@ -82,23 +82,27 @@ def processing_functions(
             for func in config.keys():
                 if func == "apply_rfi_masks":
                     logger.info("Applying rfi masks ...")
-                    masks = config['apply_rfi_masks']['rfi_frequency_masks']
+                    masks = np.array(config['apply_rfi_masks']['rfi_frequency_masks'], dtype=np.float64)
+                    print(f" \n Masks shape = {masks.shape} \n")
                     f_chunk = config['apply_rfi_masks']['f_chunk']
-                    ms = distribute_rfi_masking(ms, masks, f_chunk, client)
+                    for data in ms:
+                        data = distribute_rfi_masking(data._input_data, masks, f_chunk, client)
     
                 elif func == "averaging_frequency":
                     logger.info("Averaging in frequency ...")
                     freqstep = config['averaging_frequency']['freqstep']
                     f_threshold = config['averaging_frequency']['flag_threshold']
                     f_chunk = config['averaging_frequency']['f_chunk']
-                    ms = distribute_averaging_freq(ms, freqstep, f_chunk, client, f_threshold)
+                    for data in ms:
+                        data = distribute_averaging_freq(data._input_data, freqstep, f_chunk, client, f_threshold)
 
                 elif func == "averaging_time":
                     logger.info("Averaging in time ...")
                     timestep = config['averaging_time']['timestep']
                     t_threshold = config['averaging_time']['flag_threshold']
                     t_chunk = config['averaging_time']['t_chunk']
-                    ms = distribute_averaging_time(ms, timestep, t_chunk, client, t_threshold)
+                    for data in ms:
+                        data = distribute_averaging_time(data._input_data, timestep, t_chunk, client, t_threshold)
 
                 elif func == "rfi_flagger":
                     logger.info("Flagging ...")

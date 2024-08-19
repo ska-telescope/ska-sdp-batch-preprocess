@@ -2,7 +2,6 @@ from numpy.typing import NDArray
 import xarray as xr
 import numpy as np
 from ska_sdp_func_python.preprocessing.flagger import rfi_flagger
-from ska_sdp_func_python.preprocessing.ao_flagger import ao_flagger
 from ska_sdp_batch_preprocess.functions.distributed_func import distribute_rfi_flagger , distribute_ao_flagger
 from dask.distributed import Client
 

@@ -99,10 +99,11 @@ def distribute_ao_flagger(vis:xr.Dataset, chunksize, client:Client, path=None):
     :return: Xarray dataset complying to the visibility datamodel with flags 
     """
 
-    chunked_vis = vis.chunk({'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':chunksize, 'spatial':-1})
+    #TODO: Fix aoflagger dependency issue
+    #chunked_vis = vis.chunk({'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':chunksize, 'spatial':-1})
 
-    processed = client.submit(ao_flagger, chunked_vis, path)
+    #processed = client.submit(ao_flagger, chunked_vis, path)
 
-    return processed.result()
-
+    #return processed.result()
+    pass
 
