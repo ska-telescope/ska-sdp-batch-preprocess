@@ -1,9 +1,12 @@
-#import ska-sdp-python_proc
-from numpy.typing import NDArray
-import xarray as xr
+# see license in parent directory
+
 import numpy as np
+import xarray as xr
+from numpy.typing import NDArray
+
 from ska_sdp_func_python.preprocessing.averaging import averaging_time, averaging_frequency
 from ska_sdp_func_python.preprocessing.rfi_masks import apply_rfi_masks
+
 
 def mapped_averaging_time(vis : xr.Dataset, timestep, threshold) -> xr.Dataset:
     """

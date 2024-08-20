@@ -2,27 +2,26 @@
 
 from logging import Logger
 from pathlib import Path
-from operations.processing_intent import ProcessingIntent
-from ska_sdp_batch_preprocess.operations.measurement_set import (
-    convert_msv2_to_msv4, MeasurementSet
-)
-from ska_sdp_batch_preprocess.utils import (
-    log_handler, tools
-)
-from functions.distributed_func import (
+from typing import Optional
+
+import numpy as np
+from dask.distributed import Client
+
+from ska_sdp_batch_preprocess.functions.distributed_func import (
     distribute_averaging_time, distribute_rfi_flagger, 
     distribute_rfi_masking, distribute_averaging_freq,
 )
-from dask.distributed import (
-    Client, performance_report, 
-    get_task_stream
+from ska_sdp_batch_preprocess.operations.measurement_set import (
+    convert_msv2_to_msv4, MeasurementSet
 )
-import numpy as np
-
+from ska_sdp_batch_preprocess.operations.processing_intent import (
+    ProcessingIntent
+)
+from ska_sdp_batch_preprocess.utils import log_handler, tools
 
 
 def run(
-        msin: Path, config: dict, client: Client, *, logger: Logger
+        msin: Path, config: Optional[dict], *, client: Client, logger: Logger
 ) -> None:
     """
     Principal function in the pipeline where the various
@@ -43,44 +42,44 @@ def run(
     """
     if config is not None:
         
-        if 'load_ms' in config:
-            args = config['load_ms']
-            logger.info(f"Loading {msin.name} into memory")
-            try:
-                with tools.write_to_devnull():
-                    ms = MeasurementSet.ver_2(msin, args, logger=logger)
-                logger.info(f"Successfully loaded {msin.name} as MSv2\n  |")
-            except:
-                tools.reinstate_default_stdout()
+        if "processing_chain" in config:
+            # load MS
+            if "load_ms" in config["processing_chain"]:
+                logger.info(f"Loading {msin.name} into memory")
+                args = config["processing_chain"]["load_ms"]
                 try:
-                    with log_handler.temporary_log_disable():
-                        ms = MeasurementSet.ver_4(msin, args, logger=logger)
-                    logger.info(f"Successfully loaded {msin.name} as MSv4\n  |")
+                    with tools.write_to_devnull():
+                        ms = MeasurementSet.ver_2(msin, args, logger=logger)
+                    logger.info(f"Successfully loaded {msin.name} as MSv2\n  |")
                 except:
-                    log_handler.enable_logs_manually()
-                    logger.critical(f"Could not load {msin.name} as either Msv2 or MSv4\n  |")
-                    log_handler.exit_pipeline(logger)
-            
-            logger.info("Processing measurement set intents ...")
-            try: 
-                with tools.write_to_devnull():
-                    processing_functions(ms.dataframe, config, client, logger=logger)
-            except:
-                tools.reinstate_default_stdout()
-        
-        if 'export_to_msv2' in config:
-            logger.info("Exporting list of processing intents to MSv2")
-            ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"))
-            logger.info(f"{msin.stem}-output.ms generated successfully")
+                    tools.reinstate_default_stdout()
+                    try:
+                        with log_handler.temporary_log_disable():
+                            ms = MeasurementSet.ver_4(msin, args, logger=logger)
+                        logger.info(f"Successfully loaded {msin.name} as MSv4\n  |")
+                    except:
+                        log_handler.enable_logs_manually()
+                        logger.critical(f"Could not load {msin.name} as either Msv2 or MSv4\n  |")
+                        log_handler.exit_pipeline(logger)
 
+                # Run processing functions
+                logger.info("Running requested processing functions ...")
+                processing_functions(ms.dataframe, config, client, logger=logger)
+                logger.info(f"Successfully ran all processing functions\n  |")
+
+            # export to MSv2
+            if "export_to_msv2" in config["processing_chain"]:
+                logger.info("Exporting list of processing intents to MSv2")
+                args = config["export_to_msv2"]
+                ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
+                logger.info(f"{msin.stem}-output.ms generated successfully\n  |")
+
+        # convert MSv2 to MSv4
         if 'convert_msv2_to_msv4' in config:
             args = config['convert_msv2_to_msv4']
             logger.info(f"Converting {msin.name} to MSv4")
             convert_msv2_to_msv4(msin, args, logger=logger)
             logger.info("Conversion successful\n  |")
-
-           
-
 
 def processing_functions(
      ms: list[ProcessingIntent], config: dict, client: Client, *, logger: Logger
@@ -94,33 +93,33 @@ def processing_functions(
         param: logger - logger class to store and print logs
         """
         
-        for func in config.keys():
+        for func, args in config.items():
             if func == "apply_rfi_masks":
                 logger.info("Applying rfi masks ...")
-                masks = np.array(config['apply_rfi_masks']['rfi_frequency_masks'], dtype=np.float64)
-                print(f" \n Masks shape = {masks.shape} \n")
-                f_chunk = config['apply_rfi_masks']['f_chunk']
+                masks = np.array(args['rfi_frequency_masks'], dtype=np.float64)
+                f_chunk = args['f_chunk']
                 for data in ms:
-                    data = distribute_rfi_masking(data._input_data, masks, f_chunk, client)
+                    data = distribute_rfi_masking(data.data_as_ska_vis, masks, f_chunk, client)
+                logger.info("Apply rfi masks successful\n  |")
 
             elif func == "averaging_frequency":
                 logger.info("Averaging in frequency ...")
-                freqstep = config['averaging_frequency']['freqstep']
-                f_threshold = config['averaging_frequency']['flag_threshold']
-                f_chunk = config['averaging_frequency']['f_chunk']
+                freqstep = args['freqstep']
+                f_threshold = args['flag_threshold']
+                f_chunk = args['f_chunk']
                 for data in ms:
-                    data = distribute_averaging_freq(data._input_data, freqstep, f_chunk, client, f_threshold)
+                    data = distribute_averaging_freq(data.data_as_ska_vis, freqstep, f_chunk, client, f_threshold)
+                logger.info("Frequency averaging successful\n  |")
 
             elif func == "averaging_time":
                 logger.info("Averaging in time ...")
-                timestep = config['averaging_time']['timestep']
-                t_threshold = config['averaging_time']['flag_threshold']
-                t_chunk = config['averaging_time']['t_chunk']
+                timestep = args['timestep']
+                t_threshold = args['flag_threshold']
+                t_chunk = args['t_chunk']
                 for data in ms:
-                    data = distribute_averaging_time(data._input_data, timestep, t_chunk, client, t_threshold)
+                    data = distribute_averaging_time(data.data_as_ska_vis, timestep, t_chunk, client, t_threshold)
+                logger.info("Time averaging successful\n  |")
 
             elif func == "rfi_flagger":
                 logger.info("Flagging ...")
                 pass
-
-
