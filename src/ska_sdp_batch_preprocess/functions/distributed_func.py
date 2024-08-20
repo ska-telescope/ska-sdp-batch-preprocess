@@ -5,7 +5,6 @@ from numpy.typing import NDArray
 from ska_sdp_func_python.preprocessing.averaging import averaging_time, averaging_frequency
 from ska_sdp_func_python.preprocessing.rfi_masks import apply_rfi_masks
 from ska_sdp_func_python.preprocessing.flagger import rfi_flagger
-from ska_sdp_func_python.preprocessing.ao_flagger import ao_flagger
 
 def distribute_averaging_time(vis: xr.Dataset, timestep, chunksize, client: Client, threshold: float) -> xr.Dataset:
     """
@@ -21,9 +20,7 @@ def distribute_averaging_time(vis: xr.Dataset, timestep, chunksize, client: Clie
 
     processed = client.submit(averaging_time, chunked_vis, timestep, threshold)
 
-    output = processed.result()
-
-    return output
+    return processed.result()
 
 
 #TODO: Test scaling of distribution on time instead of frequency
@@ -41,9 +38,7 @@ def distribute_averaging_freq(vis: xr.Dataset, freqstep, chunksize, client: Clie
 
     processed = client.submit(averaging_frequency, chunked_vis, freqstep, threshold)
 
-    output = processed.result()
-
-    return output
+    return processed.result()
 
 
 def distribute_rfi_masking(vis: xr.Dataset, masks: NDArray[np.float64], chunksize, client:Client) -> xr.Dataset:
@@ -61,9 +56,7 @@ def distribute_rfi_masking(vis: xr.Dataset, masks: NDArray[np.float64], chunksiz
 
     processed = client.submit(apply_rfi_masks, chunked_vis, masks)        
     
-    output = processed.result()
-
-    return output
+    return processed.result()
 
 
 def distribute_rfi_flagger(vis: xr.Dataset,
@@ -94,9 +87,7 @@ def distribute_rfi_flagger(vis: xr.Dataset,
 
     processed = client.submit(rfi_flagger, chunked_vis, alpha, threshold_magnitude, threshold_variation, threshold_broadband, sampling, window, window_median_history)
 
-    output = processed.result()
-
-    return output
+    return processed.result()
 
 
 def distribute_ao_flagger(vis:xr.Dataset, chunksize, client:Client, path=None):
@@ -108,12 +99,11 @@ def distribute_ao_flagger(vis:xr.Dataset, chunksize, client:Client, path=None):
     :return: Xarray dataset complying to the visibility datamodel with flags 
     """
 
-    chunked_vis = vis.chunk({'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':chunksize, 'spatial':-1})
+    #TODO: Fix aoflagger dependency issue
+    #chunked_vis = vis.chunk({'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':chunksize, 'spatial':-1})
 
-    processed = client.submit(ao_flagger, chunked_vis, path)
+    #processed = client.submit(ao_flagger, chunked_vis, path)
 
-    output = processed.result()
-
-    return output
-
+    #return processed.result()
+    pass
 
