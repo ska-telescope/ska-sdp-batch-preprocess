@@ -25,7 +25,6 @@
 #
 #
 
-
 processing_chain:
   load_ms:
 
@@ -45,6 +44,7 @@ processing_chain:
     flag_threshold: 0.4
 
   rfi_flagger:
+    t_chunk: 10
 
   export_to_msv2:
 

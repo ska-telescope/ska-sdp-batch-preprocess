@@ -21,7 +21,7 @@ from ska_sdp_batch_preprocess.utils import log_handler, tools
 
 
 def run(
-        msin: Path, config: Optional[dict], *, client: Client, logger: Logger
+        msin: Path, config: Optional[dict],client: Client, *, logger: Logger
 ) -> None:
     """
     Principal function in the pipeline where the various
@@ -64,13 +64,13 @@ def run(
 
                 # Run processing functions
                 logger.info("Running requested processing functions ...")
-                processing_functions(ms.dataframe, config, client, logger=logger)
+                processing_functions(ms.dataframe, config["processing_chain"], client, logger=logger)
                 logger.info(f"Successfully ran all processing functions\n  |")
 
             # export to MSv2
             if "export_to_msv2" in config["processing_chain"]:
                 logger.info("Exporting list of processing intents to MSv2")
-                args = config["export_to_msv2"]
+                args = config["processing_chain"]["export_to_msv2"]
                 ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
                 logger.info(f"{msin.stem}-output.ms generated successfully\n  |")
 
@@ -96,30 +96,42 @@ def processing_functions(
         for func, args in config.items():
             if func == "apply_rfi_masks":
                 logger.info("Applying rfi masks ...")
-                masks = np.array(args['rfi_frequency_masks'], dtype=np.float64)
-                f_chunk = args['f_chunk']
+                masks = np.array(args.get('rfi_frequency_masks'), dtype=np.float64)
+                f_chunk = args.get('f_chunk', 4)
                 for data in ms:
                     data = distribute_rfi_masking(data.data_as_ska_vis, masks, f_chunk, client)
                 logger.info("Apply rfi masks successful\n  |")
 
             elif func == "averaging_frequency":
                 logger.info("Averaging in frequency ...")
-                freqstep = args['freqstep']
-                f_threshold = args['flag_threshold']
-                f_chunk = args['f_chunk']
+                freqstep = args.get('freqstep', 4)
+                f_threshold = args.get('flag_threshold', 0.5)
+                f_chunk = args.get('f_chunk', 10)
                 for data in ms:
                     data = distribute_averaging_freq(data.data_as_ska_vis, freqstep, f_chunk, client, f_threshold)
                 logger.info("Frequency averaging successful\n  |")
 
             elif func == "averaging_time":
                 logger.info("Averaging in time ...")
-                timestep = args['timestep']
-                t_threshold = args['flag_threshold']
-                t_chunk = args['t_chunk']
+                timestep = args.get('timestep', 4)
+                t_threshold = args.get('flag_threshold', 0.5)
+                t_chunk = args.get('t_chunk', 10)
                 for data in ms:
                     data = distribute_averaging_time(data.data_as_ska_vis, timestep, t_chunk, client, t_threshold)
                 logger.info("Time averaging successful\n  |")
 
             elif func == "rfi_flagger":
                 logger.info("Flagging ...")
-                pass
+                t_chunk=args.get('t_chunk', 4)
+                alpha=args.get('alpha', 0.5)
+                threshold_magnitude=args.get('magnitude', 3.5)
+                threshold_variation=args.get('variation', 3.5)
+                threshold_broadband=args.get('broadband', 3.5)
+                sampling=args.get('sampling', 8)
+                window=args.get('window', 0)
+                window_median_history= args.get('median_history', 10)
+                for data in ms:
+                    distribute_rfi_flagger(data.data_as_ska_vis, t_chunk, client, alpha=alpha, threshold_magnitude=threshold_magnitude, 
+                                           threshold_variation=threshold_variation, threshold_broadband=threshold_broadband, 
+                                           sampling=sampling, window=window, window_median_history=window_median_history)
+                logger.info("RFI Flagging successful \n |")

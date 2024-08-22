@@ -32,7 +32,7 @@ def main() -> None:
 
     logger.info("Pipeline running\n  |")
     pipeline.run(
-        Path(args.msin), yaml_dict, client=client, logger=logger
+        Path(args.msin), yaml_dict, client, logger=logger
     )
     log_handler.exit_pipeline(logger, success=True)
 

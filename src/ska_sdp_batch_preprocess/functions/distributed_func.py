@@ -22,9 +22,7 @@ def distribute_averaging_time(vis: xr.Dataset, timestep, chunksize, client: Clie
 
     chunked_vis = vis.chunk({'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':chunksize, 'spatial':-1})
 
-    processed = client.submit(averaging_time, chunked_vis, timestep, threshold)
-
-    return processed.result()
+    return client.submit(averaging_time, chunked_vis, timestep, threshold).result()
 
 
 #TODO: Test scaling of distribution on time instead of frequency
@@ -40,9 +38,7 @@ def distribute_averaging_freq(vis: xr.Dataset, freqstep, chunksize, client: Clie
 
     chunked_vis = vis.chunk({'baselines':-1, 'frequency':chunksize, 'polarisation':-1, 'time':-1, 'spatial':-1})
 
-    processed = client.submit(averaging_frequency, chunked_vis, freqstep, threshold)
-
-    return processed.result()
+    return client.submit(averaging_frequency, chunked_vis, freqstep, threshold).result()
 
 
 def distribute_rfi_masking(vis: xr.Dataset, masks: NDArray[np.float64], chunksize, client:Client) -> xr.Dataset:
@@ -57,22 +53,21 @@ def distribute_rfi_masking(vis: xr.Dataset, masks: NDArray[np.float64], chunksiz
     """
 
     chunked_vis = vis.chunk({'baselines':-1, 'frequency':chunksize, 'polarisation':-1, 'time':-1, 'spatial':-1})
-
-    processed = client.submit(apply_rfi_masks, chunked_vis, masks)        
     
-    return processed.result()
+    return client.submit(apply_rfi_masks, chunked_vis, masks).result()
 
 
 def distribute_rfi_flagger(vis: xr.Dataset,
                            chunksize,
                            client: Client,
-                           alpha=0.5,
-                           threshold_magnitude=3.5,
-                           threshold_variation=3.5,
-                           threshold_broadband=3.5,
-                           sampling = 8,
-                           window=0,
-                           window_median_history=10) -> xr.Dataset:
+                           *,
+                           alpha,
+                           threshold_magnitude,
+                           threshold_variation,
+                           threshold_broadband,
+                           sampling,
+                           window,
+                           window_median_history) -> xr.Dataset:
     """
     Distributes the input visibilities on time and apllies FluctuFlagger RFI flagger
     :param vis: xarray dataset complying to the visibility datamodel
@@ -89,9 +84,7 @@ def distribute_rfi_flagger(vis: xr.Dataset,
 
     chunked_vis = vis.chunk({'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':chunksize, 'spatial':-1})
 
-    processed = client.submit(rfi_flagger, chunked_vis, alpha, threshold_magnitude, threshold_variation, threshold_broadband, sampling, window, window_median_history)
-
-    return processed.result()
+    return client.submit(rfi_flagger, chunked_vis, alpha, threshold_magnitude, threshold_variation, threshold_broadband, sampling, window, window_median_history).result()
 
 
 def distribute_ao_flagger(vis:xr.Dataset, chunksize, client:Client, path=None):
