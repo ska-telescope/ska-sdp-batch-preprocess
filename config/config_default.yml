@@ -28,23 +28,22 @@
 processing_chain:
   load_ms:
 
+  axis: frequency
+  chunksize: 10
+  
   apply_rfi_masks: 
-    f_chunk: 10
     rfi_frequency_masks: 
     - [1.3440e08,1.3444e08]
 
   averaging_frequency:
-    f_chunk: 5
     freqstep: 4
     flag_threshold: 0.4
 
   averaging_time:
-    t_chunk: 5
     timestep: 2
     flag_threshold: 0.4
 
   rfi_flagger:
-    t_chunk: 10
 
   export_to_msv2:
 
