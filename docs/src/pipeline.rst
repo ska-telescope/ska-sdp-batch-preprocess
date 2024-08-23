@@ -23,6 +23,7 @@ calibration and imaging. To achieve this we have implemented a pipeline that can
 to a config file produced by the user's needs. 
 
 Here is a flowchart that describes a simplified workflow of the pipeline:
+
 .. image:: _static/preprocess_pipeline.png
    :width: 100%
 
