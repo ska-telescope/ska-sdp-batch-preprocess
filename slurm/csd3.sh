@@ -1,4 +1,4 @@
-##!/bin/bash
+#!/bin/bash
 #
 # Batch script for submitting Batch Pre-Processing jobs on CSD3
 # Adjust requested resources and variables as necessary
@@ -19,14 +19,15 @@
 # Variables to adjust
 ###############################################################################
 # Input measurement set directory
-INPUT_MS="${HOME}/rds/hpc-work/test_data/"
-REPO_DIR= "${HOME}/rds/hpc-work/pre_process/"
-ACTIVATION_DIR= "${REPO_DIR}/ska-sdp-batch-preprocess-/src/ska_sdp_batch_preprocess/"
+INPUT_MS="${HOME}/rds/hpc-work/test_data/test.ms"
+
+REPO_DIR="${HOME}/rds/hpc-work/pre_process/"
+ACTIVATION_DIR="${REPO_DIR}ska-sdp-batch-preprocess/src/ska_sdp_batch_preprocess/"
 # Activation command for the Python env in which the pipeline is installed
 # You may have to replace this with the equivalent command
 # for the virtualenv manager you are using
 VENV_ACTIVATION_COMMAND="source ${HOME}/rds/hpc-work/pre_process/preprocess/bin/activate"
-OUTPUT_DIR= "${HOME/rds/hpc-work/pre_process/dask_output}"
+OUTPUT_DIR="${HOME/rds/hpc-work/pre_process/dask_output}"
 # Dask options
 DASK_WORKERS_PER_NODE=1
 
@@ -81,7 +82,7 @@ echo "Waiting for workers to start"
 sleep 30
 
 ### Launch pipeline
-cd ${REPO_DIR}
+cd ${REPO_DIR}/ska-sdp-batch-preprocess &&\
 python3 ${ACTIVATION_DIR} ${INPUT_MS} \
     --scheduler ${DASK_SCHEDULER_ADDRESS} \
 
