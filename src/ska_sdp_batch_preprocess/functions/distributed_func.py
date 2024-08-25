@@ -4,6 +4,7 @@ import numpy as np
 import xarray as xr
 from dask.distributed import Client
 from numpy.typing import NDArray
+from typing import Any
 
 from ska_sdp_func_python.preprocessing.averaging import (
     averaging_time, averaging_frequency )
@@ -31,8 +32,18 @@ class Distribute:
         elif (axis == "time"):
             chunked_axis = {'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':chunksize, 'spatial':-1}
         
-        self.vis = vis.chunk(chunked_axis)
+        self._vis = vis.chunk(chunked_axis)
         self.client = client
+    
+    def __setattr__(self, key: str, value: Any) -> None:
+        """
+        The setter method of this class is amended here to inhibit external
+        manipulation of private attributes (i.e., those starting with '_').
+        """
+        if hasattr(self, key) and key[0] == '_':
+            self.logger.warning(f"Attribute '{key}' is private and cannot be changed")
+            return
+        self.__dict__[f"{key}"] = value       
 
     def avg_time(self, timestep, threshold: float) -> xr.Dataset:
         """
@@ -43,8 +54,7 @@ class Distribute:
 
         :return: Time averaged Xarray dataset complying to the visibility datamodel
         """
-        self.vis = self.client.submit(averaging_time, self.vis, timestep, threshold).result()
-        return self.vis
+        return self.client.submit(averaging_time, self._vis, timestep, threshold).result()
 
 
     def avg_freq(self, freqstep, threshold: float) -> xr.Dataset:
@@ -57,8 +67,7 @@ class Distribute:
         :return: Freq averaged Xarray dataset complying to the visibility datamodel
         """
 
-        self.vis = self.client.submit(averaging_frequency, self.vis, freqstep, threshold).result()
-        return self.vis
+        return self.client.submit(averaging_frequency, self._vis, freqstep, threshold).result()
 
     def rfi_masking(self, masks: NDArray[np.float64]) -> xr.Dataset:
         """
@@ -69,8 +78,7 @@ class Distribute:
         :return: Xarray dataset complying to the visibility datamodel with masked frequencies
         """
 
-        self.vis = self.client.submit(apply_rfi_masks, self.vis, masks).result()
-        return self.vis
+        return self.client.submit(apply_rfi_masks, self._vis, masks).result()
 
     def flagger(self,
                 *,
@@ -95,8 +103,7 @@ class Distribute:
         :return: Xarray dataset complying to the visibility datamodel with flags
         """
 
-        self.vis = self.client.submit(rfi_flagger, self.vis, alpha, threshold_magnitude, threshold_variation, threshold_broadband, sampling, window, window_median_history).result()
-        return self.vis
+        return self.client.submit(rfi_flagger, self._vis, alpha, threshold_magnitude, threshold_variation, threshold_broadband, sampling, window, window_median_history).result()
 
     def ao_rfi_flagger(self, path=None):
         """
