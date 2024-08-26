@@ -4,6 +4,7 @@ import argparse
 import yaml
 from logging import Logger
 from pathlib import Path
+from typing import Any
 
 from dask.distributed import Client, LocalCluster
 
@@ -21,18 +22,18 @@ def main() -> None:
     logger.info(f"Loading {Path(args.config).name} into memory")
     yaml_dict = read_yaml(Path(args.config), logger=logger)
     logger.info(f"Load successful\n  |")
-    
+
     if args.scheduler:
         logger.info(f"DASK distribution - utilizing the cluster provided: {args.scheduler}\n  |")
         client = Client(args.scheduler, timeout=100)
-    
+
     else:
         logger.info("DASK distribution - utilizing the local cluster\n  |")
         client = Client(LocalCluster())
 
     logger.info("Pipeline running\n  |")
     pipeline.run(
-        Path(args.msin), yaml_dict, client, logger=logger
+        Path(args.msin), yaml_dict, client=client, logger=logger
     )
     log_handler.exit_pipeline(logger, success=True)
 
@@ -92,7 +93,7 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
-def read_yaml(dir: Path, *, logger: Logger) -> dict:
+def read_yaml(dir: Path, *, logger: Logger) -> dict[str, Any]:
     """
     Reads YAML configuration file as a dictionary.
     No custom format checks as of yet.

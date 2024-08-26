@@ -7,7 +7,9 @@ from numpy.typing import NDArray
 from typing import Any
 
 from ska_sdp_func_python.preprocessing.averaging import (
-    averaging_time, averaging_frequency )
+    averaging_frequency,
+    averaging_time
+)
 from ska_sdp_func_python.preprocessing.rfi_masks import apply_rfi_masks
 from ska_sdp_func_python.preprocessing.flagger import rfi_flagger
 
@@ -24,14 +26,19 @@ class Distribute:
         """
         Initiates the Distribute class by checking if the user has defined the 
         chunking axis to be frequency or time and divides the xarray dataset based 
-        on the axis and the chunksize 
-        """
+        on the axis and the chunksize
 
-        if (axis == "frequency"):
-            chunked_axis = {'baselines':-1, 'frequency':chunksize, 'polarisation':-1, 'time':-1, 'spatial':-1}
-        elif (axis == "time"):
-            chunked_axis = {'baselines':-1, 'frequency':-1, 'polarisation':-1, 'time':chunksize, 'spatial':-1}
-        
+        Raises
+        ------
+        KeyError
+        """
+        chunked_axis = {
+            key: chunksize if key == axis else -1
+            for key in [
+                "baseline", "frequency", "polarisation", "time", "spatial"
+            ]
+        }
+
         self._vis = vis.chunk(chunked_axis)
         self.client = client
     
@@ -41,7 +48,6 @@ class Distribute:
         manipulation of private attributes (i.e., those starting with '_').
         """
         if hasattr(self, key) and key[0] == '_':
-            self.logger.warning(f"Attribute '{key}' is private and cannot be changed")
             return
         self.__dict__[f"{key}"] = value       
 
