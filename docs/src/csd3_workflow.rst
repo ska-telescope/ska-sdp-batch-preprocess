@@ -12,7 +12,7 @@ An example of a standard workflow on CSD3 would be:
 
 * Create and activate virtual environment:    
  .. code-block::
- python3 -m venv venv_name
+ python3 -m venv venv_name &&
  source venv_name/bin/activate
     
 * Install poetry: 
@@ -21,8 +21,8 @@ An example of a standard workflow on CSD3 would be:
         
 * Clone git repo and install the pipeline: 
  .. code-block::
- git clone https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-batch-preprocess.git
- cd ska-sdp-batch-preprocess
+ git clone https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-batch-preprocess.git &&
+ cd ska-sdp-batch-preprocess &&
  poetry install
 
 * Run batch script:
