@@ -27,7 +27,7 @@ ACTIVATION_DIR="${REPO_DIR}ska-sdp-batch-preprocess/src/ska_sdp_batch_preprocess
 # You may have to replace this with the equivalent command
 # for the virtualenv manager you are using
 VENV_ACTIVATION_COMMAND="source ${HOME}/rds/hpc-work/pre_process/preprocess/bin/activate"
-OUTPUT_DIR="${HOME/rds/hpc-work/pre_process/dask_output}"
+OUTPUT_DIR="${HOME}/rds/hpc-work/pre_process/dask_output"
 # Dask options
 DASK_WORKERS_PER_NODE=1
 

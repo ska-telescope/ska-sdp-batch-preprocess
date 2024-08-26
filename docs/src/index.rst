@@ -14,12 +14,22 @@ is similarly implemented in the ska-sdp-func-python repo.
 
 The documentation describes how the Batch Preprocessing Pipeline works and how it's implemented using the functions from ska-sdp-func and ska-sdp-func-python.
 
+- See the :ref: 'installation' page for installation instructions.
+- See the :ref: 'measurement_set' page to understand how measurment sets are handled by the pipeline.
+- See the :ref: 'processing_funcs' page for more information on the processing functions available.
+- See the :ref: 'pipeline' page to see how everything connects and the overall workflow.
+- See the :ref: 'csd3_workflow' page to see an example of how to run the pipeline on CSD3.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   :hidden:
 
-
-
+   installation
+   measurement_set
+   processing_funcs
+   pipeline
+   csd3_workflow
 
 * :ref:`genindex`
 * :ref:`modindex`
