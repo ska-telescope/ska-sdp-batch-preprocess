@@ -39,8 +39,8 @@ def run(
     if config is not None:
         if "processing_chain" in config:            
             #Define chunking parameters        
-            axis = config.setdefault("axis", "frequency")
-            chunksize = config.setdefault("chunksize", 10)
+            axis = config['processing_chain'].setdefault("axis", "frequency")
+            chunksize = config['processing_chain'].setdefault("chunksize", 10)
             logger.info(f"DASK distribution - Axis={axis} and Chunksize={chunksize} \n")
             
             # load MS
