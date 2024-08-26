@@ -1,0 +1,36 @@
+{
+    "title": "Config",
+    "description": "Configuration file for ska-sdp-batch-preprocess",
+    "type": "object",
+    "properties": {
+        "convert_msv2_to_msv4": {
+            "title": "MS type conversion",
+            "description": "convert v2 to v4 on disk",
+            "type": [ "object", null ]
+        },
+        "processing_chain": {
+            "title": "Chain of processing functions",
+            "description": "Processing chain",
+            "properties": {
+                "load_ms": {
+                    "type": [ "object", null ]
+                },
+                "apply_rfi_masks": {
+                    "type": "object"
+                },
+                "averaging_frequency": {
+                    "type": "object"
+                },
+                "averaging_time": {
+                    "type": "object"
+                },
+                "rfi_flagger": {
+                    "type": [ "object", null ]
+                },
+                "export_to_msv2": {
+                    "type": [ "object", null ]
+                }
+            }
+        }
+    }
+}
