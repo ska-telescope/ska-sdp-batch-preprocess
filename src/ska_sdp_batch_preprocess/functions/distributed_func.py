@@ -35,7 +35,7 @@ class Distribute:
         chunked_axis = {
             key: chunksize if key == axis else -1
             for key in [
-                "baseline", "frequency", "polarisation", "time", "spatial"
+                "baselines", "frequency", "polarisation", "time", "spatial"
             ]
         }
 
