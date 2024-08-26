@@ -25,7 +25,7 @@ to a config file produced by the user's needs.
 Here is a flowchart that describes a simplified workflow of the pipeline:
 
 .. image:: _static/preprocess_pipeline.png
-   :height: 50%
+   :height: 200px
    :width: 100%
 
 Config YAML
