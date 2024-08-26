@@ -26,7 +26,7 @@ Here is a flowchart that describes a simplified workflow of the pipeline:
 
 .. image:: _static/preprocess_pipeline.png
    :height: 200px
-   :width: 100%
+   :width: 60%
 
 Config YAML
 ============
