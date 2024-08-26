@@ -24,7 +24,7 @@ def main() -> None:
     
     if args.scheduler:
         logger.info(f"DASK distribution - utilizing the cluster provided: {args.scheduler}\n  |")
-        client = Client(args.scheduler)
+        client = Client(args.scheduler, timeout=100)
     
     else:
         logger.info("DASK distribution - utilizing the local cluster\n  |")
