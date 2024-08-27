@@ -3,7 +3,7 @@
 from logging import Logger
 from pathlib import Path
 from typing import Any, Optional
-
+import time
 import numpy as np
 from dask.distributed import Client
 
@@ -41,7 +41,10 @@ def run(
       logger object to handle pipeline logs.
     """
     if config is not None:
-        if "processing_chain" in config:            
+        if "processing_chain" in config:
+            #Start timing the pipeline
+            start_time = time.time()
+
             #Define chunking parameters        
             axis = config["processing_chain"].setdefault("axis", "frequency")
             chunksize = config["processing_chain"].setdefault("chunksize", 10)
@@ -82,6 +85,10 @@ def run(
                 args = config["processing_chain"]["export_to_msv2"]
                 ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
                 logger.info(f"{msin.stem}-output.ms generated successfully\n  |")
+            
+            #Stop timing the pipeline
+            end_time = time.time()
+            logger.info(f"Total time taken by the pipeline {end_time - start_time}")
 
         # convert MSv2 to MSv4
         if "convert_msv2_to_msv4" in config:

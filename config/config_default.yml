@@ -29,7 +29,7 @@ processing_chain:
   load_ms:
 
   axis: time
-  chunksize: 20
+  chunksize: 10
   
   apply_rfi_masks: 
     rfi_frequency_masks: 

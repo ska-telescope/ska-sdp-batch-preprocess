@@ -25,11 +25,11 @@ def main() -> None:
 
     if args.scheduler:
         logger.info(f"DASK distribution - utilizing the cluster provided: {args.scheduler}\n  |")
-        client = Client(args.scheduler, timeout=3500)
+        client = Client(args.scheduler)
 
     else:
         logger.info("DASK distribution - utilizing the local cluster\n  |")
-        client = Client(LocalCluster())
+        client = Client(LocalCluster(n_workers=4))
 
     logger.info("Pipeline running\n  |")
     pipeline.run(
