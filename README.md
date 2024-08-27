@@ -1,93 +1,38 @@
-# ska-sdp-batch-preprocess
-
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-batch-preprocess.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-batch-preprocess/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
+# SKA SDP Batch Preprocessing Pipeline
+Distributed preprocessing pipeline with the functionality for averaging on time, frequency; rfi masking and rfi flagging. 
 ## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+This is a dask distributed pipeline for preprocessing, specifically the pipeline can average on time and frequency, it can add rfi masks, and has the ability to flag rfi. The pipeline can read `MSv2` or `MSv4` and can execute the preprocessing functions in any configuration with user defined parameters through a `yaml` config file. The processing functions can be distributed on either the time or frequency axis depending on the user, similarly the chunk size can be defined by the user in the config file. The pipeline has the ability to export the processed Measurement Sets in the `MSv2` or `MSv4` format. The pipeline can also convert between `MSv2` or `MSv4` either in memory or on disk.  Additionally, there is functionality to map processing functions on a single node if they are embarrassingly parallel. 
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
+To install the pipeline please make sure to use a virtual environment either with `conda` or `python`, and use the following command in the root directory of the repository:
+ ```
+poetry install
+``` 
+This will install the dependencies of the pipeline and install the latest release. 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Parameters expected from the pipeline are:
+- Measurement Set Directory
+- Config File Directory (optional)
+- Dask Scheduler Address (optional)
+- Command Logs (optional)
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Example pipeline run command from the root directory:
+```
+python3 src/ska_sdp_batch_preprocess/ ms_dir --config config_dir --cmd_logs --scheduler dask_scheduler_address
+```
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+To run the pipeline, the `yaml`config file needs to include the processing functions and the commands to read,write or convert measurement sets. Further arguments for the pipeline can be added via the config according to user needs. Further instructions on how to structure the config file can be found in the default `config_default.yml` file.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## Dependencies
+- casacore (for MSv2 functionality)
+- XRadio (for MSv4 functionality)
+- ska-sdp-func-python
+- ska-sdp-func
+- ska-sdp-datamodels
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Normally these dependencies should be resolved with poetry, however since some of these repos are still under active development the pipeline might break due to unforeseen changes.
+## Notes
 
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+The pipeline does not employ aoflagger for rfi flagging in it's current state. The RFI Flagger utilised here is the RFI Flagger implemented in ska-sdp-func, the pipeline can certainly include aoflagger in the future but since it's a dependency that is hard to resolve for poetry it would need major changes, mainly depending on singularity images.

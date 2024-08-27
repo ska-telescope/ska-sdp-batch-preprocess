@@ -2,40 +2,47 @@
 #
 # Default YAML config file.
 # NOTE: The functions below can be changed with the MSv2 versions if needed and if MSv4 datasets are available.
+#
 # Current options include:
 #   1- convert_msv2_to_msv4 (takes all relevant XRadio optional arguments)
 #      https://github.com/casangi/xradio/blob/c683d8927c431e2b81a1e0ae1fdabc36b77f05d4/src/xradio/vis/convert_msv2_to_processing_set.py#L13
 #
-#   2- load_msv4
-#      currently only loads full datasets without any slicing (takes all relevant XRadio optional arguments)
-# 
-#   3- export_to_msv2
-#      uses ska-sdp-datamodels to export SKA-Visibility datatype to MSv2 (takes all relevant optional arguments)
+#   2- processing_chain:
+#     a- load_ms: if desired, list XRadio or SKA-SDP-Datamodels optional arguments
+#         XRadio (for v4): https://github.com/casangi/xradio/blob/a0abbd879a6cd0fcbd1580201f4841125dd2a6ed/src/xradio/vis/convert_msv2_to_processing_set.py#L11
+#         SKA-SDP-Datamodels (for v2): https://gitlab.com/ska-telescope/sdp/ska-sdp-datamodels/-/blob/main/src/ska_sdp_datamodels/visibility/vis_io_ms.py?ref_type=heads#L242
 #
-# To choose between the PFL flagger and AOFlagger the following options are available:
-#   1- .rfi_flagger
-#       Uses the rfi flagger in PFL
-#   2- .ao_rfi_flagger
-#       Utilises the AOFlagger, (the user must ensure that aoflagger's dependencies are installed globally)
+#     b- apply_rfi_masks
+#
+#     c- averaging_frequency
+#
+#     d- averaging_time
+#
+#     e- rfi_flagger
+#
+#     f- export_to_msv2: if desired, list SKA-SDP-Datamodels optional arguments
+#         https://gitlab.com/ska-telescope/sdp/ska-sdp-datamodels/-/blob/main/src/ska_sdp_datamodels/visibility/vis_io_ms.py?ref_type=heads#L93 
+#
 #
 
-load_ms:
+processing_chain:
+  load_ms:
 
-apply_rfi_masks: 
-  f_chunk: 10
-  rfi_frequency_masks: 
-  - [1.3440e08,1.3444e08]
+  axis: time
+  chunksize: 20
+  
+  apply_rfi_masks: 
+    rfi_frequency_masks: 
+    - [1.3440e08,1.3444e08]
 
-averaging_frequency:
-  f_chunk: 5
-  freqstep: 4
-  flag_threshold: 0.4
+  averaging_frequency:
+    freqstep: 4
+    flag_threshold: 0.4
 
-averaging_time:
-  t_chunk: 5
-  timestep: 2
-  flag_threshold: 0.4
+  averaging_time:
+    timestep: 2
+    flag_threshold: 0.4
 
-rfi_flagger: null
+  rfi_flagger:
 
-export_to_msv2:
+  export_to_msv2:

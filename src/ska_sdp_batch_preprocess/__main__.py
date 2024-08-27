@@ -4,39 +4,36 @@ import argparse
 import yaml
 from logging import Logger
 from pathlib import Path
+from typing import Any
 
-from operations import pipeline
-from utils import log_handler
 from dask.distributed import Client, LocalCluster
+
+from ska_sdp_batch_preprocess.operations import pipeline
+from ska_sdp_batch_preprocess.utils import log_handler
+
 
 def main() -> None:
     """
     Pipeline entry point.
     """
     args = parse_args()
-    logger = log_handler.generate(
-        "Batch Preprocess", cmd_logs=args.cmd_logs
-    )
+    logger = log_handler.generate("Batch Preprocess", cmd_logs=args.cmd_logs)
 
-    logger.info(
-        f"Loading {Path(args.config).name} into memory"
-    )
+    logger.info(f"Loading {Path(args.config).name} into memory")
     yaml_dict = read_yaml(Path(args.config), logger=logger)
-    logger.info(
-        f"Load successful\n  |" 
-    )
-    
-    if(args.scheduler):
-        logger.info(f"Utilizing the cluster provided: {args.scheduler}")
-        client = Client(args.scheduler)
+    logger.info(f"Load successful\n  |")
+
+    if args.scheduler:
+        logger.info(f"DASK distribution - utilizing the cluster provided: {args.scheduler}\n  |")
+        client = Client(args.scheduler, timeout=3500)
+
     else:
-        logger.info("Utilizing the local cluster")
-        cluster = LocalCluster()
-        client = Client(cluster)
+        logger.info("DASK distribution - utilizing the local cluster\n  |")
+        client = Client(LocalCluster())
 
     logger.info("Pipeline running\n  |")
     pipeline.run(
-        Path(args.msin), yaml_dict, client, logger=logger
+        Path(args.msin), yaml_dict, client=client, logger=logger
     )
     log_handler.exit_pipeline(logger, success=True)
 
@@ -46,6 +43,9 @@ def parse_args() -> argparse.Namespace:
 
     cmd Arguments
     -------------
+    msin: str
+      directory for the input measurement set (v2 or v4).
+    
     --config (optional): str 
       directory for the YAML configuration file,
       (default /ska-sdp-batch-preprocess/config/config_default.yml).
@@ -54,9 +54,10 @@ def parse_args() -> argparse.Namespace:
       raising this flag will prompt the pipeline to output
       logs on the command line in addition to logging into a
       logfile.
-    
-    msin: str
-      directory for the input measurement set (v2 or v4).
+
+    --scheduler (optional): str
+      address of a DASK scheduler to use for distribution
+      (if not called, the local cluster will be utilised).
 
     Returns
     -------
@@ -66,6 +67,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Batch preprocessing pipeline",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    
+    parser.add_argument(
+        "msin",
+        type=str,
+        help="Measurement set (v2 or v4) directory"
     )
     parser.add_argument(
         "--config",
@@ -79,20 +86,14 @@ def parse_args() -> argparse.Namespace:
         help="Generates detailed logs on the command line"
     )
     parser.add_argument(
-        "msin",
-        type=str,
-        help="Measurement set (v2 or v4) directory"
-    )
-
-    parser.add_argument(
         "--scheduler",
         type=str, 
-        help="Address of a dask scheduler to use for distribution"
+        help="Address of a DASK scheduler to use for distribution"
     )
 
     return parser.parse_args()
 
-def read_yaml(dir: Path, *, logger: Logger) -> dict:
+def read_yaml(dir: Path, *, logger: Logger) -> dict[str, Any]:
     """
     Reads YAML configuration file as a dictionary.
     No custom format checks as of yet.
