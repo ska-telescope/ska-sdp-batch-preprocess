@@ -46,5 +46,3 @@ processing_chain:
   rfi_flagger:
 
   export_to_msv2:
-
-convert_msv2_to_msv4:
