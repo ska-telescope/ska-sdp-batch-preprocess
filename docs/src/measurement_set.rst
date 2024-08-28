@@ -1,7 +1,7 @@
 .. _measurement_set:
 
 **************************
-Measurement Set Operations
+Measurement Sets
 **************************
 
 Measurement Set loading
