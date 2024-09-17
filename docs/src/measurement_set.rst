@@ -40,6 +40,14 @@ Schematic for in-memory Measurement Set data
 
 Converting Measurement Sets from v2 to v4 on disk
 =================================================
+The pipeline also provides an interface to convert MSv2 to MSv4 via `xradio`. List the option `convert_msv2_to_msv4:` in your `.yml` configuration file to enable this operation. This is a standalone operation that will not interfere with other processing functions.
+All relevant `xradio` optional arguments can also be passed as sub-commands here (https://github.com/casangi/xradio/blob/a0abbd879a6cd0fcbd1580201f4841125dd2a6ed/src/xradio/vis/convert_msv2_to_processing_set.py#L11). Take care not to conflict the operations of this pipeline as described here with external optional arguments.
 
 Writing Measurement Sets
 ========================
+The pipeline enables exporting in-memory data as MSv2 on disk using `ska-sdp-datamodels`.
+
+
+
+
+ska_sdp_datamodels currently writes MSv2 using the function export_visibility_to_ms() in ska_sdp_datamodels. This yields an MSv2 on disk. Writing MSv4 is currently a more complex endeavour that requires investing more time and the existence of suitable packages that can work with ska_sdp_batch_preprocess. Therefore, care should be taken that, if the loaded MS is version 4, and the Visibility ↔ VisibilityXds convertibility is hindered/non-operational (as highlighted above), then ska_sdp_batch_preprocess will not be able to write MSv2 on disk. Therefore, in such a case one should exclusively load MSv2 into ska_sdp_batch_preprocess. 
