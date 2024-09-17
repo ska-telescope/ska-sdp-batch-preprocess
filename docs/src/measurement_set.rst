@@ -27,14 +27,16 @@ The following section covers further information about this.
 
 `Visibility` <-> `VisibilityXds` convertibility
 -----------------------------------------------
-
 The primary use case of having a `ProcessingIntent` class is to unify the loading of data from MSv2 and MSv4. As described above, data from MSv2 can be loaded yet retrieved as in-memory MSv4-compatible data types, and vice versa. Therefore, it is hoped that this architecture entailing the use of `ProcessingIntent` will enable various operations/tests in this pipeline and further pipelines, which may require data-chunking and/or in-memory MSv2 ↔ MSv4 conversions.
 
-Note that, because xradio is in active development, the Visibility ↔ VisibilityXds conversion functions will only work if the the relevant functions from ska_sdp_datamodels are operational. While these are being actively maintained, the consistent updates to xradio might hinder these from being fully operational as of yet. Nevertheless, note that the loaded data type is always retrievable; for example, if the loaded MS is version 2, and so it is loaded as Visibility type, calling data_as_ska_vis should always work. Similarly, if the loaded MS is version 4, and so it is loaded as VisibilityXds  type, calling data_as_xradio_vis should always work.
+Note that, because `xradio` is in active development, the `Visibility` <-> `VisibilityXds` conversion functions will only work if the relevant functions from `ska_sdp_datamodels` are operational. While these are being actively maintained, the consistent updates to `xradio` might hinder these from being fully operational as of yet. Nevertheless, note that the loaded data type is always retrievable; for example, if the loaded MS is version 2, and so it is loaded as `Visibility` type, calling `data_as_ska_vis` should always work. 
+Similarly, if the loaded MS is version 4, and so it is loaded as `VisibilityXds`  type, calling `data_as_xradio_vis` should always work.
 
-
-
-
+Schematic for in-memory Measurement Set data
+--------------------------------------------
+.. image:: _static/ms_in_memory.png
+   :height: 200px
+   :width: 60%
 
 Converting Measurement Sets from v2 to v4 on disk
 =================================================
