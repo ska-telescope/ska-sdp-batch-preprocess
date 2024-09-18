@@ -45,9 +45,21 @@ All relevant `xradio` optional arguments can also be passed as sub-commands here
 
 Writing Measurement Sets
 ========================
-The pipeline enables exporting in-memory data as MSv2 on disk using `ska-sdp-datamodels`.
+The pipeline enables exporting in-memory data as MSv2 on disk using `ska-sdp-datamodels`. Writing MSv4 is currently a more complex endeavour that requires the existence of suitable packages. Therefore, care should be taken that, if the loaded MS is version 4, and the `Visibility` <-> `VisibilityXds` convertibility is hindered/non-operational, 
+then this pipeline will not be able to write MSv2 on disk. In such a case, one should exclusively load MSv2 into this pipeline.
 
+A word of caution
+=================
 
+MSv4 considerations
+-------------------
+Given that `xradio` is currently in rapid development (as of Sept 2024), there are a couple of risks associsted with loading MSv4 into the pipeline:
 
+ * The architecture of MSv4 directories and/or operation logic of `xradio` could change rapidly so as to hinder successful loading of your MSv4.
 
-ska_sdp_datamodels currently writes MSv2 using the function export_visibility_to_ms() in ska_sdp_datamodels. This yields an MSv2 on disk. Writing MSv4 is currently a more complex endeavour that requires investing more time and the existence of suitable packages that can work with ska_sdp_batch_preprocess. Therefore, care should be taken that, if the loaded MS is version 4, and the Visibility ↔ VisibilityXds convertibility is hindered/non-operational (as highlighted above), then ska_sdp_batch_preprocess will not be able to write MSv2 on disk. Therefore, in such a case one should exclusively load MSv2 into ska_sdp_batch_preprocess. 
+ * The `ska-sdp-datamodels` functions internally handling in-memory `Visibility` <-> `VisibilityXds` conversions can also be affected by the rapid change in `xradio`. This means that, even if MSv4 is successfully loaded into memory a risk persists of not being able to retrieve the data as SKA-datamodels format, which, in turn, hinders exporting
+   the in-memory data as MSv2 by relevant `ska-sdp-datamodels` functions.
+
+VLA data
+--------
+It has been noticed that the pipeline fails to load some VLA data, and the error arises from `ska-sdp-datamodels`.
