@@ -30,7 +30,7 @@ Here is a flowchart that describes a simplified workflow of the pipeline:
 The general pipeline usage entails installation (see relevant page), followed by navigating to the parent directory and running the following:
 
 .. code-block:: bash
-   $ python3 ./src/ska-sdp-batch-preprocess [--options] ${path_to_your_input_measurement_set.ms}
+$ python3 ./src/ska-sdp-batch-preprocess [--options] ${path/to/your/input/measurement_set.ms}
 
 Options include:
  
