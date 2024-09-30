@@ -29,6 +29,7 @@ ska-telmodel = "^1.17"
 numpy = "^1.26"
 python-casacore = "^3.5.2"
 PyYAML = "^6.0.1"
+jsonschema = "^4.23.0"
 
 # Install with `poetry install --with docs`
 pytest = "^8.3.2"

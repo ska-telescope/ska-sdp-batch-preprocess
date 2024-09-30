@@ -8,6 +8,9 @@ from typing import Any
 
 from dask.distributed import Client, LocalCluster
 
+from ska_sdp_batch_preprocess.config.validate_config import (
+    validate_config
+)
 from ska_sdp_batch_preprocess.operations import pipeline
 from ska_sdp_batch_preprocess.utils import log_handler
 
@@ -19,9 +22,7 @@ def main() -> None:
     args = parse_args()
     logger = log_handler.generate("Batch Preprocess", cmd_logs=args.cmd_logs)
 
-    logger.info(f"Loading {Path(args.config).name} into memory")
     yaml_dict = read_yaml(Path(args.config), logger=logger)
-    logger.info(f"Load successful\n  |")
 
     if args.scheduler:
         logger.info(f"DASK distribution - utilizing the cluster provided: {args.scheduler}\n  |")
@@ -107,12 +108,23 @@ def read_yaml(dir: Path, *, logger: Logger) -> dict[str, Any]:
     -------
     Python dictionary enclosing the YAML configurations.
     """
+    logger.info(f"Loading {dir.name} into memory")
     try:
         with open(f"{dir}", 'r') as file:
-            return yaml.safe_load(file)
+            config = yaml.safe_load(file)
     except:
         logger.critical(f"Loading {dir.name} failed")
         log_handler.exit_pipeline(logger)
+
+    logger.info("Validating loaded YAML object")
+    try:
+        validate_config(config)
+    except:
+        logger.critical("Invalid YAML format\n  |")
+        log_handler.exit_pipeline(logger)
+
+    logger.info("Success\n  |")
+    return config
 
 
 if __name__ == "__main__":

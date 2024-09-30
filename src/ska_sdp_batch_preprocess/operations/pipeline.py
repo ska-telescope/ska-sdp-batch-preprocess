@@ -40,55 +40,54 @@ def run(
     logger: logging.Logger
       logger object to handle pipeline logs.
     """
-    if config is not None:
-        if "processing_chain" in config:            
-            #Define chunking parameters        
-            axis = config["processing_chain"].setdefault("axis", "frequency")
-            chunksize = config["processing_chain"].setdefault("chunksize", 10)
-            logger.info(f"DASK distribution - Axis={axis} and Chunksize={chunksize} \n  |")
-            
-            # load MS
-            if "load_ms" in config["processing_chain"]:
-                logger.info(f"Loading {msin.name} into memory")
-                args = config["processing_chain"]["load_ms"]
+    if "processing_chain" in config:            
+        #Define chunking parameters        
+        axis = config["processing_chain"].setdefault("axis", "frequency")
+        chunksize = config["processing_chain"].setdefault("chunksize", 10)
+        logger.info(f"DASK distribution - Axis={axis} and Chunksize={chunksize} \n  |")
+        
+        # load MS
+        if "load_ms" in config["processing_chain"]:
+            logger.info(f"Loading {msin.name} into memory")
+            args = config["processing_chain"]["load_ms"]
+            try:
+                with tools.write_to_devnull():
+                    ms = MeasurementSet.ver_2(msin, args, logger=logger)
+                logger.info(f"Successfully loaded {msin.name} as MSv2\n  |")
+            except:
+                tools.reinstate_default_stdout()
                 try:
-                    with tools.write_to_devnull():
-                        ms = MeasurementSet.ver_2(msin, args, logger=logger)
-                    logger.info(f"Successfully loaded {msin.name} as MSv2\n  |")
+                    with log_handler.temporary_log_disable():
+                        ms = MeasurementSet.ver_4(msin, args, logger=logger)
+                    logger.info(f"Successfully loaded {msin.name} as MSv4\n  |")
                 except:
-                    tools.reinstate_default_stdout()
-                    try:
-                        with log_handler.temporary_log_disable():
-                            ms = MeasurementSet.ver_4(msin, args, logger=logger)
-                        logger.info(f"Successfully loaded {msin.name} as MSv4\n  |")
-                    except:
-                        log_handler.enable_logs_manually()
-                        logger.critical(f"Could not load {msin.name} as either Msv2 or MSv4\n  |")
-                        log_handler.exit_pipeline(logger)
+                    log_handler.enable_logs_manually()
+                    logger.critical(f"Could not load {msin.name} as either Msv2 or MSv4\n  |")
+                    log_handler.exit_pipeline(logger)
 
-                #Initialize distributor & run processing functions
-                for data in ms.dataframe:
-                    logger.info("Initializing distribution strategy")
-                    distributor = Distribute(data.data_as_ska_vis, axis, chunksize, client)
-                    logger.info("Initialisation successful\n  |")
+            #Initialize distributor & run processing functions
+            for data in ms.dataframe:
+                logger.info("Initializing distribution strategy")
+                distributor = Distribute(data.data_as_ska_vis, axis, chunksize, client)
+                logger.info("Initialisation successful\n  |")
 
-                    logger.info("Running requested processing functions ...\n  |")
-                    processing_functions(distributor, config["processing_chain"],logger=logger)
-                    logger.info(f"Successfully ran all processing functions\n  |")
+                logger.info("Running requested processing functions ...\n  |")
+                processing_functions(distributor, config["processing_chain"],logger=logger)
+                logger.info(f"Successfully ran all processing functions\n  |")
 
-            # export to MSv2
-            if "export_to_msv2" in config["processing_chain"]:
-                logger.info("Exporting list of processing intents to MSv2")
-                args = config["processing_chain"]["export_to_msv2"]
-                ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
-                logger.info(f"{msin.stem}-output.ms generated successfully\n  |")
+        # export to MSv2
+        if "export_to_msv2" in config["processing_chain"]:
+            logger.info("Exporting list of processing intents to MSv2")
+            args = config["processing_chain"]["export_to_msv2"]
+            ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
+            logger.info(f"{msin.stem}-output.ms generated successfully\n  |")
 
-        # convert MSv2 to MSv4
-        if "convert_msv2_to_msv4" in config:
-            args = config["convert_msv2_to_msv4"]
-            logger.info(f"Converting {msin.name} to MSv4")
-            convert_msv2_to_msv4(msin, args, logger=logger)
-            logger.info("Conversion successful\n  |")
+    # convert MSv2 to MSv4
+    if "convert_msv2_to_msv4" in config:
+        args = config["convert_msv2_to_msv4"]
+        logger.info(f"Converting {msin.name} to MSv4")
+        convert_msv2_to_msv4(msin, args, logger=logger)
+        logger.info("Conversion successful\n  |")
 
 def processing_functions(
     distributor: Distribute, config: dict[str, Any], *, logger: Logger
