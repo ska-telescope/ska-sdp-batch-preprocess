@@ -18,6 +18,7 @@ priority = "primary"
 [tool.poetry.dependencies]
 python = ">=3.10, <3.12"
 xradio = "^0.0.30"
+graphviper = "^0.0.27"
 
 #The following three libraries are using specific branches to function appropriately, this will be changed and would need updating when the branches are merged or deleted
 ska-sdp-datamodels = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-datamodels.git", rev = "sp-4385-implement-xradio-converter"}
@@ -29,6 +30,7 @@ ska-telmodel = "^1.17"
 numpy = "^1.26"
 python-casacore = "^3.5.2"
 PyYAML = "^6.0.1"
+jsonschema = "^4.23.0"
 
 # Install with `poetry install --with docs`
 pytest = "^8.3.2"
@@ -44,4 +46,3 @@ ska-sdp-func-python = ["ska-sdp-func-python"]
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
