@@ -11,7 +11,7 @@ from ska_sdp_batch_preprocess.functions.distributed_func import (
     Distribute
 )
 from ska_sdp_batch_preprocess.operations.measurement_set import (
-    convert_msv2_to_msv4, 
+    convert_msv2_to_msv4,
     MeasurementSet
 )
 from ska_sdp_batch_preprocess.utils import log_handler, tools

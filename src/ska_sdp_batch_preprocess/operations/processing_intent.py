@@ -4,7 +4,7 @@ from logging import Logger
 from typing import Any, Union
 
 from numpy.typing import NDArray
-from xradio.vis.schema import VisibilityXds
+from xradio.vis import VisibilityXds
 
 from ska_sdp_datamodels.visibility import (
     Visibility
