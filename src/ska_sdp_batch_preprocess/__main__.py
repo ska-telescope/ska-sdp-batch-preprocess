@@ -108,12 +108,12 @@ def read_yaml(dir: Path, *, logger: Logger) -> dict[str, Any]:
     -------
     Python dictionary enclosing the YAML configurations.
     """
-    logger.info(f"Loading {dir.name} into memory")
+    logger.info(f"Loading '{dir.name}' into memory")
     try:
         with open(f"{dir}", 'r') as file:
             config = yaml.safe_load(file)
     except:
-        logger.critical(f"Loading {dir.name} failed")
+        logger.critical(f"Loading '{dir.name}' failed")
         log_handler.exit_pipeline(logger)
 
     logger.info("Validating loaded YAML object")

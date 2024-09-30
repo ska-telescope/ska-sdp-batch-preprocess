@@ -46,4 +46,3 @@ ska-sdp-func-python = ["ska-sdp-func-python"]
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
