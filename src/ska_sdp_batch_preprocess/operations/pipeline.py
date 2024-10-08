@@ -2,7 +2,7 @@
 
 from logging import Logger
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from dask.distributed import Client
@@ -18,7 +18,7 @@ from ska_sdp_batch_preprocess.utils import log_handler, tools
 
 
 def run(
-        msin: Path, config: Optional[dict[str, Any]], *, client: Client, logger: Logger
+        msin: Path, config: dict[str, Any], *, client: Client, logger: Logger
 ) -> None:
     """
     Principal function in the pipeline where the various
