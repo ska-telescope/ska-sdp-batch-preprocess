@@ -37,6 +37,7 @@ pytest = "^8.3.2"
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7.0.0"
 sphinx-rtd-theme = "^1.0.0"
+recommonmark = "^0.7.1"
 
 [tool.poetry.extras]
 ska-sdp-func = ["ska-sdp-func"]
