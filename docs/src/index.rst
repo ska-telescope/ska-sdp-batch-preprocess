@@ -32,7 +32,6 @@ The documentation describes how the Batch Preprocessing Pipeline works, how to u
    csd3_workflow
 
    :caption: Releases:
-   :hidden:
 
    CHANGELOG.rst
 
