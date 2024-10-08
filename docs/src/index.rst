@@ -31,12 +31,10 @@ The documentation describes how the Batch Preprocessing Pipeline works, how to u
    processing_funcs
    csd3_workflow
 
-.. toctree::
-   :maxdepth: 1
    :caption: Releases:
    :hidden:
 
-   CHANGELOG
+   CHANGELOG.rst
 
 * :ref:`genindex`
 * :ref:`modindex`
