@@ -34,8 +34,9 @@ The documentation describes how the Batch Preprocessing Pipeline works, how to u
 .. toctree::
    :maxdepth: 1
    :caption: Releases:
+   :hidden:
 
-   CHANGELOG.rst
+   CHANGELOG
 
 * :ref:`genindex`
 * :ref:`modindex`
