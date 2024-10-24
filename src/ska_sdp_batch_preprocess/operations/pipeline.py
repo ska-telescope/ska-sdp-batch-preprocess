@@ -15,6 +15,7 @@ from ska_sdp_batch_preprocess.operations.measurement_set import (
     MeasurementSet
 )
 from ska_sdp_batch_preprocess.utils import log_handler, tools
+import xarray as xr
 
 
 def run(
@@ -72,7 +73,7 @@ def run(
                 logger.info("Initialisation successful\n  |")
 
                 logger.info("Running requested processing functions ...\n  |")
-                processing_functions(distributor, config["processing_chain"],logger=logger)
+                output_data = processing_functions(distributor, config["processing_chain"],logger=logger)
                 logger.info(f"Successfully ran all processing functions\n  |")
 
         # export to MSv2
@@ -100,27 +101,28 @@ def processing_functions(
         param: config - Dictionary of configuration parameters read from a YAML file
         param: logger - logger class to store and print logs
         """
+        output = xr.Dataset()
         for func, args in config.items():
             if args is None:
                 args = {}                
             if func == "apply_rfi_masks":
                 logger.info("Applying RFI masks ...")
                 masks = np.array(args.setdefault("rfi_frequency_masks", [1.3440e08,1.3444e08]), dtype=np.float64)
-                distributor.rfi_masking(masks)
+                output = distributor.rfi_masking(masks)
                 logger.info("Apply RFI masks successful\n  |")
 
             elif func == "averaging_frequency":
                 logger.info("Averaging in frequency ...")
                 freqstep = args.setdefault("freqstep", 4)
                 f_threshold = args.setdefault("flag_threshold", 0.5)
-                distributor.avg_freq(freqstep, f_threshold) 
+                output = distributor.avg_freq(freqstep, f_threshold) 
                 logger.info("Frequency averaging successful\n  |")
 
             elif func == "averaging_time":
                 logger.info("Averaging in time ...")
                 timestep = args.setdefault("timestep", 4)
                 t_threshold = args.setdefault("flag_threshold", 0.5)
-                distributor.avg_time(timestep, t_threshold)
+                output = distributor.avg_time(timestep, t_threshold)
                 logger.info("Time averaging successful\n  |")
 
             elif func == "rfi_flagger":
@@ -132,9 +134,14 @@ def processing_functions(
                 sampling=args.setdefault("sampling", 8)
                 window=args.setdefault("window", 0)
                 window_median_history= args.setdefault("median_history", 10)
-                distributor.flagger(alpha=alpha, threshold_magnitude=threshold_magnitude,
+                output = distributor.flagger(alpha=alpha, threshold_magnitude=threshold_magnitude,
                                     threshold_variation=threshold_variation,
                                     threshold_broadband=threshold_broadband,
                                     sampling=sampling, window=window, 
                                     window_median_history=window_median_history)
                 logger.info("RFI Flagging successful \n |")
+        
+        mydims = output["vis"].data.shape
+        print("The dimension of the output is: ", mydims)
+        
+        return output

@@ -39,18 +39,9 @@ class Distribute:
             ]
         }
 
-        self._vis = vis.chunk(chunked_axis)
+        self.vis = vis.chunk(chunked_axis)
         self.client = client
-    
-    def __setattr__(self, key: str, value: Any) -> None:
-        """
-        The setter method of this class is amended here to inhibit external
-        manipulation of private attributes (i.e., those starting with '_').
-        """
-        if hasattr(self, key) and key[0] == '_':
-            return
-        self.__dict__[f"{key}"] = value       
-
+   
     def avg_time(self, timestep, threshold: float) -> xr.Dataset:
         """
         Distributes the input visibilties on time and averages them.
@@ -60,7 +51,9 @@ class Distribute:
 
         :return: Time averaged Xarray dataset complying to the visibility datamodel
         """
-        return self.client.submit(averaging_time, self._vis, timestep, threshold).result()
+
+        self.vis = self.client.submit(averaging_time, self.vis, timestep, threshold).result()
+        return self.vis
 
 
     def avg_freq(self, freqstep, threshold: float) -> xr.Dataset:
@@ -72,8 +65,9 @@ class Distribute:
 
         :return: Freq averaged Xarray dataset complying to the visibility datamodel
         """
-
-        return self.client.submit(averaging_frequency, self._vis, freqstep, threshold).result()
+        
+        self.vis = self.client.submit(averaging_frequency, self.vis, freqstep, threshold).result()
+        return self.vis
 
     def rfi_masking(self, masks: NDArray[np.float64]) -> xr.Dataset:
         """
@@ -84,7 +78,8 @@ class Distribute:
         :return: Xarray dataset complying to the visibility datamodel with masked frequencies
         """
 
-        return self.client.submit(apply_rfi_masks, self._vis, masks).result()
+        self.vis = self.client.submit(apply_rfi_masks, self.vis, masks).result()
+        return self.vis
 
     def flagger(self,
                 *,
@@ -109,7 +104,8 @@ class Distribute:
         :return: Xarray dataset complying to the visibility datamodel with flags
         """
 
-        return self.client.submit(rfi_flagger, self._vis, alpha, threshold_magnitude, threshold_variation, threshold_broadband, sampling, window, window_median_history).result()
+        self.vis = self.client.submit(rfi_flagger, self.vis, alpha, threshold_magnitude, threshold_variation, threshold_broadband, sampling, window, window_median_history).result()
+        return self.vis
 
     def ao_rfi_flagger(self, path=None):
         """

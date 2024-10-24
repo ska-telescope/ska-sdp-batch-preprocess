@@ -17,7 +17,7 @@ def mapped_averaging_time(vis : xr.Dataset, timestep, threshold) -> xr.Dataset:
 
     :return: Time averaged Xarray dataset complying to the visibility datamodel
     """
-    return vis.map_blocks(averaging_time, args=(timestep,), kwargs={'flag_threshold':threshold})
+    vis = vis.map_blocks(averaging_time, args=(timestep,), kwargs={'flag_threshold':threshold})
 
 def mapped_averaging_frequency(vis: xr.Dataset, freqstep, threshold) -> xr.Dataset:
     """
@@ -29,7 +29,7 @@ def mapped_averaging_frequency(vis: xr.Dataset, freqstep, threshold) -> xr.Datas
     :return: Freq averaged Xarray dataset complying to the visibility datamodel
     """
 
-    return vis.map_blocks(averaging_frequency, args=(freqstep,), kwargs={'flag_threshold':threshold})
+    vis = vis.map_blocks(averaging_frequency, args=(freqstep,), kwargs={'flag_threshold':threshold})
 
 
 def mapped_rfi_masking(vis: xr.Dataset, masks: NDArray[np.float64]) -> xr.Dataset:
@@ -42,7 +42,7 @@ def mapped_rfi_masking(vis: xr.Dataset, masks: NDArray[np.float64]) -> xr.Datase
     :return: Xarray dataset complying to the visibility datamodel with masked frequencies
     """
 
-    return vis.map_blocks(apply_rfi_masks, args=(masks,))
+    vis = vis.map_blocks(apply_rfi_masks, args=(masks,))
 
 
 
