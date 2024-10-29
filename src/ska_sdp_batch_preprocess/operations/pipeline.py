@@ -14,6 +14,9 @@ from ska_sdp_batch_preprocess.operations.measurement_set import (
     convert_msv2_to_msv4,
     MeasurementSet
 )
+from ska_sdp_batch_preprocess.operations.processing_intent import(
+    ProcessingIntent
+)
 from ska_sdp_batch_preprocess.utils import log_handler, tools
 import xarray as xr
 
@@ -67,6 +70,7 @@ def run(
                     log_handler.exit_pipeline(logger)
 
             #Initialize distributor & run processing functions
+            list_of_intents = []
             for data in ms.dataframe:
                 logger.info("Initializing distribution strategy")
                 distributor = Distribute(data.data_as_ska_vis, axis, chunksize, client)
@@ -74,13 +78,16 @@ def run(
 
                 logger.info("Running requested processing functions ...\n  |")
                 output_data = processing_functions(distributor, config["processing_chain"],logger=logger)
+                intent = ProcessingIntent(output_data, logger=logger)
+                list_of_intents.append(intent)
                 logger.info(f"Successfully ran all processing functions\n  |")
 
         # export to MSv2
         if "export_to_msv2" in config["processing_chain"]:
+            msout = MeasurementSet(list_of_intents, logger=logger)
             logger.info("Exporting list of processing intents to MSv2")
             args = config["processing_chain"]["export_to_msv2"]
-            ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
+            msout.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
             logger.info(f"{msin.stem}-output.ms generated successfully\n  |")
 
     # convert MSv2 to MSv4
@@ -118,6 +125,7 @@ def processing_functions(
                 output = distributor.avg_freq(freqstep, f_threshold) 
                 logger.info("Frequency averaging successful\n  |")
 
+
             elif func == "averaging_time":
                 logger.info("Averaging in time ...")
                 timestep = args.setdefault("timestep", 4)
@@ -140,8 +148,5 @@ def processing_functions(
                                     sampling=sampling, window=window, 
                                     window_median_history=window_median_history)
                 logger.info("RFI Flagging successful \n |")
-        
-        mydims = output["vis"].data.shape
-        print("The dimension of the output is: ", mydims)
         
         return output

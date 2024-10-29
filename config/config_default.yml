@@ -35,14 +35,14 @@ processing_chain:
     rfi_frequency_masks: 
     - [1.3440e08,1.3444e08]
 
+  rfi_flagger:
+
   averaging_frequency:
     freqstep: 4
     flag_threshold: 0.4
 
   averaging_time:
     timestep: 2
-    flag_threshold: 0.4
-
-  rfi_flagger:
+    flag_threshold: 0.8
 
   export_to_msv2:
