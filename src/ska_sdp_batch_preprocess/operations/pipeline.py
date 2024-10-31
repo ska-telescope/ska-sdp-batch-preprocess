@@ -14,11 +14,7 @@ from ska_sdp_batch_preprocess.operations.measurement_set import (
     convert_msv2_to_msv4,
     MeasurementSet
 )
-from ska_sdp_batch_preprocess.operations.processing_intent import(
-    ProcessingIntent
-)
 from ska_sdp_batch_preprocess.utils import log_handler, tools
-import xarray as xr
 
 
 def run(
@@ -70,21 +66,19 @@ def run(
                     log_handler.exit_pipeline(logger)
 
             #Initialize distributor & run processing functions
-            list_of_intents = []
+            output_data_list = []
             for data in ms.dataframe:
                 logger.info("Initializing distribution strategy")
                 distributor = Distribute(data.data_as_ska_vis, axis, chunksize, client)
                 logger.info("Initialisation successful\n  |")
 
                 logger.info("Running requested processing functions ...\n  |")
-                output_data = processing_functions(distributor, config["processing_chain"],logger=logger)
-                intent = ProcessingIntent(output_data, logger=logger)
-                list_of_intents.append(intent)
+                output_data_list.append(distributor.vis)
                 logger.info(f"Successfully ran all processing functions\n  |")
 
         # export to MSv2
         if "export_to_msv2" in config["processing_chain"]:
-            msout = MeasurementSet(list_of_intents, logger=logger)
+            msout = MeasurementSet.from_ska_vis(output_data_list, logger=logger)
             logger.info("Exporting list of processing intents to MSv2")
             args = config["processing_chain"]["export_to_msv2"]
             msout.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
@@ -108,14 +102,13 @@ def processing_functions(
         param: config - Dictionary of configuration parameters read from a YAML file
         param: logger - logger class to store and print logs
         """
-        output = xr.Dataset()
         for func, args in config.items():
             if args is None:
                 args = {}                
             if func == "apply_rfi_masks":
                 logger.info("Applying RFI masks ...")
                 masks = np.array(args.setdefault("rfi_frequency_masks", [1.3440e08,1.3444e08]), dtype=np.float64)
-                output = distributor.rfi_masking(masks)
+                distributor.rfi_masking(masks)
                 logger.info("Apply RFI masks successful\n  |")
 
             elif func == "averaging_frequency":
@@ -149,4 +142,3 @@ def processing_functions(
                                     window_median_history=window_median_history)
                 logger.info("RFI Flagging successful \n |")
         
-        return output
