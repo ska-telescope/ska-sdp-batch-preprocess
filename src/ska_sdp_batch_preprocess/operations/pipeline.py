@@ -71,7 +71,7 @@ def run(
                 logger.info("Initializing distribution strategy")
                 distributor = Distribute(data.data_as_ska_vis, axis, chunksize, client)
                 logger.info("Initialisation successful\n  |")
-
+                processing_functions(distributor, config["processing_chain"],logger=logger)
                 logger.info("Running requested processing functions ...\n  |")
                 output_data_list.append(distributor.vis)
                 logger.info(f"Successfully ran all processing functions\n  |")
@@ -115,7 +115,7 @@ def processing_functions(
                 logger.info("Averaging in frequency ...")
                 freqstep = args.setdefault("freqstep", 4)
                 f_threshold = args.setdefault("flag_threshold", 0.5)
-                output = distributor.avg_freq(freqstep, f_threshold) 
+                distributor.avg_freq(freqstep, f_threshold) 
                 logger.info("Frequency averaging successful\n  |")
 
 
@@ -123,7 +123,7 @@ def processing_functions(
                 logger.info("Averaging in time ...")
                 timestep = args.setdefault("timestep", 4)
                 t_threshold = args.setdefault("flag_threshold", 0.5)
-                output = distributor.avg_time(timestep, t_threshold)
+                distributor.avg_time(timestep, t_threshold)
                 logger.info("Time averaging successful\n  |")
 
             elif func == "rfi_flagger":
@@ -135,7 +135,7 @@ def processing_functions(
                 sampling=args.setdefault("sampling", 8)
                 window=args.setdefault("window", 0)
                 window_median_history= args.setdefault("median_history", 10)
-                output = distributor.flagger(alpha=alpha, threshold_magnitude=threshold_magnitude,
+                distributor.flagger(alpha=alpha, threshold_magnitude=threshold_magnitude,
                                     threshold_variation=threshold_variation,
                                     threshold_broadband=threshold_broadband,
                                     sampling=sampling, window=window, 
