@@ -37,7 +37,7 @@ class ProcessingIntent:
       available as XRadio-Visibility, and vice versa. This holds true as
       long as the functions 'convert_visibility_xds_to_visibility' and
       'convert_visibility_to_visibility_xds' are operational.
-    
+
     data_as_ska_vis: ska_sdp_datamodels.visibility.Visibility
       SKA-Visibility representation of the processing set data. 
       If the data were loaded by the user as XRadio-Visibility, then this
@@ -132,7 +132,7 @@ class ProcessingIntent:
                 "Could not convert XRadio-Visibility to SKA-Visibility\n  |"
             )
             log_handler.exit_pipeline(self.logger)
-        
+
     @property
     def data_as_xradio_vis(self) -> VisibilityXds:
         """
@@ -173,7 +173,7 @@ class ProcessingIntent:
         except:
             self.logger.critical("Could not read visibilities from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
-        
+
     @property
     def uvw(self) -> NDArray:
         """
@@ -191,7 +191,7 @@ class ProcessingIntent:
         except:
             self.logger.critical("Could not read UVW data from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
-        
+
     @property
     def weights(self) -> NDArray:
         """
@@ -226,7 +226,7 @@ class ProcessingIntent:
 
         logger: logging.Logger
           logger object to handle pipeline logs.
-        
+
         Returns
         -------
         ProcessingIntent class instance.

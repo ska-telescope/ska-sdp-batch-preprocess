@@ -66,20 +66,22 @@ def run(
                     log_handler.exit_pipeline(logger)
 
             #Initialize distributor & run processing functions
+            output_data_list = []
             for data in ms.dataframe:
                 logger.info("Initializing distribution strategy")
                 distributor = Distribute(data.data_as_ska_vis, axis, chunksize, client)
                 logger.info("Initialisation successful\n  |")
-
-                logger.info("Running requested processing functions ...\n  |")
                 processing_functions(distributor, config["processing_chain"],logger=logger)
+                logger.info("Running requested processing functions ...\n  |")
+                output_data_list.append(distributor.vis)
                 logger.info(f"Successfully ran all processing functions\n  |")
 
         # export to MSv2
         if "export_to_msv2" in config["processing_chain"]:
+            msout = MeasurementSet.from_ska_vis(output_data_list, logger=logger)
             logger.info("Exporting list of processing intents to MSv2")
             args = config["processing_chain"]["export_to_msv2"]
-            ms.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
+            msout.export_to_msv2(msin.with_name(f"{msin.stem}-output.ms"), args)
             logger.info(f"{msin.stem}-output.ms generated successfully\n  |")
 
     # convert MSv2 to MSv4
@@ -116,6 +118,7 @@ def processing_functions(
                 distributor.avg_freq(freqstep, f_threshold) 
                 logger.info("Frequency averaging successful\n  |")
 
+
             elif func == "averaging_time":
                 logger.info("Averaging in time ...")
                 timestep = args.setdefault("timestep", 4)
@@ -138,3 +141,4 @@ def processing_functions(
                                     sampling=sampling, window=window, 
                                     window_median_history=window_median_history)
                 logger.info("RFI Flagging successful \n |")
+        

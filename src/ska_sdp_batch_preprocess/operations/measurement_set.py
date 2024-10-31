@@ -18,7 +18,8 @@ from ska_sdp_batch_preprocess.utils import (
 )
 from ska_sdp_datamodels.visibility import (
     create_visibility_from_ms,
-    export_visibility_to_ms
+    export_visibility_to_ms,
+    Visibility
 )
 
 
@@ -36,17 +37,21 @@ class MeasurementSet:
 
     uvw: list[NDArray]
       uvw data as list of NumPy arrays.
-    
+
     weights: list[NDArray]
       weights as list of NumPy arrays.
 
     logger: logging.Logger
       logger object to handle pipeline logs.
-    
+
     Methods
     -------
     export_to_msv2(**args)
       exports SKA-Visibility as MSv2 on disk.
+
+    from_ska_vis(**args)
+      class method to generate an instance with a list of SKA-Visibility
+      objects.
 
     ver_2(**args)
       class method to generate an instance with MSv2.
@@ -153,6 +158,39 @@ class MeasurementSet:
             log_handler.exit_pipeline(self.logger)
 
     @classmethod
+    def from_ska_vis(
+            cls, intents: list[Visibility], *, logger: Logger, 
+            manual_compute: bool=False
+    ):
+        """
+        Class method to generate an instance with a list of SKA-Visibility
+        objects.
+
+        Arguments
+        ---------
+        dataframe: list[ska_sdp_datamodels.visibility.Visibility]
+          list of SKA-Visibility objects.
+
+        logger: logging.Logger
+          logger object to handle pipeline logs.
+
+        manual_compute: bool=False
+          optional argument which, if True, the MSv2 data get
+          loaded as ProcessingIntent objects while calling the 
+          xarray compute() method on them.
+
+        Returns
+        -------
+        MeasurementSet class instance.
+        """
+        dataframe = [
+            ProcessingIntent.manual_compute(intent, logger=logger)
+            if manual_compute else ProcessingIntent(intent, logger=logger)
+            for intent in intents
+        ]
+        return cls(dataframe, logger=logger)
+
+    @classmethod
     def ver_2(
             cls, dir: Path, args: Optional[dict]=None,
             *, logger: Logger, manual_compute: bool=False
@@ -191,7 +229,7 @@ class MeasurementSet:
             for intent in intents
         ]
         return cls(dataframe, logger=logger)
-    
+
     @classmethod
     def ver_4(
             cls, dir: Path, args: Optional[dict]=None,
@@ -238,16 +276,16 @@ def convert_msv2_to_msv4(
 ) -> None:
     """
     Converts MSv2 to MSv4 on disk using XRadio.
-    
+
     Arguments
     ---------
     msin: pathlib.Path
       directory for the input MSv2.
-    
+
     args: dict | None=None
       dictionary for the optional XRadio conversion 
       function arguments. 
-    
+
     logger: logging.Logger
       logger object to handle pipeline logs.
     """
