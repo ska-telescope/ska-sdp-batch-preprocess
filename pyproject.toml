@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ska_sdp_batch_preprocess"
-version = "0.1.0"
+version = "1.0.0"
 description = "SKA Distributed batch preprocessing pipeline"
 authors = ["Team HIPPO"]
 license = "BSD-3-Clause"
