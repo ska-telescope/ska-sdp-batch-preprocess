@@ -21,8 +21,8 @@ xradio = "^0.0.30"
 graphviper = "^0.0.27"
 
 #The following three libraries are using specific branches to function appropriately, this will be changed and would need updating when the branches are merged or deleted
-ska-sdp-datamodels = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-datamodels.git", rev = "sp-4385-implement-xradio-converter"}
-ska-sdp-func-python = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-func-python.git", rev = "hip-975_bug_fixing"}
+ska-sdp-datamodels = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-datamodels.git"}
+ska-sdp-func-python = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-func-python.git"}
 ska-sdp-func = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-func.git", rev="1.2.0"}
 #NOTE: Not adding aoflagger right now since it's causing import issues.
 #aoflagger = {git = "https://gitlab.com/aroffringa/aoflagger.git"}
