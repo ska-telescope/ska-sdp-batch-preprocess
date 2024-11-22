@@ -14,12 +14,8 @@ stages:
 include:
   # Docs pages
   - project: "ska-telescope/templates-repository"
-    file: "gitlab-ci/includes/docs.gitlab-ci.yml"
-
-  # .post step finalisers e.g. badges
-  - project: "ska-telescope/templates-repository"
-    file: "gitlab-ci/includes/finaliser.gitlab-ci.yml"
- 
-  # Release automation
-  - project: "ska-telescope/templates-repository"
-    file: "gitlab-ci/includes/release.gitlab-ci.yml"
+    file: 
+     - "gitlab-ci/includes/python.gitlab-ci.yml"
+     - "gitlab-ci/includes/docs.gitlab-ci.yml"
+     - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
+     - "gitlab-ci/includes/release.gitlab-ci.yml"
