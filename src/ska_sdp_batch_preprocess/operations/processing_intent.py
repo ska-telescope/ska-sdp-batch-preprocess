@@ -4,27 +4,23 @@ from logging import Logger
 from typing import Any, Union
 
 from numpy.typing import NDArray
+from ska_sdp_datamodels.visibility import Visibility
+from ska_sdp_datamodels.visibility.vis_xradio import (
+    convert_visibility_to_visibility_xds,
+    convert_visibility_xds_to_visibility,
+)
 from xradio.vis import VisibilityXds
 
-from ska_sdp_datamodels.visibility import (
-    Visibility
-)
-from ska_sdp_batch_preprocess.utils import (
-    log_handler, tools
-)
-from ska_sdp_datamodels.visibility.vis_xradio import (
-    convert_visibility_xds_to_visibility,
-    convert_visibility_to_visibility_xds
-)
+from ska_sdp_batch_preprocess.utils import log_handler, tools
 
 
 class ProcessingIntent:
     """
     Class to represent an assemblage of data within the MS in memory,
-    which are intended to be processed jointly. In MSv4, data may be 
-    partitioned into separate processing sets for discrete processing; 
-    this class is designed to efficiently represent such partitioned data 
-    in memory. MSv2 is unlikely to be partitioned by default; hence, in such 
+    which are intended to be processed jointly. In MSv4, data may be
+    partitioned into separate processing sets for discrete processing;
+    this class is designed to efficiently represent such partitioned data
+    in memory. MSv2 is unlikely to be partitioned by default; hence, in such
     a case the full MS will be represented by a single instance of this class.
     Such representation can aid in future endeavours for partitioning MSv2
     data and/or converting into processing sets while loaded in memory.
@@ -39,7 +35,7 @@ class ProcessingIntent:
       'convert_visibility_to_visibility_xds' are operational.
 
     data_as_ska_vis: ska_sdp_datamodels.visibility.Visibility
-      SKA-Visibility representation of the processing set data. 
+      SKA-Visibility representation of the processing set data.
       If the data were loaded by the user as XRadio-Visibility, then this
       attribute will only work if 'convert_visibility_xds_to_visibility'
       is operational.
@@ -65,22 +61,21 @@ class ProcessingIntent:
     Methods
     -------
     manual_compute(**args)
-      class method to generate an instance with the data manually loaded into 
+      class method to generate an instance with the data manually loaded into
       memory as xarrays using the compute() method.
 
     Notes
     -----
     1- This class avoids checking for VisibilityXds datatype (e.g., using
-       isinstance). This is because, the current version of XRadio still 
-       outputs xarray.Dataset type instead of the newly developed VisibilityXds 
+       isinstance). This is because, the current version of XRadio still
+       outputs xarray.Dataset type instead of the newly developed VisibilityXds
        schema.
     2- The Visibility <-> VisibilityXds conversion only works as long as the
        relevant imported functions work.
     """
 
     def __init__(
-            self, input_data: Union[Visibility, VisibilityXds],
-            *, logger: Logger
+        self, input_data: Union[Visibility, VisibilityXds], *, logger: Logger
     ):
         """
         Initiates the ProcessingIntent class.
@@ -105,8 +100,10 @@ class ProcessingIntent:
         The setter method of this class is amended here to inhibit external
         manipulation of private attributes (i.e., those starting with '_').
         """
-        if hasattr(self, key) and key[0] == '_':
-            self.logger.warning(f"Attribute '{key}' is private and cannot be changed")
+        if hasattr(self, key) and key[0] == "_":
+            self.logger.warning(
+                f"Attribute '{key}' is private and cannot be changed"
+            )
             return
         self.__dict__[f"{key}"] = value
 
@@ -114,7 +111,7 @@ class ProcessingIntent:
     def data_as_ska_vis(self) -> Visibility:
         """
         SKA-Visibility representation of the class data.
-        If data were loded as XRadio-Visibility, this method will only work if  
+        If data were loded as XRadio-Visibility, this method will only work if
         'convert_visibility_xds_to_visibility' is operational.
 
         Returns
@@ -137,7 +134,7 @@ class ProcessingIntent:
     def data_as_xradio_vis(self) -> VisibilityXds:
         """
         XRadio-Visibility representation of the class data.
-        If data were loded as SKA-Visibility, this method will only work if  
+        If data were loded as SKA-Visibility, this method will only work if
         'convert_visibility_to_visibility_xds' is operational.
 
         Returns
@@ -147,7 +144,9 @@ class ProcessingIntent:
         if isinstance(self._input_data, Visibility):
             try:
                 with tools.write_to_devnull():
-                    return convert_visibility_to_visibility_xds(self._input_data)
+                    return convert_visibility_to_visibility_xds(
+                        self._input_data
+                    )
             except:
                 tools.reinstate_default_stdout()
                 self.logger.critical(
@@ -167,8 +166,11 @@ class ProcessingIntent:
         """
         try:
             return self._input_data[
-                "vis" if isinstance(self._input_data, Visibility)
-                else "VISIBILITY"
+                (
+                    "vis"
+                    if isinstance(self._input_data, Visibility)
+                    else "VISIBILITY"
+                )
             ].values
         except:
             self.logger.critical("Could not read visibilities from MSv4\n  |")
@@ -185,8 +187,7 @@ class ProcessingIntent:
         """
         try:
             return self._input_data[
-                "uvw" if isinstance(self._input_data, Visibility)
-                else "UVW"
+                "uvw" if isinstance(self._input_data, Visibility) else "UVW"
             ].values
         except:
             self.logger.critical("Could not read UVW data from MSv4\n  |")
@@ -203,8 +204,11 @@ class ProcessingIntent:
         """
         try:
             return self._input_data[
-                "weight" if isinstance(self._input_data, Visibility)
-                else "WEIGHT"
+                (
+                    "weight"
+                    if isinstance(self._input_data, Visibility)
+                    else "WEIGHT"
+                )
             ].values
         except:
             self.logger.critical("Could not read weights from MSv4\n  |")
@@ -212,11 +216,10 @@ class ProcessingIntent:
 
     @classmethod
     def manual_compute(
-            cls, input_data: Union[Visibility, VisibilityXds], 
-            *, logger: Logger
+        cls, input_data: Union[Visibility, VisibilityXds], *, logger: Logger
     ):
         """
-        Class method to generate an instance with the data manually loaded 
+        Class method to generate an instance with the data manually loaded
         into memory using the xarray compute() method.
 
         Arguments
@@ -233,9 +236,9 @@ class ProcessingIntent:
 
         Note
         ----
-        This manual_compute() method does not support slicing/partial data loading 
-        due to the default xarray functionality stipulating that data are normally 
-        loaded automatically. Hence, this manual_compute() class method should not 
+        This manual_compute() method does not support slicing/partial data loading
+        due to the default xarray functionality stipulating that data are normally
+        loaded automatically. Hence, this manual_compute() class method should not
         be needed in normal circumstances.
         https://docs.xarray.dev/en/latest/generated/xarray.Dataset.compute.html
         """

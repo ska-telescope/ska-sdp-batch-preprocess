@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ska_sdp_batch_preprocess"
+name = "ska-sdp-batch-preprocess"
 version = "1.0.0"
 description = "SKA Distributed batch preprocessing pipeline"
 authors = ["Team HIPPO"]
@@ -8,7 +8,7 @@ readme = "README.md"
 
 [[tool.poetry.source]]
 name = "PyPI"
-priority = "primary"
+priority = "supplemental"
 
 [[tool.poetry.source]]
 name = "skao"
@@ -24,8 +24,6 @@ graphviper = "^0.0.27"
 ska-sdp-datamodels = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-datamodels.git"}
 ska-sdp-func-python = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-func-python.git"}
 ska-sdp-func = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-func.git", rev="1.2.0"}
-#NOTE: Not adding aoflagger right now since it's causing import issues.
-#aoflagger = {git = "https://gitlab.com/aroffringa/aoflagger.git"}
 ska-telmodel = "^1.17"
 numpy = "^1.26"
 python-casacore = "^3.5.2"
@@ -36,7 +34,6 @@ jsonschema = "^4.23.0"
 black = "^22.3.0"
 pylint = "^2.8.2"
 pylint-junit = "^0.3.2"
-# pytest = "^7.1.0"
 pytest = "^8.3.2"
 pytest-cov = "^2.10.1"
 isort = "^5.6.4"
@@ -45,16 +42,14 @@ coverage = "^6.1.1"
 build = "^0.10.0"
 
 # Install with `poetry install --with docs`
-# pytest = "^8.3.2"
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7.0.0"
-sphinx-rtd-theme = "^1.0.0"
+ska-ser-sphinx-theme = "^1.0.0"
 recommonmark = "^0.7.1"
 
 [tool.poetry.extras]
 ska-sdp-func = ["ska-sdp-func"]
 ska-sdp-func-python = ["ska-sdp-func-python"]
-#aoflagger = ["aoflagger"]
 
 [build-system]
 requires = ["poetry-core"]

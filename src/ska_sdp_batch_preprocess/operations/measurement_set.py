@@ -5,22 +5,17 @@ from pathlib import Path
 from typing import Optional
 
 from numpy.typing import NDArray
-from xradio.vis import (
-    convert_msv2_to_processing_set,
-    read_processing_set
-)
-
-from ska_sdp_batch_preprocess.operations.processing_intent import (
-    ProcessingIntent
-)
-from ska_sdp_batch_preprocess.utils import (
-    log_handler, tools
-)
 from ska_sdp_datamodels.visibility import (
+    Visibility,
     create_visibility_from_ms,
     export_visibility_to_ms,
-    Visibility
 )
+from xradio.vis import convert_msv2_to_processing_set, read_processing_set
+
+from ska_sdp_batch_preprocess.operations.processing_intent import (
+    ProcessingIntent,
+)
+from ska_sdp_batch_preprocess.utils import log_handler, tools
 
 
 class MeasurementSet:
@@ -63,14 +58,12 @@ class MeasurementSet:
     ----
     The ProcessingIntent class is designed to incorporate MS data as
     both SKA-datamodel (Visibility) and XRadio-datamodel (VisibilityXds).
-    Both datamodels are schemas of the xarray.Dataset type. However, 
+    Both datamodels are schemas of the xarray.Dataset type. However,
     prior to calling any further XArray functionalities on the dataframe,
     check the relevant documentation of XRadio and SKA-SDP-Datamodels.
     """
 
-    def __init__(
-            self, dataframe: list[ProcessingIntent], *, logger: Logger
-    ):
+    def __init__(self, dataframe: list[ProcessingIntent], *, logger: Logger):
         """
         Initiates the MeasurementSet class.
 
@@ -118,9 +111,7 @@ class MeasurementSet:
         """
         return [intent.weights for intent in self.dataframe]
 
-    def export_to_msv2(
-            self, msout: Path, args: Optional[dict]=None
-    ) -> None:
+    def export_to_msv2(self, msout: Path, args: Optional[dict] = None) -> None:
         """
         Exports SKA-Visibility as MSv2 on disk.
 
@@ -130,13 +121,13 @@ class MeasurementSet:
           path and name of the intended output MSv2.
 
         args: dict | None=None
-          dictionary for the optional SKA-SDP-Datamodels exporting 
+          dictionary for the optional SKA-SDP-Datamodels exporting
           function arguments.
 
         Note
         ----
-        If the original input MS was loaded as XRadio-Visibility datatype, 
-        then the conversion to SKA-Visibility (required here as input) will 
+        If the original input MS was loaded as XRadio-Visibility datatype,
+        then the conversion to SKA-Visibility (required here as input) will
         only work if 'convert_visibility_xds_to_visibility' is operational.
         """
         try:
@@ -144,13 +135,13 @@ class MeasurementSet:
                 if args is None:
                     export_visibility_to_ms(
                         f"{msout.resolve()}",
-                        [intent.data_as_ska_vis for intent in self.dataframe]
+                        [intent.data_as_ska_vis for intent in self.dataframe],
                     )
                 else:
                     export_visibility_to_ms(
                         f"{msout.resolve()}",
                         [intent.data_as_ska_vis for intent in self.dataframe],
-                        **args
+                        **args,
                     )
         except:
             tools.reinstate_default_stdout()
@@ -159,8 +150,11 @@ class MeasurementSet:
 
     @classmethod
     def from_ska_vis(
-            cls, intents: list[Visibility], *, logger: Logger, 
-            manual_compute: bool=False
+        cls,
+        intents: list[Visibility],
+        *,
+        logger: Logger,
+        manual_compute: bool = False,
     ):
         """
         Class method to generate an instance with a list of SKA-Visibility
@@ -176,7 +170,7 @@ class MeasurementSet:
 
         manual_compute: bool=False
           optional argument which, if True, the MSv2 data get
-          loaded as ProcessingIntent objects while calling the 
+          loaded as ProcessingIntent objects while calling the
           xarray compute() method on them.
 
         Returns
@@ -184,16 +178,23 @@ class MeasurementSet:
         MeasurementSet class instance.
         """
         dataframe = [
-            ProcessingIntent.manual_compute(intent, logger=logger)
-            if manual_compute else ProcessingIntent(intent, logger=logger)
+            (
+                ProcessingIntent.manual_compute(intent, logger=logger)
+                if manual_compute
+                else ProcessingIntent(intent, logger=logger)
+            )
             for intent in intents
         ]
         return cls(dataframe, logger=logger)
 
     @classmethod
     def ver_2(
-            cls, dir: Path, args: Optional[dict]=None,
-            *, logger: Logger, manual_compute: bool=False
+        cls,
+        dir: Path,
+        args: Optional[dict] = None,
+        *,
+        logger: Logger,
+        manual_compute: bool = False,
     ):
         """
         Class method to generate an instance with MSv2.
@@ -204,7 +205,7 @@ class MeasurementSet:
           directory for the input MSv2.
 
         args: dict | None=None
-          dictionary for the optional SKA-SDP-Datamodels loading 
+          dictionary for the optional SKA-SDP-Datamodels loading
           function arguments.
 
         logger: logging.Logger
@@ -212,7 +213,7 @@ class MeasurementSet:
 
         manual_compute: bool=False
           optional argument which, if True, the MSv2 data get
-          loaded as ProcessingIntent objects while calling the 
+          loaded as ProcessingIntent objects while calling the
           xarray compute() method on them.
 
         Returns
@@ -224,16 +225,23 @@ class MeasurementSet:
         else:
             intents = create_visibility_from_ms(f"{dir}", **args)
         dataframe = [
-            ProcessingIntent.manual_compute(intent, logger=logger)
-            if manual_compute else ProcessingIntent(intent, logger=logger)
+            (
+                ProcessingIntent.manual_compute(intent, logger=logger)
+                if manual_compute
+                else ProcessingIntent(intent, logger=logger)
+            )
             for intent in intents
         ]
         return cls(dataframe, logger=logger)
 
     @classmethod
     def ver_4(
-            cls, dir: Path, args: Optional[dict]=None,
-            *, logger: Logger, manual_compute: bool=False
+        cls,
+        dir: Path,
+        args: Optional[dict] = None,
+        *,
+        logger: Logger,
+        manual_compute: bool = False,
     ):
         """
         Class method to generate an instance with MSv4.
@@ -244,7 +252,7 @@ class MeasurementSet:
           directory for the input MSv4.
 
         args: dict | None=None
-          dictionary for the optional XRadio loading 
+          dictionary for the optional XRadio loading
           function arguments.
 
         logger: logging.Logger
@@ -252,7 +260,7 @@ class MeasurementSet:
 
         manual_compute: bool=False
           optional argument which, if True, the MSv4 data get
-          loaded as ProcessingIntent objects while calling the 
+          loaded as ProcessingIntent objects while calling the
           xarray compute() method on them.
 
         Returns
@@ -265,14 +273,18 @@ class MeasurementSet:
             else:
                 intents = read_processing_set(f"{dir}", **args).values()
         dataframe = [
-            ProcessingIntent.manual_compute(intent, logger=logger)
-            if manual_compute else ProcessingIntent(intent, logger=logger)
+            (
+                ProcessingIntent.manual_compute(intent, logger=logger)
+                if manual_compute
+                else ProcessingIntent(intent, logger=logger)
+            )
             for intent in intents
         ]
         return cls(dataframe, logger=logger)
 
+
 def convert_msv2_to_msv4(
-        msin: Path, args: Optional[dict]=None, *, logger: Logger
+    msin: Path, args: Optional[dict] = None, *, logger: Logger
 ) -> None:
     """
     Converts MSv2 to MSv4 on disk using XRadio.
@@ -283,8 +295,8 @@ def convert_msv2_to_msv4(
       directory for the input MSv2.
 
     args: dict | None=None
-      dictionary for the optional XRadio conversion 
-      function arguments. 
+      dictionary for the optional XRadio conversion
+      function arguments.
 
     logger: logging.Logger
       logger object to handle pipeline logs.
