@@ -44,7 +44,7 @@ build = "^0.10.0"
 # Install with `poetry install --with docs`
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7.0.0"
-ska-ser-sphinx-theme = "^1.0.0"
+ska-ser-sphinx-theme = "^0.2.0"
 recommonmark = "^0.7.1"
 
 [tool.poetry.extras]
