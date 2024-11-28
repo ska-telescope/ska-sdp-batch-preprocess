@@ -16,7 +16,7 @@ class Distribute:
     Class to easily chunk and divide on frequency and time axis.
 
     Defines the chunking of the measurement set dependent on the configuration
-    defined by the user. Then distributes the specific processing functions 
+    defined by the user. Then distributes the specific processing functions
     called using DASK on the defined parameters.
     """
 
@@ -78,7 +78,7 @@ class Distribute:
 
         :param: masks, N*2 numpy array; n pairs of freq ranges to be masked
 
-        :return: Xarray dataset complying to visibility datamodel 
+        :return: Xarray dataset complying to visibility datamodel
         with masked frequencies
         """
 
