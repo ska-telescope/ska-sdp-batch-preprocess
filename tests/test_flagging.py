@@ -1,7 +1,5 @@
-import numpy as np
 import xarray as xr
 from dask.distributed import Client
-from numpy.typing import NDArray
 from ska_sdp_func_python.preprocessing.flagger import rfi_flagger
 
 from ska_sdp_batch_preprocess.functions.distributed_func import Distribute

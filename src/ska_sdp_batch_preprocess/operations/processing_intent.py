@@ -27,7 +27,8 @@ class ProcessingIntent:
 
     Attributes
     ----------
-    _input_data: ska_sdp_datamodels.visibility.Visibility | xradio.vis.schema.VisibilityXds
+    _input_data: ska_sdp_datamodels.visibility.Visibility 
+    | xradio.vis.schema.VisibilityXds
       THIS IS A PRIVATE CLASS ATTRIBUTE.
       If data are loded as SKA-Visibility they will be automatically made
       available as XRadio-Visibility, and vice versa. This holds true as
@@ -82,7 +83,8 @@ class ProcessingIntent:
 
         Parameters
         ----------
-        input_data: ska_sdp_datamodels.visibility.Visibility | xradio.vis.schema.VisibilityXds
+        input_data: ska_sdp_datamodels.visibility.Visibility 
+        | xradio.vis.schema.VisibilityXds
           contains the input class data.
           If data are loded as SKA-Visibility they will be automatically made
           available as XRadio-Visibility, and vice versa. This holds true as
@@ -123,7 +125,7 @@ class ProcessingIntent:
         try:
             with tools.write_to_devnull():
                 return convert_visibility_xds_to_visibility(self._input_data)
-        except:
+        except: # pylint: disable=bare-except
             tools.reinstate_default_stdout()
             self.logger.critical(
                 "Could not convert XRadio-Visibility to SKA-Visibility\n  |"
@@ -147,7 +149,7 @@ class ProcessingIntent:
                     return convert_visibility_to_visibility_xds(
                         self._input_data
                     )
-            except:
+            except: # pylint: disable=bare-except
                 tools.reinstate_default_stdout()
                 self.logger.critical(
                     "Could not convert SKA-Visibility to XRadio-Visibility\n  |"
@@ -172,7 +174,7 @@ class ProcessingIntent:
                     else "VISIBILITY"
                 )
             ].values
-        except:
+        except: # pylint: disable=bare-except
             self.logger.critical("Could not read visibilities from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
 
@@ -189,7 +191,7 @@ class ProcessingIntent:
             return self._input_data[
                 "uvw" if isinstance(self._input_data, Visibility) else "UVW"
             ].values
-        except:
+        except: # pylint: disable=bare-except
             self.logger.critical("Could not read UVW data from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
 
@@ -210,21 +212,22 @@ class ProcessingIntent:
                     else "WEIGHT"
                 )
             ].values
-        except:
+        except: # pylint: disable=bare-except
             self.logger.critical("Could not read weights from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
 
     @classmethod
     def manual_compute(
         cls, input_data: Union[Visibility, VisibilityXds], *, logger: Logger
-    ):
+    ): # pylint: disable=line-too-long
         """
         Class method to generate an instance with the data manually loaded
         into memory using the xarray compute() method.
 
         Arguments
         ---------
-        input_data: ska_sdp_datamodels.visibility.Visibility | xradio.vis.schema.VisibilityXds
+        input_data: ska_sdp_datamodels.visibility.Visibility 
+        | xradio.vis.schema.VisibilityXds
           the input data, which are to be loaded manually.
 
         logger: logging.Logger
@@ -236,9 +239,9 @@ class ProcessingIntent:
 
         Note
         ----
-        This manual_compute() method does not support slicing/partial data loading
-        due to the default xarray functionality stipulating that data are normally
-        loaded automatically. Hence, this manual_compute() class method should not
+        manual_compute() method does not support slicing/partial data loading
+        due to default xarray functionality stipulating that data are normally
+        loaded automatically. Hence, manual_compute() class method should not
         be needed in normal circumstances.
         https://docs.xarray.dev/en/latest/generated/xarray.Dataset.compute.html
         """

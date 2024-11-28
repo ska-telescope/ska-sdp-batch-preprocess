@@ -54,7 +54,7 @@ def run(
                 with tools.write_to_devnull():
                     ms = MeasurementSet.ver_2(msin, args, logger=logger)
                 logger.info(f"Successfully loaded {msin.name} as MSv2\n  |")
-            except:
+            except: # pylint: disable=bare-except
                 tools.reinstate_default_stdout()
                 try:
                     with log_handler.temporary_log_disable():
@@ -62,10 +62,10 @@ def run(
                     logger.info(
                         f"Successfully loaded {msin.name} as MSv4\n  |"
                     )
-                except:
+                except: # pylint: disable=bare-except
                     log_handler.enable_logs_manually()
                     logger.critical(
-                        f"Could not load {msin.name} as either Msv2 or MSv4\n  |"
+                        f"Could not load {msin.name} as Msv2 or MSv4\n  |"
                     )
                     log_handler.exit_pipeline(logger)
 
@@ -82,7 +82,7 @@ def run(
                 )
                 logger.info("Running requested processing functions ...\n  |")
                 output_data_list.append(distributor.vis)
-                logger.info(f"Successfully ran all processing functions\n  |")
+                logger.info("Successfully ran all processing functions\n  |")
 
         # export to MSv2
         if "export_to_msv2" in config["processing_chain"]:
@@ -108,11 +108,11 @@ def processing_functions(
     distributor: Distribute, config: dict[str, Any], *, logger: Logger
 ) -> None:
     """
-    Chain of distributed processing functions that can be configured from the YAML config file.
+    Chain of distributed processing functions, configured from YAML config.
 
-    param: distributor: Initialised Distribute class that can chunk the visibilites and distribute
-                    them over a DASK cluster
-    param: config - Dictionary of configuration parameters read from a YAML file
+    param: distributor: Initialised Distribute class that can chunk
+                    visibilites and distribute over a DASK cluster
+    param: config - Dictionary of configuration parameters read from YAML
     param: logger - logger class to store and print logs
     """
     for func, args in config.items():

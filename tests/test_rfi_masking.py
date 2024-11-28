@@ -1,4 +1,3 @@
-import numpy as np
 import xarray as xr
 from dask.distributed import Client
 from ska_sdp_func_python.preprocessing.rfi_masks import apply_rfi_masks

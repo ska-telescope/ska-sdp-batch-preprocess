@@ -24,7 +24,7 @@ def main() -> None:
 
     if args.scheduler:
         logger.info(
-            f"DASK distribution - utilizing the cluster provided: {args.scheduler}\n  |"
+            f"DASK distribution - using cluster: {args.scheduler}\n  |"
         )
         client = Client(args.scheduler, timeout=3500)
 
@@ -110,14 +110,14 @@ def read_yaml(dir: Path, *, logger: Logger) -> dict[str, Any]:
     try:
         with open(f"{dir}", "r") as file:
             config = yaml.safe_load(file)
-    except:
+    except: # pylint: disable=bare-except
         logger.critical(f"Loading '{dir.name}' failed")
         log_handler.exit_pipeline(logger)
 
     logger.info("Validating loaded YAML object")
     try:
         validate_config(config)
-    except:
+    except: # pylint: disable=bare-except
         logger.critical("Invalid YAML format\n  |")
         log_handler.exit_pipeline(logger)
 
