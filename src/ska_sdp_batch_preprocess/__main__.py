@@ -110,14 +110,14 @@ def read_yaml(dir: Path, *, logger: Logger) -> dict[str, Any]:
     try:
         with open(f"{dir}", "r") as file:
             config = yaml.safe_load(file)
-    except:  # pylint: disable=bare-except
+    except:  #noqa: E722
         logger.critical(f"Loading '{dir.name}' failed")
         log_handler.exit_pipeline(logger)
 
     logger.info("Validating loaded YAML object")
     try:
         validate_config(config)
-    except:  # pylint: disable=bare-except
+    except:  #noqa: E722
         logger.critical("Invalid YAML format\n  |")
         log_handler.exit_pipeline(logger)
 

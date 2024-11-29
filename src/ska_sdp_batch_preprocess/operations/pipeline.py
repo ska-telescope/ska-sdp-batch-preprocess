@@ -54,7 +54,7 @@ def run(
                 with tools.write_to_devnull():
                     ms = MeasurementSet.ver_2(msin, args, logger=logger)
                 logger.info(f"Successfully loaded {msin.name} as MSv2\n  |")
-            except:  # pylint: disable=bare-except
+            except:  #noqa: E722
                 tools.reinstate_default_stdout()
                 try:
                     with log_handler.temporary_log_disable():
@@ -62,7 +62,7 @@ def run(
                     logger.info(
                         f"Successfully loaded {msin.name} as MSv4\n  |"
                     )
-                except:  # pylint: disable=bare-except
+                except:  #noqa: E722
                     log_handler.enable_logs_manually()
                     logger.critical(
                         f"Could not load {msin.name} as Msv2 or MSv4\n  |"

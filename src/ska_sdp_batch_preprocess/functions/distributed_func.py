@@ -62,7 +62,7 @@ class Distribute:
         """
         Distributes the input visibilties on freq and averages them.
 
-        :param: freqstep, integer value of num frequency channels to be averaged
+        :param: freqstep, integer value of num frequency channels to average
         :param: threshold,
 
         :return: Freq averaged Xarray dataset complying to vis datamodel
