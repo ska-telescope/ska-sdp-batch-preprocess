@@ -143,7 +143,7 @@ class MeasurementSet:
                         [intent.data_as_ska_vis for intent in self.dataframe],
                         **args,
                     )
-        except:  #noqa: E722
+        except:  # noqa: E722
             tools.reinstate_default_stdout()
             self.logger.critical("Could not generate MSv2")
             log_handler.exit_pipeline(self.logger)
@@ -311,7 +311,7 @@ def convert_msv2_to_msv4(
                 convert_msv2_to_processing_set(
                     f"{msin}", f"{msin.with_suffix('.ms4')}", **args
                 )
-    except:  #noqa: E722
+    except:  # noqa: E722
         log_handler.enable_logs_manually()
         logger.critical(f"Could not convert {msin.name} to MSv4\n  |")
         log_handler.exit_pipeline(logger)

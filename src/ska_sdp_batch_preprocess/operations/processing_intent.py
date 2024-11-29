@@ -125,7 +125,7 @@ class ProcessingIntent:
         try:
             with tools.write_to_devnull():
                 return convert_visibility_xds_to_visibility(self._input_data)
-        except:  #noqa: E722
+        except:  # noqa: E722
             tools.reinstate_default_stdout()
             self.logger.critical(
                 "Could not convert XRadio-Visibility to SKA-Visibility\n  |"
@@ -149,7 +149,7 @@ class ProcessingIntent:
                     return convert_visibility_to_visibility_xds(
                         self._input_data
                     )
-            except:  #noqa: E722
+            except:  # noqa: E722
                 tools.reinstate_default_stdout()
                 self.logger.critical(
                     "Cannot convert SKA-Visibility to XRadio-Visibility\n  |"
@@ -174,7 +174,7 @@ class ProcessingIntent:
                     else "VISIBILITY"
                 )
             ].values
-        except:  #noqa: E722
+        except:  # noqa: E722
             self.logger.critical("Could not read visibilities from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
 
@@ -191,7 +191,7 @@ class ProcessingIntent:
             return self._input_data[
                 "uvw" if isinstance(self._input_data, Visibility) else "UVW"
             ].values
-        except:  #noqa: E722
+        except:  # noqa: E722
             self.logger.critical("Could not read UVW data from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
 
@@ -212,7 +212,7 @@ class ProcessingIntent:
                     else "WEIGHT"
                 )
             ].values
-        except:  #noqa: E722
+        except:  # noqa: E722
             self.logger.critical("Could not read weights from MSv4\n  |")
             log_handler.exit_pipeline(self.logger)
 
