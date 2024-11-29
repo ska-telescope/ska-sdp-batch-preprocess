@@ -7,9 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 
-def generate(
-        name: str, *, cmd_logs: bool=False
-) -> logging.Logger:
+def generate(name: str, *, cmd_logs: bool = False) -> logging.Logger:
     """
     Generates a new logging.Logger class instance.
 
@@ -19,8 +17,8 @@ def generate(
       name given to the new class instance.
 
     cmd_logs: bool=False
-      optional argument which, if True, logs will 
-      be generated on the command line in addition 
+      optional argument which, if True, logs will
+      be generated on the command line in addition
       to logging into a logfile.
 
     Returns
@@ -29,14 +27,10 @@ def generate(
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    
-    log_folder_name = datetime.now().strftime(
-        "%Y-%m-%d_%H-%M-%S"
-    )
-    Path.cwd().joinpath(
-        log_folder_name
-    ).mkdir(parents=True, exist_ok=True)
-    
+
+    log_folder_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    Path.cwd().joinpath(log_folder_name).mkdir(parents=True, exist_ok=True)
+
     file_handler = logging.FileHandler(
         f"{Path.cwd().joinpath(log_folder_name, 'logfile.log')}"
     )
@@ -46,7 +40,7 @@ def generate(
         )
     )
     logger.addHandler(file_handler)
-    
+
     if cmd_logs:
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(
@@ -57,9 +51,8 @@ def generate(
         logger.addHandler(stream_handler)
     return logger
 
-def exit_pipeline(
-        logger: logging.Logger, *, success: bool=False
-) -> None:
+
+def exit_pipeline(logger: logging.Logger, *, success: bool = False) -> None:
     """
     Exits the pipeline gracefully.
 
@@ -69,8 +62,8 @@ def exit_pipeline(
       logger object to exit the pipeline with.
 
     success: bool=False
-      optional argument which, if True, the pipeline 
-      declares a successful run as it ends the job, 
+      optional argument which, if True, the pipeline
+      declares a successful run as it ends the job,
       but declares a failed run otherwise.
     """
     logger.info("Exiting pipeline")
@@ -80,6 +73,7 @@ def exit_pipeline(
         logger.info("Pipeline run - FAILURE")
     sys.exit()
 
+
 def enable_logs_manually() -> None:
     """
     Reverts the logging premission to default
@@ -88,6 +82,7 @@ def enable_logs_manually() -> None:
     but an exception occurs while executing.
     """
     logging.disable(logging.NOTSET)
+
 
 @contextlib.contextmanager
 def temporary_log_disable():

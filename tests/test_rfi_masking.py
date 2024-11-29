@@ -1,11 +1,14 @@
-from ska_sdp_func_python.preprocessing.rfi_masks import apply_rfi_masks
-from ska_sdp_batch_preprocess.functions.distributed_func import Distribute
-from ska_sdp_batch_preprocess.functions.mapped_func import mapped_rfi_masking
 import xarray as xr
 from dask.distributed import Client
-import numpy as np
+from ska_sdp_func_python.preprocessing.rfi_masks import apply_rfi_masks
 
-def test_distributed_rfi_mask(test_data: xr.Dataset, client: Client, mask_pairs):
+from ska_sdp_batch_preprocess.functions.distributed_func import Distribute
+from ska_sdp_batch_preprocess.functions.mapped_func import mapped_rfi_masking
+
+
+def test_distributed_rfi_mask(
+    test_data: xr.Dataset, client: Client, mask_pairs
+):
     """
     Test distributed masking against non-distributed masking
     """
@@ -13,8 +16,13 @@ def test_distributed_rfi_mask(test_data: xr.Dataset, client: Client, mask_pairs)
     time_distributor = Distribute(test_data, "time", 4, client)
     freq_distributor = Distribute(test_data, "frequency", 4, client)
 
-    assert time_distributor.rfi_masking(mask_pairs).equals(apply_rfi_masks(test_data, mask_pairs))    
-    assert freq_distributor.rfi_masking(mask_pairs).equals(apply_rfi_masks(test_data, mask_pairs))    
+    assert time_distributor.rfi_masking(mask_pairs).equals(
+        apply_rfi_masks(test_data, mask_pairs)
+    )
+    assert freq_distributor.rfi_masking(mask_pairs).equals(
+        apply_rfi_masks(test_data, mask_pairs)
+    )
+
 
 def test_mapped_rfi_mask(test_data: xr.Dataset, mask_pairs):
     """
