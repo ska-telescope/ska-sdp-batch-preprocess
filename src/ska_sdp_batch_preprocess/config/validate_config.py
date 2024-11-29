@@ -1,5 +1,7 @@
 # see license in parent directory
 
+""" This module contains all operations to run in the pipeline """
+
 import json
 from pathlib import Path
 
