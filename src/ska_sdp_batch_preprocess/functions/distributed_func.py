@@ -57,6 +57,7 @@ class Distribute:
         self.vis = self.client.submit(
             averaging_time, self.vis, timestep, threshold
         ).result()
+        return self.vis
 
     def avg_freq(self, freqstep, threshold: float) -> xr.Dataset:
         """
@@ -71,6 +72,7 @@ class Distribute:
         self.vis = self.client.submit(
             averaging_frequency, self.vis, freqstep, threshold
         ).result()
+        return self.vis
 
     def rfi_masking(self, masks: NDArray[np.float64]) -> xr.Dataset:
         """
@@ -85,6 +87,7 @@ class Distribute:
         self.vis = self.client.submit(
             apply_rfi_masks, self.vis, masks
         ).result()
+        return self.vis
 
     def flagger(
         self,
@@ -122,6 +125,7 @@ class Distribute:
             window,
             window_median_history,
         ).result()
+        return self.vis
 
     def ao_rfi_flagger(self, path=None):
         """
