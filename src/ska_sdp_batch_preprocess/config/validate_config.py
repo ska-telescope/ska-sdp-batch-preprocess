@@ -1,5 +1,7 @@
 # see license in parent directory
 
+""" This module contains all operations to run in the pipeline """
+
 import json
 from pathlib import Path
 
@@ -19,6 +21,6 @@ def validate_config(config: dict) -> None:
 
     path = schemas_path / "config.json"
     schemas_dict = json.loads(path.read_text())
-    
+
     validator = Draft202012Validator(schemas_dict)
     validator.validate(instance=config)
