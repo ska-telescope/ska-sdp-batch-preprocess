@@ -1,10 +1,14 @@
 [tool.poetry]
-name = "ska-sdp-batch-preprocess"
-version = "1.0.1"
-description = "SKA Distributed batch preprocessing pipeline"
 authors = ["Team HIPPO"]
+description = "SKA Distributed batch preprocessing pipeline"
 license = "BSD-3-Clause"
+name = "ska-sdp-batch-preprocess"
 readme = "README.md"
+version = "1.0.1"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
 
 [[tool.poetry.source]]
 name = "PyPI"
@@ -12,45 +16,25 @@ priority = "supplemental"
 
 [[tool.poetry.source]]
 name = "skao"
-url = "https://artefact.skao.int/repository/pypi-internal/simple"
 priority = "primary"
+url = "https://artefact.skao.int/repository/pypi-internal/simple"
 
 [tool.poetry.dependencies]
-python = ">=3.10, <3.12"
-xradio = "^0.0.30"
-graphviper = "^0.0.27"
-
-#The following three libraries are using specific branches to function appropriately, this will be changed and would need updating when the branches are merged or deleted
-ska-sdp-datamodels = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-datamodels.git", branch = "sp-4385-implement-xradio-converter"}
-ska-sdp-func-python = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-func-python.git"}
-ska-sdp-func = {git = "https://gitlab.com/ska-telescope/sdp/ska-sdp-func.git", rev="1.2.0"}
-ska-telmodel = "^1.17"
-numpy = "^1.26"
-python-casacore = "^3.5.2"
-PyYAML = "^6.0.1"
-jsonschema = "^4.23.0"
+python = ">=3.10, <3.13"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.3.0"
+build = "^0.10.0"
+coverage = "^6.1.1"
+flake8 = "^3.9.2"
+isort = "^5.6.4"
 pylint = "^2.8.2"
 pylint-junit = "^0.3.2"
 pytest = "^8.3.2"
 pytest-cov = "^2.10.1"
-isort = "^5.6.4"
-flake8 = "^3.9.2"
-coverage = "^6.1.1"
-build = "^0.10.0"
 
 # Install with `poetry install --with docs`
 [tool.poetry.group.docs.dependencies]
-sphinx = "^7.0.0"
-ska-ser-sphinx-theme = "^0.2.0"
 recommonmark = "^0.7.1"
-
-[tool.poetry.extras]
-ska-sdp-func = ["ska-sdp-func"]
-ska-sdp-func-python = ["ska-sdp-func-python"]
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+ska-ser-sphinx-theme = "^0.2.0"
+sphinx = "^7.0.0"
