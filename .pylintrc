@@ -429,20 +429,9 @@ disable=raw-checker-failed,
         useless-suppression,
         deprecated-pragma,
         use-symbolic-message-instead,
-        # FIXME: delete this later
+        # Custom additions below
         missing-module-docstring,
-        inconsistent-return-statements,
-        bare-except,
-        no-name-in-module,
-        too-many-locals,
-        redefined-outer-name,
-        redefined-builtin,
-        logging-fstring-interpolation,
-        unspecified-encoding,
-        fixme,
-        too-many-arguments,
-        unnecessary-pass,
-        invalid-name
+
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
