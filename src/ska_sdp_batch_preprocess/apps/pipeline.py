@@ -1,4 +1,5 @@
 import argparse
+import shutil
 import sys
 from pathlib import Path
 
@@ -15,10 +16,11 @@ def make_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument(
+        "-o",
         "--output-dir",
         type=Path,
         required=True,
-        help="Output directory where the pre-processed data will be written",
+        help=("Output directory where the pre-processed data will be written"),
     )
     parser.add_argument(
         "input_ms",
@@ -35,7 +37,12 @@ def run_program(cli_args: list[str]):
     """
     parser = make_parser()
     args = parser.parse_args(cli_args)
-    print(args)
+
+    input_ms_list: list[Path] = args.input_ms
+    output_dir: Path = args.output_dir
+
+    for input_ms in input_ms_list:
+        shutil.copy(input_ms, output_dir / input_ms.name)
 
 
 def main():
