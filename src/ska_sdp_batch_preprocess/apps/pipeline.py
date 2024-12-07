@@ -1,34 +1,48 @@
-import argparse
 import shutil
 import sys
+from argparse import (
+    ArgumentDefaultsHelpFormatter,
+    ArgumentParser,
+    ArgumentTypeError,
+)
 from pathlib import Path
 
 from ska_sdp_batch_preprocess import __version__
 
 
-def make_parser() -> argparse.ArgumentParser:
+def make_parser() -> ArgumentParser:
     """
     Self-explanatory.
     """
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         description="SKA Batch pre-processing pipeline",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument(
         "-o",
         "--output-dir",
-        type=Path,
+        type=existing_directory,
         required=True,
         help=("Output directory where the pre-processed data will be written"),
     )
     parser.add_argument(
         "input_ms",
-        type=Path,
+        type=existing_directory,
         nargs="+",
         help="Input measurement set(s)",
     )
     return parser
+
+
+def existing_directory(dirname: str) -> Path:
+    """
+    Validate CLI argument that must be an existing directory.
+    """
+    path = Path(dirname)
+    if not (path.exists() and path.is_dir()):
+        raise ArgumentTypeError(f"{dirname!r} must be an existing directory")
+    return path
 
 
 def run_program(cli_args: list[str]):
@@ -42,7 +56,7 @@ def run_program(cli_args: list[str]):
     output_dir: Path = args.output_dir
 
     for input_ms in input_ms_list:
-        shutil.copy(input_ms, output_dir / input_ms.name)
+        shutil.copytree(input_ms, output_dir / input_ms.name)
 
 
 def main():

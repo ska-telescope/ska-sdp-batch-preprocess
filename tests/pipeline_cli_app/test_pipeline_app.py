@@ -15,7 +15,7 @@ def test_pipeline_cli_app_entry_point_exists():
 
 
 def test_pipeline_cli_app(
-    tmp_path_factory: TempPathFactory, input_ms_path_list: list[Path]
+    tmp_path_factory: TempPathFactory, input_ms_paths: list[Path]
 ):
     """
     Test the pipeline CLI app.
@@ -25,12 +25,12 @@ def test_pipeline_cli_app(
         "--output-dir",
         str(output_dir),
     ]
-    cli_args.extend([str(path) for path in input_ms_path_list])
+    cli_args.extend([str(path) for path in input_ms_paths])
 
     run_program(cli_args)
 
-    expected_output_ms_path_list = [
-        output_dir / path.name for path in input_ms_path_list
+    expected_output_ms_paths = [
+        output_dir / path.name for path in input_ms_paths
     ]
-    for path in expected_output_ms_path_list:
-        assert path.exists()
+    for output_ms in expected_output_ms_paths:
+        assert output_ms.is_dir()
