@@ -1,13 +1,14 @@
 .. _devguide:
 
+***************
 Developer Guide
-===============
+***************
 
 This section contains information for code contributors.
 
 
 CI Pipeline simulation
-----------------------
+======================
 
 Before pushing, you can check whether the CI pipeline should pass as follows:
 

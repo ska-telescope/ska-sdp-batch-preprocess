@@ -19,6 +19,9 @@ name = "skao"
 priority = "primary"
 url = "https://artefact.skao.int/repository/pypi-internal/simple"
 
+[tool.poetry.scripts]
+ska-sdp-batch-preprocess = "ska_sdp_batch_preprocess.apps.pipeline:main"
+
 [tool.poetry.dependencies]
 python = ">=3.10, <3.13"
 
