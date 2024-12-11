@@ -1,0 +1,8 @@
+DP3:
+  showprogress: false
+
+  steps:
+    - AOFlagger:
+    - Averager:
+        timeresolution: 16.0
+        freqresolution: 120.0e+3
