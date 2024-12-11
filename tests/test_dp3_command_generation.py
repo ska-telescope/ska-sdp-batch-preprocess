@@ -26,6 +26,7 @@ def test_generated_dp3_command_is_correct(pipeline_config: PipelineConfig):
     command = DP3Config.create(pipeline_config, msin, msout).to_command_line()
     expected_command = [
         "DP3",
+        "showprogress=false",
         "steps=[aoflagger,averager]",
         "msin.name=/path/to/input.ms",
         "msout.name=/path/to/output.ms",

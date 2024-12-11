@@ -1,4 +1,6 @@
 DP3:
+  showprogress: false
+
   steps:
     - AOFlagger:
     - Averager:
