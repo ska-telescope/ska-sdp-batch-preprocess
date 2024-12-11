@@ -103,12 +103,6 @@ class DP3Config(ConfigBase):
 
 
 def _dp3_format_value(value: Any) -> str:
-    """
-    Convert a DP3 parameter value to a string that can be passed to DP3.
-    - Lists/sequences need to be formatted in a particular way
-    - We make all Paths absolute so that we can safely call DP3 as a subprocess
-      from any working directory.
-    """
     if isinstance(value, (list, tuple)):
         result = ",".join(map(_dp3_format_value, value))
         return f"[{result}]"
@@ -116,6 +110,7 @@ def _dp3_format_value(value: Any) -> str:
     if isinstance(value, bool):
         return "true" if value else "false"
 
+    # Make paths absolute so we can safely call DP3 from any working directory
     if isinstance(value, Path):
         return str(value.resolve())
 
