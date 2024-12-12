@@ -1,4 +1,3 @@
-import shutil
 import sys
 from argparse import (
     ArgumentDefaultsHelpFormatter,
@@ -8,6 +7,7 @@ from argparse import (
 from pathlib import Path
 
 from ska_sdp_batch_preprocess import __version__
+from ska_sdp_batch_preprocess.pipeline import Pipeline
 
 
 def make_parser() -> ArgumentParser:
@@ -19,6 +19,13 @@ def make_parser() -> ArgumentParser:
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--version", action="version", version=__version__)
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=Path,
+        required=True,
+        help="YAML configuration file",
+    )
     parser.add_argument(
         "-o",
         "--output-dir",
@@ -55,8 +62,10 @@ def run_program(cli_args: list[str]):
     input_ms_list: list[Path] = args.input_ms
     output_dir: Path = args.output_dir
 
+    pipeline = Pipeline.from_yaml(args.config)
+
     for input_ms in input_ms_list:
-        shutil.copytree(input_ms, output_dir / input_ms.name)
+        pipeline.run(input_ms, output_dir / input_ms.name)
 
 
 def main():
