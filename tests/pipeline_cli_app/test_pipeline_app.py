@@ -15,22 +15,21 @@ def test_pipeline_cli_app_entry_point_exists():
 
 
 def test_pipeline_cli_app(
-    tmp_path_factory: TempPathFactory, input_ms_paths: list[Path]
+    tmp_path_factory: TempPathFactory, yaml_config: Path, input_ms: Path
 ):
     """
-    Test the pipeline CLI app.
+    Test the pipeline CLI app on a small Measurement Set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
     cli_args = [
+        "--config",
+        str(yaml_config),
         "--output-dir",
         str(output_dir),
+        str(input_ms),
     ]
-    cli_args.extend([str(path) for path in input_ms_paths])
 
     run_program(cli_args)
 
-    expected_output_ms_paths = [
-        output_dir / path.name for path in input_ms_paths
-    ]
-    for output_ms in expected_output_ms_paths:
-        assert output_ms.is_dir()
+    expected_output_ms_path = output_dir / input_ms.name
+    assert expected_output_ms_path.is_dir()
