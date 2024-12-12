@@ -1,33 +1,28 @@
-import uuid
+import zipfile
 from pathlib import Path
 
 import pytest
-from pytest import TempPathFactory
 
 
-@pytest.fixture(scope="session")
-def input_ms_paths(tmp_path_factory: TempPathFactory) -> list[Path]:
+@pytest.fixture(name="input_ms", scope="module")
+def fixture_input_ms(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Path:
     """
-    Creates a list of input file paths to pass to the pipeline CLI app.
+    A very small MeerKAT dataset observed at L-Band.
+    The dataset has 38 time samples, 4 freq channels and the 4 linear
+    polarisation channels.
     """
-    tempdir = tmp_path_factory.mktemp("input_dir")
-    return [
-        create_fake_ms_directory(tempdir, f"data_{index}.ms")
-        for index in range(2)
-    ]
+    archive = Path(__file__).parent / "mkt_ecdfs25_nano.ms.zip"
+    datasets_tmpdir = Path(tmp_path_factory.mktemp("xradio_datasets"))
+    # pylint: disable=consider-using-with
+    zipfile.ZipFile(archive).extractall(datasets_tmpdir)
+    return datasets_tmpdir / "mkt_ecdfs25_nano.ms"
 
 
-def create_fake_ms_directory(parent_dir: Path, name: str) -> Path:
+@pytest.fixture(name="yaml_config", scope="session")
+def fixture_yaml_config() -> Path:
     """
-    Create an MS directory called `name` as a sub-directory of `parent_dir`.
+    YAML config file path.
     """
-    assert parent_dir.is_dir()
-
-    base_dir = parent_dir / name
-    base_dir.mkdir()
-
-    table_path = base_dir / "table.f0"
-    with open(table_path, "w", encoding="utf-8") as file:
-        file.write(str(uuid.uuid4()))
-
-    return base_dir
+    return Path(__file__).parent / ".." / ".." / "config" / "config.yaml"
