@@ -1,9 +1,20 @@
 import subprocess
 from pathlib import Path
 
-from pytest import TempPathFactory
+import pytest
 
 from ska_sdp_batch_preprocess.apps.pipeline import run_program
+
+
+def dp3_available() -> bool:
+    """
+    True if DP3 is available to run via CLI.
+    """
+    try:
+        subprocess.check_call(["DP3"])
+        return True
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return False
 
 
 def test_pipeline_cli_app_entry_point_exists():
@@ -14,8 +25,9 @@ def test_pipeline_cli_app_entry_point_exists():
     assert exit_code == 0
 
 
+@pytest.mark.skipif(not dp3_available(), reason="DP3 not available")
 def test_pipeline_cli_app(
-    tmp_path_factory: TempPathFactory, yaml_config: Path, input_ms: Path
+    tmp_path_factory: pytest.TempPathFactory, yaml_config: Path, input_ms: Path
 ):
     """
     Test the pipeline CLI app on a small Measurement Set.
