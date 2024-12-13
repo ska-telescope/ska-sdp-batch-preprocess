@@ -1,4 +1,5 @@
 import os
+import shlex
 import subprocess
 
 from .config import DP3Config, PipelineConfig
@@ -23,6 +24,8 @@ class Pipeline:
         command_line = DP3Config.create(
             self.config, msin, msout
         ).to_command_line()
+        # NOTE: should do logging instead
+        print(shlex.join(command_line))
         subprocess.check_call(command_line)
 
     @classmethod
