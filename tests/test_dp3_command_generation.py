@@ -26,11 +26,12 @@ def test_generated_dp3_command_is_correct(pipeline_config: PipelineConfig):
     command = DP3Config.create(pipeline_config, msin, msout).to_command_line()
     expected_command = [
         "DP3",
-        "showprogress=false",
-        "steps=[aoflagger,averager]",
+        "steps=[preflagger,aoflagger,averager]",
         "msin.name=/path/to/input.ms",
         "msout.name=/path/to/output.ms",
-        "averager.timeresolution=16.0",
-        "averager.freqresolution=120000.0",
+        "aoflagger.memorymax=8.0",
+        "averager.timestep=4",
+        "averager.freqstep=4",
+        "msout.overwrite=true",
     ]
     assert command == expected_command

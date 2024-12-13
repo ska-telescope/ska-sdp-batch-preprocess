@@ -1,8 +1,12 @@
-DP3:
-  showprogress: false
+# Model configuration file, format is provisional.
 
-  steps:
-    - AOFlagger:
-    - Averager:
-        timeresolution: 16.0
-        freqresolution: 120.0e+3
+steps:
+  - MsIn:
+  - PreFlagger:
+  - AOFlagger:
+      memorymax: 8.0 # GB
+  - Averager:
+      timestep: 4
+      freqstep: 4
+  - MsOut:
+      overwrite: true

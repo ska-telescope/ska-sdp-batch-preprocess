@@ -1,3 +1,4 @@
+import copy
 import os
 from collections.abc import Mapping
 from pathlib import Path
@@ -37,29 +38,19 @@ class PipelineConfig(ConfigBase):
         with open(path, "r", encoding="utf-8") as file:
             return cls(yaml.safe_load(file))
 
-    def dp3_base_options(self) -> Iterator[tuple[str, Any]]:
+    def steps(self) -> Iterator[tuple[str, dict]]:
         """
-        Iterator through DP3 options excluding "steps". Yields tuples
-        (key, value).
-        """
-        dp3_params: dict = self["DP3"]
-        return (
-            (key, val) for key, val in dp3_params.items() if key != "steps"
-        )
-
-    def dp3_steps(self) -> Iterator[tuple[str, dict]]:
-        """
-        Iterator through DP3 steps.
+        Iterator through "steps" section in the config file.
         Yields tuples (step_name, params_dict).
         """
-        steps: list[dict] = self["DP3"]["steps"]
+        steps: list[dict] = self["steps"]
         for step in steps:
             # "step" is a dictionary with one key: the step name
             # The associated value is a dict of parameters for the step
             name, params = list(step.items())[0]
             if params is None:
                 params = {}
-            yield name, params
+            yield name, copy.deepcopy(params)
 
 
 class DP3Config(ConfigBase):
@@ -79,14 +70,17 @@ class DP3Config(ConfigBase):
         """
         Translate pipeline config into parameters for a single DP3 execution.
         """
-        conf = dict(pipeline_config.dp3_base_options())
-        conf = conf | {
-            "steps": [name.lower() for name, _ in pipeline_config.dp3_steps()],
+        conf = {
+            "steps": [
+                name.lower()
+                for name, _ in pipeline_config.steps()
+                if name.lower() not in {"msin", "msout"}
+            ],
             "msin.name": Path(msin),
             "msout.name": Path(msout),
         }
 
-        for name, params in pipeline_config.dp3_steps():
+        for name, params in pipeline_config.steps():
             for key, val in params.items():
                 conf[f"{name.lower()}.{key}"] = val
 
