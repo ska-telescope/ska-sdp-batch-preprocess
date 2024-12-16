@@ -4,9 +4,18 @@
 Installation
 ************
 
-These are the "official" installation instructions on Linux, noting there are many alternative ways
-of doing it (you can install ``poetry`` via different means, use a different Python environment
-manager such as ``conda``, etc.).
+Installing DP3
+==============
+
+The batch pre-processing pipeline needs to call `DP3 <https://dp3.readthedocs.io/en/latest/>`_
+(LOFAR's own preprocessing pipeline) as a subprocess. All that matters is that
+the DP3 executable is available in the `PATH`.
+
+Detailed DP3 installation instructions will be provided in the future. At the moment, we recommend
+building it with `Spack <https://spack.io/>`_,
+using the DP3 build recipe provided as part of the
+`ska-sdp-spack repository <https://gitlab.com/ska-telescope/sdp/ska-sdp-spack>`_.
+
 
 Installing poetry
 =================
