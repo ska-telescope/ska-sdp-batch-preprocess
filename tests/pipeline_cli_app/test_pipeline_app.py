@@ -1,9 +1,20 @@
 import subprocess
 from pathlib import Path
 
-from pytest import TempPathFactory
+import pytest
 
 from ska_sdp_batch_preprocess.apps.pipeline import run_program
+
+
+def dp3_available() -> bool:
+    """
+    True if DP3 is available to run via CLI.
+    """
+    try:
+        subprocess.check_call(["DP3"])
+        return True
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return False
 
 
 def test_pipeline_cli_app_entry_point_exists():
@@ -14,23 +25,23 @@ def test_pipeline_cli_app_entry_point_exists():
     assert exit_code == 0
 
 
+@pytest.mark.skipif(not dp3_available(), reason="DP3 not available")
 def test_pipeline_cli_app(
-    tmp_path_factory: TempPathFactory, input_ms_paths: list[Path]
+    tmp_path_factory: pytest.TempPathFactory, yaml_config: Path, input_ms: Path
 ):
     """
-    Test the pipeline CLI app.
+    Test the pipeline CLI app on a small Measurement Set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
     cli_args = [
+        "--config",
+        str(yaml_config),
         "--output-dir",
         str(output_dir),
+        str(input_ms),
     ]
-    cli_args.extend([str(path) for path in input_ms_paths])
 
     run_program(cli_args)
 
-    expected_output_ms_paths = [
-        output_dir / path.name for path in input_ms_paths
-    ]
-    for output_ms in expected_output_ms_paths:
-        assert output_ms.is_dir()
+    expected_output_ms_path = output_dir / input_ms.name
+    assert expected_output_ms_path.is_dir()

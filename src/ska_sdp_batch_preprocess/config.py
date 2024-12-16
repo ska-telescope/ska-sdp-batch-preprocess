@@ -71,6 +71,7 @@ class DP3Config(ConfigBase):
         Translate pipeline config into parameters for a single DP3 execution.
         """
         conf = {
+            "checkparset": 1,
             "steps": [
                 name.lower()
                 for name, _ in pipeline_config.steps()

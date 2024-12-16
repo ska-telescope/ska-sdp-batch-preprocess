@@ -1,12 +1,24 @@
 # Model configuration file, format is provisional.
 
+# "steps" must be a list of dictionaries of the form {step_name: step_params_dict}
+# * The only step names currently supported are in this example configuration below
+# * step order matters
+# * step names are NOT case-sensitive
+# * step_params_dict can be left empty, which means run the associated step with DP3's
+#   default parameters. Parameters of a step must be provided in their natural data type.
+# * Any step parameter can be specified as long as it is legal for DP3
+# * ALL steps are optional. The minimum configuration would be `steps: []`,
+#   which effectively means "just copy the input data"
+
+# DP3 steps complete documentation: https://dp3.readthedocs.io/en/latest/
+
 steps:
   - MsIn:
   - PreFlagger:
   - AOFlagger:
       memorymax: 8.0 # GB
   - Averager:
-      timestep: 4
-      freqstep: 4
+      timestep: 4 # averaging factor in time
+      freqstep: 4 # averaging factor in frequency
   - MsOut:
       overwrite: true
