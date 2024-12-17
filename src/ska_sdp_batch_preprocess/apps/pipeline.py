@@ -1,4 +1,5 @@
 import sys
+import warnings
 from argparse import (
     ArgumentDefaultsHelpFormatter,
     ArgumentParser,
@@ -34,6 +35,13 @@ def make_parser() -> ArgumentParser:
         help=("Output directory where the pre-processed data will be written"),
     )
     parser.add_argument(
+        "--dask-scheduler",
+        help=(
+            "Network address of the dask scheduler to use for distribution; "
+            "format is HOST:PORT"
+        ),
+    )
+    parser.add_argument(
         "input_ms",
         type=existing_directory,
         nargs="+",
@@ -58,6 +66,12 @@ def run_program(cli_args: list[str]):
     """
     parser = make_parser()
     args = parser.parse_args(cli_args)
+
+    if args.dask_scheduler is not None:
+        warnings.warn(
+            "Dask distribution is not implemented yet, "
+            "ignoring --dask-scheduler argument"
+        )
 
     input_ms_list: list[Path] = args.input_ms
     output_dir: Path = args.output_dir

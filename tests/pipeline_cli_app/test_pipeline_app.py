@@ -41,6 +41,8 @@ def test_pipeline_cli_app(
         str(yaml_config),
         "--output-dir",
         str(output_dir),
+        "--dask-scheduler",
+        "localhost:8786",
         str(input_ms),
     ]
 
