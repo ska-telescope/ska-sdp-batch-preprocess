@@ -26,7 +26,9 @@ class Pipeline:
         ).to_command_line()
         # NOTE: should do logging instead
         print(shlex.join(command_line))
-        subprocess.check_call(command_line)
+        subprocess.check_call(
+            command_line, env=os.environ | {"OPENBLAS_NUM_THREADS": "1"}
+        )
 
     @classmethod
     def from_yaml(cls, path: str | os.PathLike) -> "Pipeline":
