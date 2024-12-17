@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 
@@ -11,7 +12,9 @@ def dp3_available() -> bool:
     True if DP3 is available to run via CLI.
     """
     try:
-        subprocess.check_call(["DP3"])
+        subprocess.check_call(
+            ["DP3"], env=os.environ | {"OPENBLAS_NUM_THREADS": "1"}
+        )
         return True
     except (FileNotFoundError, subprocess.CalledProcessError):
         return False
