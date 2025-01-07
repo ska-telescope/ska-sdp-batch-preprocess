@@ -1,0 +1,5 @@
+type: object
+properties:
+  freqrange:
+    type: string
+    minimum: 1

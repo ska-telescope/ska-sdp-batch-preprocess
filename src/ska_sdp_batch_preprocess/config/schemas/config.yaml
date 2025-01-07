@@ -1,0 +1,9 @@
+type: object
+additionalProperties: false
+required:
+  - steps
+properties:
+  steps:
+    type: array
+    items:
+      type: object

@@ -1,4 +1,3 @@
-import copy
 import os
 from collections.abc import Mapping
 from pathlib import Path
@@ -6,29 +5,19 @@ from typing import Any, Iterator
 
 import yaml
 
-
-class ConfigBase(Mapping):
-    """
-    Base class for configuration objects; just an immutable wrapper for a dict.
-    """
-
-    def __init__(self, params: dict[str, Any]):
-        self._params = params
-
-    def __iter__(self):
-        return iter(self._params)
-
-    def __len__(self):
-        return len(self._params)
-
-    def __getitem__(self, key):
-        return self._params[key]
+from .validation import Step, parse_and_validate_config
 
 
-class PipelineConfig(ConfigBase):
+class PipelineConfig:
     """
     Configuration for the pipeline, as a dict-like object.
     """
+
+    def __init__(self, conf: dict[str, Any]):
+        """
+        Initialise from a config dictionary.
+        """
+        self._steps = parse_and_validate_config(conf)
 
     @classmethod
     def from_yaml(cls, path: str | os.PathLike) -> "PipelineConfig":
@@ -38,27 +27,32 @@ class PipelineConfig(ConfigBase):
         with open(path, "r", encoding="utf-8") as file:
             return cls(yaml.safe_load(file))
 
-    def steps(self) -> Iterator[tuple[str, dict]]:
+    @property
+    def steps(self) -> list[Step]:
         """
-        Iterator through "steps" section in the config file.
-        Yields tuples (step_name, params_dict).
+        List of pipeline steps.
         """
-        steps: list[dict] = self["steps"]
-        for step in steps:
-            # "step" is a dictionary with one key: the step name
-            # The associated value is a dict of parameters for the step
-            name, params = list(step.items())[0]
-            if params is None:
-                params = {}
-            yield name, copy.deepcopy(params)
+        return self._steps
 
 
-class DP3Config(ConfigBase):
+class DP3Config(Mapping[str, Any]):
     """
     Configuration for DP3, as a dict-like object. Parameters are stored in
     their natural Python type. Paths must be stored as `Path` objects,
     so that they can be distinguished from plain strings and made absolute.
     """
+
+    def __init__(self, params: dict[str, Any]):
+        self._params = params
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._params)
+
+    def __len__(self) -> int:
+        return len(self._params)
+
+    def __getitem__(self, key: str):
+        return self._params[key]
 
     @classmethod
     def create(
@@ -73,17 +67,17 @@ class DP3Config(ConfigBase):
         conf = {
             "checkparset": 1,
             "steps": [
-                name.lower()
-                for name, _ in pipeline_config.steps()
-                if name.lower() not in {"msin", "msout"}
+                step.name
+                for step in pipeline_config.steps
+                if step.name not in {"msin", "msout"}
             ],
             "msin.name": Path(msin),
             "msout.name": Path(msout),
         }
 
-        for name, params in pipeline_config.steps():
-            for key, val in params.items():
-                conf[f"{name.lower()}.{key}"] = val
+        for step in pipeline_config.steps:
+            for key, val in step.params.items():
+                conf[f"{step.name}.{key}"] = val
 
         return cls(conf)
 
