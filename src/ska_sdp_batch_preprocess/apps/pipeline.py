@@ -8,6 +8,7 @@ from argparse import (
 from pathlib import Path
 
 from ska_sdp_batch_preprocess import __version__
+from ska_sdp_batch_preprocess.logging_setup import configure_logger
 from ska_sdp_batch_preprocess.pipeline import Pipeline
 
 
@@ -64,6 +65,7 @@ def run_program(cli_args: list[str]):
     """
     Runs the batch preprocessing pipeline.
     """
+    configure_logger()
     parser = make_parser()
     args = parser.parse_args(cli_args)
 

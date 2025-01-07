@@ -3,6 +3,7 @@ import shlex
 import subprocess
 
 from .config import DP3Config, PipelineConfig
+from .logging_setup import LOGGER
 
 
 class Pipeline:
@@ -21,14 +22,17 @@ class Pipeline:
         Run the pipeline on given input Measurement Set path `msin`, write
         the pre-processed output at path `msout`.
         """
+        LOGGER.info(f"Processing: {msin!s}")
+
         command_line = DP3Config.create(
             self.config, msin, msout
         ).to_command_line()
-        # NOTE: should do logging instead
-        print(shlex.join(command_line))
+        LOGGER.info(shlex.join(command_line))
+
         subprocess.check_call(
             command_line, env=os.environ | {"OPENBLAS_NUM_THREADS": "1"}
         )
+        LOGGER.info(f"Finished: {msin!s}")
 
     @classmethod
     def from_yaml(cls, path: str | os.PathLike) -> "Pipeline":
