@@ -56,7 +56,7 @@ The config file layout rules are:
 
 - There *must* be a ``steps`` section, which must be a list of step specifications (see below) or an empty list.
   An empty list corresponds to a pipeline that just copies the input data.
-- Steps are specified as a dictionary ``{step_name: {step_params_dict}}``. ``step_params_dict`` can be omitted,
+- Steps are specified as a dictionary ``{step_type: {step_params_dict}}``. ``step_params_dict`` can be omitted,
   which means run the associated step with default parameters. All the following examples are valid:
 
   .. code-block:: yaml
@@ -79,9 +79,9 @@ The config file layout rules are:
           datacolumn: CORRECTED_DATA
 
 - Parameters of a step must be provided in their natural data type.
-- Step names are *not* case-sensitive.
+- Step types are *not* case-sensitive.
 - Steps are executed in the order they are specified.
-- The following DP3 step names are allowed:
+- The following DP3 step types are allowed:
   ``msin``, ``msout``, ``preflagger``, ``aoflagger``, ``averager``.
 - Any step parameter recognized by DP3 is accepted. Note that some parameters are managed by the
   pipeline and will be overriden, input and output file paths for example. For a list of parameters

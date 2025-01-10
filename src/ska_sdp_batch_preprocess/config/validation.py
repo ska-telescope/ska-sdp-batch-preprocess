@@ -1,4 +1,5 @@
 import functools
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -26,12 +27,12 @@ def _step_validators() -> dict[str, Draft202012Validator]:
 @dataclass
 class Step:
     """
-    Simple wrapper for a step's name and parameters.
+    Simple wrapper for a step's type and parameters.
     """
 
-    name: str
+    type: str
     """
-    Lowercase name.
+    Step type as a lowercase string, e.g. 'preflagger'.
     """
 
     params: dict[str, Any]
@@ -41,36 +42,60 @@ class Step:
 
     def __post_init__(self):
         validators = _step_validators()
-        if self.name.lower() not in validators:
+        if self.type.lower() not in validators:
             raise ValidationError(
-                f"Invalid step name: {self.name!r}. Valid choices "
+                f"Invalid step name: {self.type!r}. Valid choices "
                 f"(case-insensitive): {sorted(validators.keys())}"
             )
-        self.name = self.name.lower()
-        validators[self.name].validate(instance=self.params)
+        self.type = self.type.lower()
+        validators[self.type].validate(instance=self.params)
 
     @classmethod
     def from_step_dict(cls, step_dict: dict[str, Any]) -> "Step":
         """
-        Create from dictionary of the form {step_name: {step_params}}, as
+        Create from dictionary of the form {step_type: {step_params}}, as
         loaded from the config file.
         """
         if not len(step_dict.keys()) == 1:
             msg = (
                 "Step must be given as a dictionary with one key: the step "
-                f"name. This is invalid: {step_dict!r}"
+                f"type. This is invalid: {step_dict!r}"
             )
             raise ValidationError(msg)
 
-        name, params = next(iter(step_dict.items()))
+        stype, params = next(iter(step_dict.items()))
         params = {} if params is None else params
-        return cls(name, params)
+        return cls(stype, params)
 
 
-def _assert_no_more_than_one_step_with_name(steps: Iterable[Step], name: str):
-    if len([s for s in steps if s.name == name]) > 1:
-        msg = f"Cannot specify more than 1 step with name {name!r}"
+def _assert_no_more_than_one_step_with_type(steps: Iterable[Step], stype: str):
+    if len([s for s in steps if s.type == stype]) > 1:
+        msg = f"Cannot specify more than 1 step with type {stype!r}"
         raise ValidationError(msg)
+
+
+@dataclass
+class NamedStep:
+    """
+    Step that has been given a unique name.
+    """
+
+    type: str
+    """
+    Step type as a lowercase string, e.g. 'preflagger'.
+    """
+
+    name: str
+    """
+    Unique name for the step, e.g. 'preflagger_01'.
+    NOTE: 'msin' and 'msout' steps will be named 'msin' and 'msout' without
+    numerical suffix.
+    """
+
+    params: dict[str, Any]
+    """
+    Dictionary of parameters with values in their natural type.
+    """
 
 
 def validate_top_level_structure(conf: dict[str, Any]):
@@ -83,13 +108,25 @@ def validate_top_level_structure(conf: dict[str, Any]):
     validator.validate(instance=conf)
 
 
-def parse_and_validate_config(conf: dict) -> list[Step]:
+def parse_and_validate_config(conf: dict) -> list[NamedStep]:
     """
-    Parse config dictionary into a list of Steps. Raise
+    Parse config dictionary into a list of NamedSteps. Raise
     jsonschema.ValidationError if the config is invalid.
     """
     validate_top_level_structure(conf)
     steps = list(map(Step.from_step_dict, conf["steps"]))
-    _assert_no_more_than_one_step_with_name(steps, "msin")
-    _assert_no_more_than_one_step_with_name(steps, "msout")
-    return steps
+    _assert_no_more_than_one_step_with_type(steps, "msin")
+    _assert_no_more_than_one_step_with_type(steps, "msout")
+
+    counter = defaultdict(int)
+
+    def _make_unique_name(step: Step) -> str:
+        if step.type in {"msin", "msout"}:
+            return step.type
+        counter[step.type] += 1
+        return f"{step.type}_{counter[step.type]:02d}"
+
+    return [
+        NamedStep(step.type, _make_unique_name(step), step.params)
+        for step in steps
+    ]
