@@ -4,6 +4,7 @@ from pathlib import Path
 import casacore.tables
 import numpy as np
 import pytest
+import yaml
 from numpy.typing import NDArray
 
 from ska_sdp_batch_preprocess.apps.pipeline import run_program
@@ -34,6 +35,16 @@ def load_visibilities_from_msv2(
     return vis.reshape(len(unique_timestamps), -1, nchan, npol)
 
 
+def make_yaml_config_with_applycal_steps(h5parm_paths: list[Path]) -> str:
+    """
+    Self-explanatory.
+    """
+    steps = [
+        {"ApplyCal": {"parmdb": str(path.resolve())}} for path in h5parm_paths
+    ]
+    return yaml.safe_dump({"steps": steps})
+
+
 def test_two_applycal_steps_with_gains_that_multiply_into_identity(
     tmp_path_factory: pytest.TempPathFactory, input_ms: Path
 ):
@@ -44,7 +55,7 @@ def test_two_applycal_steps_with_gains_that_multiply_into_identity(
     """
     tempdir = tmp_path_factory.mktemp("applycal_test")
     config_path = tempdir / "config.yml"
-    config_path.write_text("steps: []")
+    config_path.write_text(make_yaml_config_with_applycal_steps([]))
 
     output_dir = tempdir / "output_dir"
     output_dir.mkdir()
