@@ -26,6 +26,7 @@ ska-sdp-batch-preprocess = "ska_sdp_batch_preprocess.apps.pipeline:main"
 python = ">=3.10, <3.13"
 pyyaml = "^6.0.1"
 jsonschema = "^4.4.0"
+h5py = "^3.7.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.3.0"
@@ -37,6 +38,7 @@ pylint = "^2.8.2"
 pylint-junit = "^0.3.2"
 pytest = "^8.3.2"
 pytest-cov = "^2.10.1"
+python-casacore = "^3.5.2"
 
 # Install with `poetry install --with docs`
 [tool.poetry.group.docs.dependencies]
