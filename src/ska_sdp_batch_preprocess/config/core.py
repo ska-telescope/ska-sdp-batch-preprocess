@@ -5,7 +5,7 @@ from typing import Any, Iterator
 
 import yaml
 
-from .validation import Step, parse_and_validate_config
+from .validation import NamedStep, parse_and_validate_config
 
 
 class PipelineConfig:
@@ -28,9 +28,9 @@ class PipelineConfig:
             return cls(yaml.safe_load(file))
 
     @property
-    def steps(self) -> list[Step]:
+    def steps(self) -> list[NamedStep]:
         """
-        List of pipeline steps.
+        List of named pipeline steps.
         """
         return self._steps
 
@@ -64,18 +64,19 @@ class DP3Config(Mapping[str, Any]):
         """
         Translate pipeline config into parameters for a single DP3 execution.
         """
+        step_names: list[str] = []
         conf = {
             "checkparset": 1,
-            "steps": [
-                step.name
-                for step in pipeline_config.steps
-                if step.name not in {"msin", "msout"}
-            ],
+            "steps": step_names,
             "msin.name": Path(msin),
             "msout.name": Path(msout),
         }
 
         for step in pipeline_config.steps:
+            if step.type not in {"msin", "msout"}:
+                step_names.append(step.name)
+                conf[f"{step.name}.type"] = step.type
+
             for key, val in step.params.items():
                 conf[f"{step.name}.{key}"] = val
 

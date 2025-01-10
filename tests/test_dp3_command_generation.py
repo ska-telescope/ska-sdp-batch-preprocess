@@ -27,12 +27,15 @@ def test_generated_dp3_command_is_correct(pipeline_config: PipelineConfig):
     expected_command = [
         "DP3",
         "checkparset=1",
-        "steps=[preflagger,aoflagger,averager]",
+        "steps=[preflagger_01,aoflagger_01,averager_01]",
         "msin.name=/path/to/input.ms",
         "msout.name=/path/to/output.ms",
-        "aoflagger.memorymax=8.0",
-        "averager.timestep=4",
-        "averager.freqstep=4",
+        "preflagger_01.type=preflagger",
+        "aoflagger_01.type=aoflagger",
+        "aoflagger_01.memorymax=8.0",
+        "averager_01.type=averager",
+        "averager_01.timestep=4",
+        "averager_01.freqstep=4",
         "msout.overwrite=true",
     ]
     assert command == expected_command
