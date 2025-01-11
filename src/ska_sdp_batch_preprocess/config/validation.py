@@ -108,16 +108,10 @@ def validate_top_level_structure(conf: dict[str, Any]):
     validator.validate(instance=conf)
 
 
-def parse_and_validate_config(conf: dict) -> list[NamedStep]:
+def make_uniquely_named_steps(steps: Iterable[Step]) -> list[NamedStep]:
     """
-    Parse config dictionary into a list of NamedSteps. Raise
-    jsonschema.ValidationError if the config is invalid.
+    Self-explanatory.
     """
-    validate_top_level_structure(conf)
-    steps = list(map(Step.from_step_dict, conf["steps"]))
-    _assert_no_more_than_one_step_with_type(steps, "msin")
-    _assert_no_more_than_one_step_with_type(steps, "msout")
-
     counter = defaultdict(int)
 
     def _make_unique_name(step: Step) -> str:
@@ -130,3 +124,15 @@ def parse_and_validate_config(conf: dict) -> list[NamedStep]:
         NamedStep(step.type, _make_unique_name(step), step.params)
         for step in steps
     ]
+
+
+def parse_and_validate_config(conf: dict) -> list[NamedStep]:
+    """
+    Parse config dictionary into a list of NamedSteps. Raise
+    jsonschema.ValidationError if the config is invalid.
+    """
+    validate_top_level_structure(conf)
+    steps = list(map(Step.from_step_dict, conf["steps"]))
+    _assert_no_more_than_one_step_with_type(steps, "msin")
+    _assert_no_more_than_one_step_with_type(steps, "msout")
+    return make_uniquely_named_steps(steps)
