@@ -1,3 +1,11 @@
-from .core import NamedStep, parse_and_validate_config
+from .core import (
+    NamedStep,
+    parse_and_validate_config,
+    parse_and_validate_config_file,
+)
 
-__all__ = ["NamedStep", "parse_and_validate_config"]
+__all__ = [
+    "NamedStep",
+    "parse_and_validate_config",
+    "parse_and_validate_config_file",
+]

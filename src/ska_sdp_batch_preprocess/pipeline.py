@@ -2,11 +2,9 @@ import os
 import shlex
 import subprocess
 
-import yaml
-
 from ska_sdp_batch_preprocess.config import (
     NamedStep,
-    parse_and_validate_config,
+    parse_and_validate_config_file,
 )
 
 from .dp3_config import DP3Config
@@ -46,7 +44,4 @@ class Pipeline:
         """
         Creates a Pipeline from a YAML config file.
         """
-        with open(path, "r", encoding="utf-8") as file:
-            config = yaml.safe_load(file)
-        named_steps = parse_and_validate_config(config)
-        return cls(named_steps)
+        return cls(parse_and_validate_config_file(path))

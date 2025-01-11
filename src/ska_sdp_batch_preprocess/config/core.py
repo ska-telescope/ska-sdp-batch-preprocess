@@ -1,4 +1,5 @@
 import functools
+import os
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -136,3 +137,11 @@ def parse_and_validate_config(conf: dict) -> list[NamedStep]:
     _assert_no_more_than_one_step_with_type(steps, "msin")
     _assert_no_more_than_one_step_with_type(steps, "msout")
     return make_uniquely_named_steps(steps)
+
+
+def parse_and_validate_config_file(path: str | os.PathLike) -> list[NamedStep]:
+    """
+    Same as parse_and_validate_config, but takes a file path as input.
+    """
+    with open(path, "r", encoding="utf-8") as file:
+        return parse_and_validate_config(yaml.safe_load(file))
