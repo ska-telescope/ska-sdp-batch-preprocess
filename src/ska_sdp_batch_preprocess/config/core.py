@@ -1,38 +1,9 @@
 import os
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterable, Iterator
 
-import yaml
-
-from .validation import NamedStep, parse_and_validate_config
-
-
-class PipelineConfig:
-    """
-    Configuration for the pipeline.
-    """
-
-    def __init__(self, conf: dict[str, Any]):
-        """
-        Initialise from a config dictionary.
-        """
-        self._steps = tuple(parse_and_validate_config(conf))
-
-    @classmethod
-    def from_yaml(cls, path: str | os.PathLike) -> "PipelineConfig":
-        """
-        Creates a Config object from a YAML file.
-        """
-        with open(path, "r", encoding="utf-8") as file:
-            return cls(yaml.safe_load(file))
-
-    @property
-    def steps(self) -> tuple[NamedStep]:
-        """
-        Tuple of named pipeline steps.
-        """
-        return self._steps
+from .validation import NamedStep
 
 
 class DP3Config(Mapping[str, Any]):
@@ -57,7 +28,7 @@ class DP3Config(Mapping[str, Any]):
     @classmethod
     def create(
         cls,
-        pipeline_config: PipelineConfig,
+        named_steps: Iterable[NamedStep],
         msin: str | os.PathLike,
         msout: str | os.PathLike,
     ) -> "DP3Config":
@@ -72,7 +43,7 @@ class DP3Config(Mapping[str, Any]):
             "msout.name": Path(msout),
         }
 
-        for step in pipeline_config.steps:
+        for step in named_steps:
             if step.type not in {"msin", "msout"}:
                 step_names.append(step.name)
                 conf[f"{step.name}.type"] = step.type

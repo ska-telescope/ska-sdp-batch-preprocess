@@ -1,21 +1,28 @@
 from pathlib import Path
 
 import pytest
+import yaml
 
-from ska_sdp_batch_preprocess.config import DP3Config, PipelineConfig
+from ska_sdp_batch_preprocess.config import (
+    DP3Config,
+    NamedStep,
+    parse_and_validate_config,
+)
 
 
-@pytest.fixture(name="pipeline_config")
-def fixture_pipeline_config() -> PipelineConfig:
+@pytest.fixture(name="named_steps")
+def fixture_named_steps() -> list[NamedStep]:
     """
     Config for the pipeline. We load it from the example config file provided
     in the repository.
     """
     path = Path(__file__).parent / ".." / "config" / "config.yaml"
-    return PipelineConfig.from_yaml(path)
+    with open(path, "r", encoding="utf-8") as file:
+        config = yaml.safe_load(file)
+        return parse_and_validate_config(config)
 
 
-def test_generated_dp3_command_is_correct(pipeline_config: PipelineConfig):
+def test_generated_dp3_command_is_correct(named_steps: list[NamedStep]):
     """
     Generate a DP3 command based on the pipeline configuration and check that
     it is as expected.
@@ -23,7 +30,7 @@ def test_generated_dp3_command_is_correct(pipeline_config: PipelineConfig):
     msin = Path("/path/to/input.ms")
     msout = Path("/path/to/output.ms")
 
-    command = DP3Config.create(pipeline_config, msin, msout).to_command_line()
+    command = DP3Config.create(named_steps, msin, msout).to_command_line()
     expected_command = [
         "DP3",
         "checkparset=1",
