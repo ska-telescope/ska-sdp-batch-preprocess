@@ -84,7 +84,13 @@ def make_yaml_config_with_applycal_steps(h5parm_paths: list[Path]) -> str:
     Self-explanatory.
     """
     steps = [
-        {"ApplyCal": {"parmdb": str(path.resolve())}} for path in h5parm_paths
+        {
+            "ApplyCal": {
+                "parmdb": str(path.resolve()),
+                "correction": "amplitude000",
+            }
+        }
+        for path in h5parm_paths
     ]
     return yaml.safe_dump({"steps": steps})
 
