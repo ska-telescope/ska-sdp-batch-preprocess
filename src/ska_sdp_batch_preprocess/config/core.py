@@ -10,14 +10,14 @@ from .validation import NamedStep, parse_and_validate_config
 
 class PipelineConfig:
     """
-    Configuration for the pipeline, as a dict-like object.
+    Configuration for the pipeline.
     """
 
     def __init__(self, conf: dict[str, Any]):
         """
         Initialise from a config dictionary.
         """
-        self._steps = parse_and_validate_config(conf)
+        self._steps = tuple(parse_and_validate_config(conf))
 
     @classmethod
     def from_yaml(cls, path: str | os.PathLike) -> "PipelineConfig":
@@ -28,9 +28,9 @@ class PipelineConfig:
             return cls(yaml.safe_load(file))
 
     @property
-    def steps(self) -> list[NamedStep]:
+    def steps(self) -> tuple[NamedStep]:
         """
-        List of named pipeline steps.
+        Tuple of named pipeline steps.
         """
         return self._steps
 
