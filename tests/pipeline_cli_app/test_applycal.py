@@ -11,6 +11,8 @@ from numpy.typing import NDArray
 
 from ska_sdp_batch_preprocess.apps.pipeline import run_program
 
+from .common import skip_unless_dp3_available
+
 
 def getcol(path: str | os.PathLike, table_name: str, col_name: str):
     """
@@ -95,6 +97,7 @@ def make_yaml_config_with_applycal_steps(h5parm_paths: list[Path]) -> str:
     return yaml.safe_dump({"steps": steps})
 
 
+@skip_unless_dp3_available
 def test_two_applycal_steps_with_gains_that_multiply_into_identity(
     tmp_path_factory: pytest.TempPathFactory, input_ms: Path
 ):
