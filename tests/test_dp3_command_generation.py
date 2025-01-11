@@ -4,10 +4,10 @@ import pytest
 import yaml
 
 from ska_sdp_batch_preprocess.config import (
-    DP3Config,
     NamedStep,
     parse_and_validate_config,
 )
+from ska_sdp_batch_preprocess.dp3_config import DP3Config
 
 
 @pytest.fixture(name="named_steps")

@@ -9,7 +9,7 @@ from ska_sdp_batch_preprocess.config import (
     parse_and_validate_config,
 )
 
-from .config import DP3Config
+from .dp3_config import DP3Config
 from .logging_setup import LOGGER
 
 
