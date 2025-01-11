@@ -127,7 +127,7 @@ def make_uniquely_named_steps(steps: Iterable[Step]) -> list[NamedStep]:
     ]
 
 
-def parse_and_validate_config(conf: dict) -> list[NamedStep]:
+def parse_config(conf: dict) -> list[NamedStep]:
     """
     Parse config dictionary into a list of NamedSteps. Raise
     jsonschema.ValidationError if the config is invalid.
@@ -139,9 +139,9 @@ def parse_and_validate_config(conf: dict) -> list[NamedStep]:
     return make_uniquely_named_steps(steps)
 
 
-def parse_and_validate_config_file(path: str | os.PathLike) -> list[NamedStep]:
+def parse_config_file(path: str | os.PathLike) -> list[NamedStep]:
     """
-    Same as parse_and_validate_config, but takes a file path as input.
+    Same as parse_config, but takes a file path as input.
     """
     with open(path, "r", encoding="utf-8") as file:
-        return parse_and_validate_config(yaml.safe_load(file))
+        return parse_config(yaml.safe_load(file))

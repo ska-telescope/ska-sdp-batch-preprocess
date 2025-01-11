@@ -3,10 +3,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from ska_sdp_batch_preprocess.config import (
-    NamedStep,
-    parse_and_validate_config,
-)
+from ska_sdp_batch_preprocess.config import NamedStep, parse_config
 from ska_sdp_batch_preprocess.dp3_config import DP3Config
 
 
@@ -19,7 +16,7 @@ def fixture_named_steps() -> list[NamedStep]:
     path = Path(__file__).parent / ".." / "config" / "config.yaml"
     with open(path, "r", encoding="utf-8") as file:
         config = yaml.safe_load(file)
-        return parse_and_validate_config(config)
+        return parse_config(config)
 
 
 def test_generated_dp3_command_is_correct(named_steps: list[NamedStep]):
