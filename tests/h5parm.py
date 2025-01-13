@@ -35,6 +35,8 @@ def _write_soltab(
     values_2x2: NDArray,
 ):
     group = solset_group.create_group(soltab_type + "000")
+    # NOTE: For fulljones H5Parms, TITLE must exist for both soltabs but its
+    # value is ignored.
     group.attrs["TITLE"] = np.bytes_(soltab_type)
 
     _write_ant(group, antenna_names)

@@ -159,6 +159,7 @@ def test_two_fulljones_applycal_steps_with_mutually_cancelling_gains(
         complex_gains_2x2=jones_inv,
     )
 
+    # NOTE: "soltab" must be given in [amplitude, phase] order.
     conf = {
         "steps": [
             {
