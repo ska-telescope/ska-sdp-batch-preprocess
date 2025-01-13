@@ -4,8 +4,7 @@ from pathlib import Path
 import pytest
 
 from ska_sdp_batch_preprocess.apps.pipeline import run_program
-
-from .common import skip_unless_dp3_available
+from tests.common import skip_unless_dp3_available
 
 
 def test_pipeline_cli_app_entry_point_exists():

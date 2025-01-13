@@ -6,10 +6,10 @@ import casacore.tables
 import h5py
 import numpy as np
 import pytest
-import yaml
 from numpy.typing import NDArray
 
-from ska_sdp_batch_preprocess.apps.pipeline import run_program
+from ska_sdp_batch_preprocess.config import parse_config
+from ska_sdp_batch_preprocess.pipeline import Pipeline
 
 from .common import skip_unless_dp3_available
 
@@ -81,7 +81,7 @@ def create_scalaramplitude_h5parm(
         weight_dataset.attrs["AXES"] = axes
 
 
-def make_yaml_config_with_applycal_steps(h5parm_paths: list[Path]) -> str:
+def make_config_with_applycal_steps(h5parm_paths: list[Path]) -> dict:
     """
     Self-explanatory.
     """
@@ -94,7 +94,7 @@ def make_yaml_config_with_applycal_steps(h5parm_paths: list[Path]) -> str:
         }
         for path in h5parm_paths
     ]
-    return yaml.safe_dump({"steps": steps})
+    return {"steps": steps}
 
 
 @skip_unless_dp3_available
@@ -102,41 +102,32 @@ def test_two_applycal_steps_with_gains_that_multiply_into_identity(
     tmp_path_factory: pytest.TempPathFactory, input_ms: Path
 ):
     """
-    Run DP3 with two applycal steps, applying two gain tables whose product is
-    the identity matrix. Check that the input and output visibilities are
-    identical.
+    Run a pipeline with two applycal steps, applying two gain tables whose
+    product is the identity matrix. Check that the input and output
+    visibilities are identical.
     """
+    antenna_names = getcol(input_ms, "ANTENNA", "NAME")
     tempdir = tmp_path_factory.mktemp("applycal_test")
 
-    antenna_names = getcol(input_ms, "ANTENNA", "NAME")
     table_twos_path = tempdir / "table_twos.h5parm"
     create_scalaramplitude_h5parm(
         table_twos_path, antenna_names=antenna_names, amplitude=2.0
     )
+
     table_halves_path = tempdir / "table_halves.h5parm"
     create_scalaramplitude_h5parm(
         table_halves_path, antenna_names=antenna_names, amplitude=0.5
     )
 
-    config_path = tempdir / "config.yml"
-    config_path.write_text(
-        make_yaml_config_with_applycal_steps(
-            [table_twos_path, table_halves_path]
-        )
+    conf = make_config_with_applycal_steps(
+        [table_twos_path, table_halves_path]
     )
+    steps = parse_config(conf)
+    pipeline = Pipeline(steps)
 
-    output_dir = tempdir / "output_dir"
-    output_dir.mkdir()
-
-    cli_args = [
-        "--config",
-        str(config_path),
-        "--output-dir",
-        str(output_dir),
-        str(input_ms),
-    ]
-    run_program(cli_args)
+    output_ms = tmp_path_factory.mktemp("applycal_test") / "output.ms"
+    pipeline.run(input_ms, output_ms)
 
     vis_in = load_visibilities_from_msv2(input_ms)
-    vis_out = load_visibilities_from_msv2(output_dir / input_ms.name)
+    vis_out = load_visibilities_from_msv2(output_ms)
     assert np.allclose(vis_in, vis_out)
