@@ -10,8 +10,8 @@ from ska_sdp_batch_preprocess.dp3_params import DP3Params
 @pytest.fixture(name="steps")
 def fixture_steps() -> list[Step]:
     """
-    Config for the pipeline. We load it from the example config file provided
-    in the repository.
+    List of pipeline steps, loaded from the example config file provided in the
+    repository.
     """
     path = Path(__file__).parent / ".." / "config" / "config.yaml"
     with open(path, "r", encoding="utf-8") as file:
