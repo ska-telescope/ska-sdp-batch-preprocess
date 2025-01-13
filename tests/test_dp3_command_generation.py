@@ -4,7 +4,7 @@ import pytest
 import yaml
 
 from ska_sdp_batch_preprocess.config import NamedStep, parse_config
-from ska_sdp_batch_preprocess.dp3_config import DP3Config
+from ska_sdp_batch_preprocess.dp3_params import DP3Params
 
 
 @pytest.fixture(name="named_steps")
@@ -27,7 +27,7 @@ def test_generated_dp3_command_is_correct(named_steps: list[NamedStep]):
     msin = Path("/path/to/input.ms")
     msout = Path("/path/to/output.ms")
 
-    command = DP3Config.create(named_steps, msin, msout).to_command_line()
+    command = DP3Params.create(named_steps, msin, msout).to_command_line()
     expected_command = [
         "DP3",
         "checkparset=1",

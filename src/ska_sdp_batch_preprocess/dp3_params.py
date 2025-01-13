@@ -6,10 +6,10 @@ from typing import Any, Iterable, Iterator
 from ska_sdp_batch_preprocess.config import NamedStep
 
 
-class DP3Config(Mapping[str, Any]):
+class DP3Params(Mapping[str, Any]):
     """
-    Configuration for DP3, as a dict-like object. Parameters are stored in
-    their natural Python type. Paths must be stored as `Path` objects,
+    Parameters for DP3, as a dict-like object. Parameters are stored in
+    their natural Python type. Paths must be given as `Path` objects,
     so that they can be distinguished from plain strings and made absolute.
     """
 
@@ -31,7 +31,7 @@ class DP3Config(Mapping[str, Any]):
         named_steps: Iterable[NamedStep],
         msin: str | os.PathLike,
         msout: str | os.PathLike,
-    ) -> "DP3Config":
+    ) -> "DP3Params":
         """
         Create DP3Config, translating pipeline steps into parameters for a
         single DP3 execution.

@@ -4,7 +4,7 @@ import subprocess
 
 from ska_sdp_batch_preprocess.config import NamedStep, parse_config_file
 
-from .dp3_config import DP3Config
+from .dp3_params import DP3Params
 from .logging_setup import LOGGER
 
 
@@ -26,7 +26,7 @@ class Pipeline:
         """
         LOGGER.info(f"Processing: {msin!s}")
 
-        command_line = DP3Config.create(
+        command_line = DP3Params.create(
             self.named_steps, msin, msout
         ).to_command_line()
         LOGGER.info(shlex.join(command_line))
