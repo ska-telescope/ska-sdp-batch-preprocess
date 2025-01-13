@@ -1,8 +1,9 @@
 import os
 import shlex
 import subprocess
+from typing import Iterable
 
-from ska_sdp_batch_preprocess.config import NamedStep, parse_config_file
+from ska_sdp_batch_preprocess.config import Step, parse_config_file
 
 from .dp3_params import DP3Params
 from .logging_setup import LOGGER
@@ -13,11 +14,11 @@ class Pipeline:
     Sequence of operations to be run on Measurement Sets.
     """
 
-    def __init__(self, named_steps: list[NamedStep]):
+    def __init__(self, steps: Iterable[Step]):
         """
-        Initialise Pipeline given a list of NamedSteps.
+        Initialise Pipeline given a sequence of Steps.
         """
-        self.named_steps = named_steps
+        self._steps = tuple(steps)
 
     def run(self, msin: str | os.PathLike, msout: str | os.PathLike):
         """
@@ -27,7 +28,7 @@ class Pipeline:
         LOGGER.info(f"Processing: {msin!s}")
 
         command_line = DP3Params.create(
-            self.named_steps, msin, msout
+            self._steps, msin, msout
         ).to_command_line()
         LOGGER.info(shlex.join(command_line))
 

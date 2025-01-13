@@ -26,9 +26,10 @@ def _step_validators() -> dict[str, Draft202012Validator]:
 
 
 @dataclass
-class Step:
+class StepDefinition:
     """
-    Simple wrapper for a step's type and parameters.
+    Parameters of one step as specified in the config file. They still
+    need further conversion to DP3 parameters.
     """
 
     type: str
@@ -52,7 +53,7 @@ class Step:
         validators[self.type].validate(instance=self.params)
 
     @classmethod
-    def from_step_dict(cls, step_dict: dict[str, Any]) -> "Step":
+    def from_step_dict(cls, step_dict: dict[str, Any]) -> "StepDefinition":
         """
         Create from dictionary of the form {step_type: {step_params}}, as
         loaded from the config file.
@@ -69,16 +70,19 @@ class Step:
         return cls(stype, params)
 
 
-def _assert_no_more_than_one_step_with_type(steps: Iterable[Step], stype: str):
+def _assert_no_more_than_one_step_definition_with_type(
+    steps: Iterable[StepDefinition], stype: str
+):
     if len([s for s in steps if s.type == stype]) > 1:
         msg = f"Cannot specify more than 1 step with type {stype!r}"
         raise ValidationError(msg)
 
 
 @dataclass
-class NamedStep:
+class Step:
     """
-    Step that has been given a unique name.
+    Step with a unique name and parameters mapping 1:1 to what DP3 expects.
+    It can be directly converted to DP3 command-line parameters.
     """
 
     type: str
@@ -95,7 +99,7 @@ class NamedStep:
 
     params: dict[str, Any]
     """
-    Dictionary of parameters with values in their natural type.
+    Dictionary of legal DP3 parameters with values in their natural type.
     """
 
 
@@ -109,37 +113,36 @@ def validate_top_level_structure(conf: dict[str, Any]):
     validator.validate(instance=conf)
 
 
-def make_uniquely_named_steps(steps: Iterable[Step]) -> list[NamedStep]:
+def make_uniquely_named_steps(steps: Iterable[StepDefinition]) -> list[Step]:
     """
     Self-explanatory.
     """
     counter = defaultdict(int)
 
-    def _make_unique_name(step: Step) -> str:
+    def _make_unique_name(step: StepDefinition) -> str:
         if step.type in {"msin", "msout"}:
             return step.type
         counter[step.type] += 1
         return f"{step.type}_{counter[step.type]:02d}"
 
     return [
-        NamedStep(step.type, _make_unique_name(step), step.params)
-        for step in steps
+        Step(step.type, _make_unique_name(step), step.params) for step in steps
     ]
 
 
-def parse_config(conf: dict) -> list[NamedStep]:
+def parse_config(conf: dict) -> list[Step]:
     """
-    Parse config dictionary into a list of NamedSteps. Raise
+    Parse config dictionary into a list of Steps. Raise
     jsonschema.ValidationError if the config is invalid.
     """
     validate_top_level_structure(conf)
-    steps = list(map(Step.from_step_dict, conf["steps"]))
-    _assert_no_more_than_one_step_with_type(steps, "msin")
-    _assert_no_more_than_one_step_with_type(steps, "msout")
-    return make_uniquely_named_steps(steps)
+    step_defs = list(map(StepDefinition.from_step_dict, conf["steps"]))
+    _assert_no_more_than_one_step_definition_with_type(step_defs, "msin")
+    _assert_no_more_than_one_step_definition_with_type(step_defs, "msout")
+    return make_uniquely_named_steps(step_defs)
 
 
-def parse_config_file(path: str | os.PathLike) -> list[NamedStep]:
+def parse_config_file(path: str | os.PathLike) -> list[Step]:
     """
     Same as parse_config, but takes a file path as input.
     """

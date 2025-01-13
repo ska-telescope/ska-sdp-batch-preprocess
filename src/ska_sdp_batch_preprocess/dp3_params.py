@@ -3,7 +3,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 
-from ska_sdp_batch_preprocess.config import NamedStep
+from ska_sdp_batch_preprocess.config import Step
 
 
 class DP3Params(Mapping[str, Any]):
@@ -28,7 +28,7 @@ class DP3Params(Mapping[str, Any]):
     @classmethod
     def create(
         cls,
-        named_steps: Iterable[NamedStep],
+        steps: Iterable[Step],
         msin: str | os.PathLike,
         msout: str | os.PathLike,
     ) -> "DP3Params":
@@ -44,7 +44,7 @@ class DP3Params(Mapping[str, Any]):
             "msout.name": Path(msout),
         }
 
-        for step in named_steps:
+        for step in steps:
             if step.type not in {"msin", "msout"}:
                 step_names.append(step.name)
                 conf[f"{step.name}.type"] = step.type

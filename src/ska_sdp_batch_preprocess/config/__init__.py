@@ -1,7 +1,7 @@
-from .core import NamedStep, parse_config, parse_config_file
+from .core import Step, parse_config, parse_config_file
 
 __all__ = [
-    "NamedStep",
+    "Step",
     "parse_config",
     "parse_config_file",
 ]
