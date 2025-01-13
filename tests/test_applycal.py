@@ -135,7 +135,7 @@ def test_two_applycal_steps_with_gains_that_multiply_into_identity(
 
 
 @skip_unless_dp3_available
-def test_single_fulljones_applycal_step_with_identity_gains(
+def test_two_fulljones_applycal_steps_with_mutually_cancelling_gains(
     tmp_path_factory: pytest.TempPathFactory, input_ms: Path
 ):
     """
@@ -144,24 +144,37 @@ def test_single_fulljones_applycal_step_with_identity_gains(
     antenna_names = getcol(input_ms, "ANTENNA", "NAME")
     tempdir = tmp_path_factory.mktemp("applycal_test")
 
-    h5parm_path = tempdir / "fulljones_identity.h5parm"
-    gains = [
-        (1.0, 0.0),
-        (0.0, 1.0),
-    ]
+    # TODO: choose a reasonable jones matrix close enough to identity
+    jones = np.eye(2, dtype="complex") * 2 * np.exp(1.0j * np.pi / 3)
+    jones_path = tempdir / "jones.h5parm"
     create_fulljones_h5parm(
-        h5parm_path, antenna_names=antenna_names, complex_gains_2x2=gains
+        jones_path, antenna_names=antenna_names, complex_gains_2x2=jones
+    )
+
+    jones_inv = np.linalg.inv(jones)
+    jones_inv_path = tempdir / "jones_inv.h5parm"
+    create_fulljones_h5parm(
+        jones_inv_path,
+        antenna_names=antenna_names,
+        complex_gains_2x2=jones_inv,
     )
 
     conf = {
         "steps": [
             {
                 "ApplyCal": {
-                    "parmdb": str(h5parm_path.resolve()),
+                    "parmdb": str(jones_path.resolve()),
                     "correction": "fulljones",
                     "soltab": ["amplitude000", "phase000"],
                 }
-            }
+            },
+            {
+                "ApplyCal": {
+                    "parmdb": str(jones_inv_path.resolve()),
+                    "correction": "fulljones",
+                    "soltab": ["amplitude000", "phase000"],
+                }
+            },
         ]
     }
 
