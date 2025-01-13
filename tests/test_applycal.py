@@ -12,6 +12,7 @@ from ska_sdp_batch_preprocess.config import parse_config
 from ska_sdp_batch_preprocess.pipeline import Pipeline
 
 from .common import skip_unless_dp3_available
+from .h5parm import create_fulljones_h5parm
 
 
 def getcol(path: str | os.PathLike, table_name: str, col_name: str):
@@ -126,6 +127,48 @@ def test_two_applycal_steps_with_gains_that_multiply_into_identity(
     pipeline = Pipeline(steps)
 
     output_ms = tmp_path_factory.mktemp("applycal_test") / "output.ms"
+    pipeline.run(input_ms, output_ms)
+
+    vis_in = load_visibilities_from_msv2(input_ms)
+    vis_out = load_visibilities_from_msv2(output_ms)
+    assert np.allclose(vis_in, vis_out)
+
+
+@skip_unless_dp3_available
+def test_single_fulljones_applycal_step_with_identity_gains(
+    tmp_path_factory: pytest.TempPathFactory, input_ms: Path
+):
+    """
+    Self-explanatory.
+    """
+    antenna_names = getcol(input_ms, "ANTENNA", "NAME")
+    tempdir = tmp_path_factory.mktemp("applycal_test")
+
+    h5parm_path = tempdir / "fulljones_identity.h5parm"
+    gains = [
+        (1.0, 0.0),
+        (0.0, 1.0),
+    ]
+    create_fulljones_h5parm(
+        h5parm_path, antenna_names=antenna_names, complex_gains_2x2=gains
+    )
+
+    conf = {
+        "steps": [
+            {
+                "ApplyCal": {
+                    "parmdb": str(h5parm_path.resolve()),
+                    "correction": "fulljones",
+                    "soltab": ["amplitude000", "phase000"],
+                }
+            }
+        ]
+    }
+
+    steps = parse_config(conf)
+    pipeline = Pipeline(steps)
+
+    output_ms = tempdir / "output.ms"
     pipeline.run(input_ms, output_ms)
 
     vis_in = load_visibilities_from_msv2(input_ms)
