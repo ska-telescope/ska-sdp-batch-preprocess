@@ -1,107 +1,150 @@
+import functools
 import os
-from collections.abc import Mapping
+from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterable
 
 import yaml
+from jsonschema import Draft202012Validator, ValidationError
 
-from .validation import NamedStep, parse_and_validate_config
+
+def _schemas_dir() -> Path:
+    return Path(__file__).parent / "schemas"
 
 
-class PipelineConfig:
+@functools.cache
+def _step_validators() -> dict[str, Draft202012Validator]:
+    paths = _schemas_dir().glob("step_*.yaml")
+
+    def _load_schema(path: Path) -> tuple[str, Draft202012Validator]:
+        __, name = path.stem.split("_", maxsplit=1)
+        validator = Draft202012Validator(yaml.safe_load(path.read_text()))
+        return name, validator
+
+    return dict(map(_load_schema, paths))
+
+
+@dataclass
+class StepDefinition:
     """
-    Configuration for the pipeline, as a dict-like object.
+    Parameters of one step as specified in the config file. They still
+    need further conversion to DP3 parameters.
     """
 
-    def __init__(self, conf: dict[str, Any]):
-        """
-        Initialise from a config dictionary.
-        """
-        self._steps = parse_and_validate_config(conf)
+    type: str
+    """
+    Step type as a lowercase string, e.g. 'preflagger'.
+    """
+
+    params: dict[str, Any]
+    """
+    Dictionary of parameters with values in their natural type.
+    """
+
+    def __post_init__(self):
+        validators = _step_validators()
+        if self.type.lower() not in validators:
+            raise ValidationError(
+                f"Invalid step name: {self.type!r}. Valid choices "
+                f"(case-insensitive): {sorted(validators.keys())}"
+            )
+        self.type = self.type.lower()
+        validators[self.type].validate(instance=self.params)
 
     @classmethod
-    def from_yaml(cls, path: str | os.PathLike) -> "PipelineConfig":
+    def from_step_dict(cls, step_dict: dict[str, Any]) -> "StepDefinition":
         """
-        Creates a Config object from a YAML file.
+        Create from dictionary of the form {step_type: {step_params}}, as
+        loaded from the config file.
         """
-        with open(path, "r", encoding="utf-8") as file:
-            return cls(yaml.safe_load(file))
+        if not len(step_dict.keys()) == 1:
+            msg = (
+                "Step must be given as a dictionary with one key: the step "
+                f"type. This is invalid: {step_dict!r}"
+            )
+            raise ValidationError(msg)
 
-    @property
-    def steps(self) -> list[NamedStep]:
-        """
-        List of named pipeline steps.
-        """
-        return self._steps
+        stype, params = next(iter(step_dict.items()))
+        params = {} if params is None else params
+        return cls(stype, params)
 
 
-class DP3Config(Mapping[str, Any]):
+def _assert_no_more_than_one_step_definition_with_type(
+    steps: Iterable[StepDefinition], stype: str
+):
+    if len([s for s in steps if s.type == stype]) > 1:
+        msg = f"Cannot specify more than 1 step with type {stype!r}"
+        raise ValidationError(msg)
+
+
+@dataclass
+class Step:
     """
-    Configuration for DP3, as a dict-like object. Parameters are stored in
-    their natural Python type. Paths must be stored as `Path` objects,
-    so that they can be distinguished from plain strings and made absolute.
+    Step with a unique name and parameters mapping 1:1 to what DP3 expects.
+    It can be directly converted to DP3 command-line parameters.
     """
 
-    def __init__(self, params: dict[str, Any]):
-        self._params = params
+    type: str
+    """
+    Step type as a lowercase string, e.g. 'preflagger'.
+    """
 
-    def __iter__(self) -> Iterator[str]:
-        return iter(self._params)
+    name: str
+    """
+    Unique name for the step, e.g. 'preflagger_01'.
+    NOTE: 'msin' and 'msout' steps will be named 'msin' and 'msout' without
+    numerical suffix.
+    """
 
-    def __len__(self) -> int:
-        return len(self._params)
-
-    def __getitem__(self, key: str):
-        return self._params[key]
-
-    @classmethod
-    def create(
-        cls,
-        pipeline_config: PipelineConfig,
-        msin: str | os.PathLike,
-        msout: str | os.PathLike,
-    ) -> "DP3Config":
-        """
-        Translate pipeline config into parameters for a single DP3 execution.
-        """
-        step_names: list[str] = []
-        conf = {
-            "checkparset": 1,
-            "steps": step_names,
-            "msin.name": Path(msin),
-            "msout.name": Path(msout),
-        }
-
-        for step in pipeline_config.steps:
-            if step.type not in {"msin", "msout"}:
-                step_names.append(step.name)
-                conf[f"{step.name}.type"] = step.type
-
-            for key, val in step.params.items():
-                conf[f"{step.name}.{key}"] = val
-
-        return cls(conf)
-
-    def to_command_line(self) -> list[str]:
-        """
-        Convert to a DP3 command line ready to be executed.
-        """
-        args = ["DP3"]
-        for key, val in self.items():
-            args.append(f"{key}={_dp3_format_value(val)}")
-        return args
+    params: dict[str, Any]
+    """
+    Dictionary of legal DP3 parameters with values in their natural type.
+    """
 
 
-def _dp3_format_value(value: Any) -> str:
-    if isinstance(value, (list, tuple)):
-        result = ",".join(map(_dp3_format_value, value))
-        return f"[{result}]"
+def validate_top_level_structure(conf: dict[str, Any]):
+    """
+    Validate config file except the name and parameters of each step.
+    """
+    path = _schemas_dir() / "config.yaml"
+    schema = yaml.safe_load(path.read_text())
+    validator = Draft202012Validator(schema)
+    validator.validate(instance=conf)
 
-    if isinstance(value, bool):
-        return "true" if value else "false"
 
-    # Make paths absolute so we can safely call DP3 from any working directory
-    if isinstance(value, Path):
-        return str(value.resolve())
+def make_uniquely_named_steps(steps: Iterable[StepDefinition]) -> list[Step]:
+    """
+    Self-explanatory.
+    """
+    counter = defaultdict(int)
 
-    return str(value)
+    def _make_unique_name(step: StepDefinition) -> str:
+        if step.type in {"msin", "msout"}:
+            return step.type
+        counter[step.type] += 1
+        return f"{step.type}_{counter[step.type]:02d}"
+
+    return [
+        Step(step.type, _make_unique_name(step), step.params) for step in steps
+    ]
+
+
+def parse_config(conf: dict) -> list[Step]:
+    """
+    Parse config dictionary into a list of Steps. Raise
+    jsonschema.ValidationError if the config is invalid.
+    """
+    validate_top_level_structure(conf)
+    step_defs = list(map(StepDefinition.from_step_dict, conf["steps"]))
+    _assert_no_more_than_one_step_definition_with_type(step_defs, "msin")
+    _assert_no_more_than_one_step_definition_with_type(step_defs, "msout")
+    return make_uniquely_named_steps(step_defs)
+
+
+def parse_config_file(path: str | os.PathLike) -> list[Step]:
+    """
+    Same as parse_config, but takes a file path as input.
+    """
+    with open(path, "r", encoding="utf-8") as file:
+        return parse_config(yaml.safe_load(file))

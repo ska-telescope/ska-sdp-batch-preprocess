@@ -29,7 +29,7 @@ def test_pipeline_cli_app_entry_point_exists():
 
 
 @pytest.mark.skipif(not dp3_available(), reason="DP3 not available")
-def test_pipeline_cli_app(
+def test_pipeline_cli_app_with_model_config(
     tmp_path_factory: pytest.TempPathFactory, yaml_config: Path, input_ms: Path
 ):
     """

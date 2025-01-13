@@ -1,8 +1,11 @@
 import os
 import shlex
 import subprocess
+from typing import Iterable
 
-from .config import DP3Config, PipelineConfig
+from ska_sdp_batch_preprocess.config import Step, parse_config_file
+
+from .dp3_params import DP3Params
 from .logging_setup import LOGGER
 
 
@@ -11,11 +14,11 @@ class Pipeline:
     Sequence of operations to be run on Measurement Sets.
     """
 
-    def __init__(self, config: PipelineConfig):
+    def __init__(self, steps: Iterable[Step]):
         """
-        Initialise Pipeline given a config object.
+        Initialise Pipeline given a sequence of Steps.
         """
-        self.config = config
+        self._steps = tuple(steps)
 
     def run(self, msin: str | os.PathLike, msout: str | os.PathLike):
         """
@@ -24,8 +27,8 @@ class Pipeline:
         """
         LOGGER.info(f"Processing: {msin!s}")
 
-        command_line = DP3Config.create(
-            self.config, msin, msout
+        command_line = DP3Params.create(
+            self._steps, msin, msout
         ).to_command_line()
         LOGGER.info(shlex.join(command_line))
 
@@ -39,4 +42,4 @@ class Pipeline:
         """
         Creates a Pipeline from a YAML config file.
         """
-        return cls(PipelineConfig.from_yaml(path))
+        return cls(parse_config_file(path))
