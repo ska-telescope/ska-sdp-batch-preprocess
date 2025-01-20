@@ -8,6 +8,8 @@ from typing import Any, Iterable
 import yaml
 from jsonschema import Draft202012Validator, ValidationError
 
+from ska_sdp_batch_preprocess.h5parm import H5Parm
+
 
 def _schemas_dir() -> Path:
     return Path(__file__).parent / "schemas"
@@ -113,6 +115,46 @@ def validate_top_level_structure(conf: dict[str, Any]):
     validator.validate(instance=conf)
 
 
+def prepare_applycal_step(step: StepDefinition) -> StepDefinition:
+    """
+    Prepare applycal step parameters based on the contents of the associated
+    H5Parm.
+    """
+    fname = step.params["parmdb"]
+    h5parm = H5Parm.from_file(fname)
+
+    if h5parm.is_fulljones:
+        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.solution_type)
+        params = step.params | {
+            "parmdb": fname,
+            "correction": "fulljones",
+            "soltab": [amp.name, phase.name],
+        }
+        return StepDefinition(type="applycal", params=params)
+
+    if len(h5parm.soltabs) == 1:
+        params = step.params | {
+            "parmdb": fname,
+            "correction": h5parm.soltabs[0].name,
+        }
+        return StepDefinition(type="applycal", params=params)
+
+    if len(h5parm.soltabs) == 2:
+        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.solution_type)
+        params = step.params | {
+            "parmdb": fname,
+            "steps": ["amp", "phase"],
+            "amp.correction": amp.name,
+            "phase.correction": phase.name,
+        }
+        return StepDefinition(type="applycal", params=params)
+
+    raise ValidationError(
+        f"Failed to prepare applycal step: H5Parm {fname!r} "
+        "has unexpected schema"
+    )
+
+
 def make_uniquely_named_steps(steps: Iterable[StepDefinition]) -> list[Step]:
     """
     Self-explanatory.
@@ -136,10 +178,18 @@ def parse_config(conf: dict) -> list[Step]:
     jsonschema.ValidationError if the config is invalid.
     """
     validate_top_level_structure(conf)
-    step_defs = list(map(StepDefinition.from_step_dict, conf["steps"]))
-    _assert_no_more_than_one_step_definition_with_type(step_defs, "msin")
-    _assert_no_more_than_one_step_definition_with_type(step_defs, "msout")
-    return make_uniquely_named_steps(step_defs)
+    steps = list(map(StepDefinition.from_step_dict, conf["steps"]))
+    _assert_no_more_than_one_step_definition_with_type(steps, "msin")
+    _assert_no_more_than_one_step_definition_with_type(steps, "msout")
+
+    prepared_steps = []
+    for step in steps:
+        if step.type == "applycal":
+            prepared_steps.append(prepare_applycal_step(step))
+        else:
+            prepared_steps.append(step)
+
+    return make_uniquely_named_steps(prepared_steps)
 
 
 def parse_config_file(path: str | os.PathLike) -> list[Step]:
