@@ -1,6 +1,31 @@
 # Changelog
 
-# 1.0.0 - 2024-11-05
+## 2.0.0 - 2025-01-20
+
+Preliminary release following a complete rewrite. The batch pre-processing pipeline now wraps DP3.
+
+### Added
+
+- Command line app can now be called via the command `ska-sdp-batch-preprocess`
+- Ability to run AOFlagger step
+
+### Changed
+
+- New command line interface
+- New configuration file format, where step names and options map (almost) directly to what DP3 expects.
+
+### Removed
+
+- Support for MSv4
+- Distribution with dask; will be added back in an upcoming release
+
+
+## 1.0.1 - 2024-11-29
+
+Dummy release that was required to comply with the SKAO release process.
+
+
+## 1.0.0 - 2024-11-05
 
 Major release with the following additions:
 
@@ -14,7 +39,7 @@ Progress:
 * Automated release enabled including addition of `CHANGELOG.md` [MR19].
 
 
-# 0.1.0 - 2024-09-30
+## 0.1.0 - 2024-09-30
 
 Initial test release:
 
