@@ -1,0 +1,6 @@
+type: object
+required:
+  - parmdb
+properties:
+  parmdb:
+    type: string
