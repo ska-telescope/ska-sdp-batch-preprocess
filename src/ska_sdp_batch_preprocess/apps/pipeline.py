@@ -7,6 +7,9 @@ from argparse import (
 )
 from pathlib import Path
 
+import dask
+from dask.distributed import Client
+
 from ska_sdp_batch_preprocess import __version__
 from ska_sdp_batch_preprocess.logging_setup import configure_logger
 from ska_sdp_batch_preprocess.pipeline import Pipeline
@@ -69,19 +72,28 @@ def run_program(cli_args: list[str]):
     parser = make_parser()
     args = parser.parse_args(cli_args)
 
-    if args.dask_scheduler is not None:
-        warnings.warn(
-            "Dask distribution is not implemented yet, "
-            "ignoring --dask-scheduler argument"
-        )
-
     input_ms_list: list[Path] = args.input_ms
     output_dir: Path = args.output_dir
 
     pipeline = Pipeline.from_yaml(args.config)
 
-    for input_ms in input_ms_list:
-        pipeline.run(input_ms, output_dir / input_ms.name)
+    if args.dask_scheduler is not None:
+        warnings.warn(
+            "Dask distribution is experimental "
+        )
+        scheduler = args.dask_scheduler
+        client = Client(scheduler)
+
+        out = []
+        for input_ms in input_ms_list:
+             out.append(dask.delayed(pipeline.run)(input_ms,output_dir / input_ms.name))
+        ret = dask.compute(*out)
+	
+        client.close()
+
+    else:
+        for input_ms in input_ms_list:
+              pipeline.run(input_ms, output_dir / input_ms.name)
 
 
 def main():
