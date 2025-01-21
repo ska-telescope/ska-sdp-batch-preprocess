@@ -1,6 +1,5 @@
 import functools
 import os
-from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Optional
@@ -92,13 +91,6 @@ class Step:
     Step type as a lowercase string, e.g. 'preflagger'.
     """
 
-    name: str
-    """
-    Unique name for the step, e.g. 'preflagger_01'.
-    NOTE: 'msin' and 'msout' steps will be named 'msin' and 'msout' without
-    numerical suffix.
-    """
-
     params: dict[str, Any]
     """
     Dictionary of legal DP3 parameters with values in their natural type.
@@ -117,7 +109,7 @@ def validate_top_level_structure(conf: dict[str, Any]):
 
 def prepare_applycal_step(
     step: StepDefinition, solutions_dir: Optional[Path] = None
-) -> StepDefinition:
+) -> Step:
     """
     Prepare applycal step parameters based on the contents of the associated
     H5Parm.
@@ -126,8 +118,6 @@ def prepare_applycal_step(
     if not parmdb.is_absolute() and solutions_dir is not None:
         parmdb = solutions_dir / parmdb
 
-    # NOTE: Make parmdb path absolute to avoid issues in a dask context
-    parmdb = str(parmdb.resolve())
     h5parm = H5Parm.from_file(parmdb)
 
     if h5parm.is_fulljones:
@@ -137,14 +127,14 @@ def prepare_applycal_step(
             "correction": "fulljones",
             "soltab": [amp.name, phase.name],
         }
-        return StepDefinition(type="applycal", params=params)
+        return Step(type="applycal", params=params)
 
     if len(h5parm.soltabs) == 1:
         params = step.params | {
             "parmdb": parmdb,
             "correction": h5parm.soltabs[0].name,
         }
-        return StepDefinition(type="applycal", params=params)
+        return Step(type="applycal", params=params)
 
     if len(h5parm.soltabs) == 2:
         amp, phase = sorted(h5parm.soltabs, key=lambda s: s.solution_type)
@@ -154,29 +144,12 @@ def prepare_applycal_step(
             "amp.correction": amp.name,
             "phase.correction": phase.name,
         }
-        return StepDefinition(type="applycal", params=params)
+        return Step(type="applycal", params=params)
 
     raise ValidationError(
         f"Failed to prepare applycal step: H5Parm {str(parmdb)!r} "
         "has unexpected schema"
     )
-
-
-def make_uniquely_named_steps(steps: Iterable[StepDefinition]) -> list[Step]:
-    """
-    Self-explanatory.
-    """
-    counter = defaultdict(int)
-
-    def _make_unique_name(step: StepDefinition) -> str:
-        if step.type in {"msin", "msout"}:
-            return step.type
-        counter[step.type] += 1
-        return f"{step.type}_{counter[step.type]:02d}"
-
-    return [
-        Step(step.type, _make_unique_name(step), step.params) for step in steps
-    ]
 
 
 def parse_config(
@@ -191,19 +164,19 @@ def parse_config(
     Raise jsonschema.ValidationError if the config is invalid.
     """
     validate_top_level_structure(conf)
-    steps = list(map(StepDefinition.from_step_dict, conf["steps"]))
-    _assert_no_more_than_one_step_definition_with_type(steps, "msin")
-    _assert_no_more_than_one_step_definition_with_type(steps, "msout")
+    step_defs = list(map(StepDefinition.from_step_dict, conf["steps"]))
+    _assert_no_more_than_one_step_definition_with_type(step_defs, "msin")
+    _assert_no_more_than_one_step_definition_with_type(step_defs, "msout")
 
     solutions_dir = Path(solutions_dir) if solutions_dir is not None else None
-    prepared_steps = []
-    for step in steps:
-        if step.type == "applycal":
-            prepared_steps.append(prepare_applycal_step(step, solutions_dir))
+    steps = []
+    for step_def in step_defs:
+        if step_def.type == "applycal":
+            steps.append(prepare_applycal_step(step_def, solutions_dir))
         else:
-            prepared_steps.append(step)
+            steps.append(step_def)
 
-    return make_uniquely_named_steps(prepared_steps)
+    return steps
 
 
 def parse_config_file(
