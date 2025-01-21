@@ -82,7 +82,7 @@ def _assert_no_more_than_one_step_definition_with_type(
 @dataclass
 class Step:
     """
-    Step with a unique name and parameters mapping 1:1 to what DP3 expects.
+    Step with parameters mapping 1:1 to what DP3 expects.
     It can be directly converted to DP3 command-line parameters.
     """
 
@@ -152,6 +152,23 @@ def prepare_applycal_step(
     )
 
 
+def prepare_steps(
+    step_definitions: Iterable[StepDefinition],
+    solutions_dir: Optional[str | os.PathLike] = None,
+) -> list[Step]:
+    """
+    Create Steps with parameters ready to be passed to DP3.
+    """
+    solutions_dir = Path(solutions_dir) if solutions_dir is not None else None
+    steps = []
+    for step_def in step_definitions:
+        if step_def.type == "applycal":
+            steps.append(prepare_applycal_step(step_def, solutions_dir))
+        else:
+            steps.append(Step(type=step_def.type, params=step_def.params))
+    return steps
+
+
 def parse_config(
     conf: dict, solutions_dir: Optional[str | os.PathLike] = None
 ) -> list[Step]:
@@ -167,16 +184,7 @@ def parse_config(
     step_defs = list(map(StepDefinition.from_step_dict, conf["steps"]))
     _assert_no_more_than_one_step_definition_with_type(step_defs, "msin")
     _assert_no_more_than_one_step_definition_with_type(step_defs, "msout")
-
-    solutions_dir = Path(solutions_dir) if solutions_dir is not None else None
-    steps = []
-    for step_def in step_defs:
-        if step_def.type == "applycal":
-            steps.append(prepare_applycal_step(step_def, solutions_dir))
-        else:
-            steps.append(step_def)
-
-    return steps
+    return prepare_steps(step_defs, solutions_dir)
 
 
 def parse_config_file(
