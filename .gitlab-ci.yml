@@ -1,6 +1,11 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DEBIAN_FRONTEND: "noninteractive"
+  CASACORE_VERSION: v3.6.0
+  AOFLAGGER_VERSION: b1256de90b00a5a83477274390decd6671cdcd38 
+  IDG_VERSION: 9ce6fa88b9d746d8d7146c474992aba9b98eb41f 
+  EVERYBEAM_VERSION: 0578473cacf64c69bc2e05e15754cf94dd1051b9 
+  DP3_VERSION: v6.2.1
 
 stages:
   - lint
@@ -10,12 +15,118 @@ stages:
   - publish
   - pages
 
-# Include CI templates
 include:
-  # Docs pages
   - project: "ska-telescope/templates-repository"
     file: 
      - "gitlab-ci/includes/python.gitlab-ci.yml"
      - "gitlab-ci/includes/docs.gitlab-ci.yml"
      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
      - "gitlab-ci/includes/release.gitlab-ci.yml"
+
+.install-packages: &install-packages
+  - | 
+    apt-get update -y && apt-get install -y \
+    bison build-essential clang-format-14 cmake doxygen curl \
+    wget flex gcc g++ gcovr gfortran git libarmadillo-dev \
+    libboost-date-time-dev libboost-filesystem-dev \
+    libboost-program-options-dev libboost-python-dev \
+    libboost-system-dev libboost-test-dev libboost-all-dev \
+    libgsl-dev libcfitsio-dev libfftw3-dev libgtkmm-3.0-dev \
+    libhdf5-serial-dev libncurses-dev liblua5.3-dev \
+    liblapack-dev libpng-dev libpython3-dev libreadline-dev \
+    ninja-build pkg-config pybind11-dev python3 python3-dev \
+    python3-h5py python3-numpy python3-pip python3-pytest \
+    python3-sphinx python3-sphinx-rtd-theme pipx wcslib-dev;
+
+.install-casacore: &install-casacore
+  - |
+    git clone https://github.com/casacore/casacore.git;
+    cd casacore && git checkout ${CASACORE_VERSION} && mkdir build && cd build;
+    cmake -DBUILD_PYTHON=OFF -DBUILD_TESTING=OFF -DDATA_DIR=/usr/share/casacore/data ..; 
+    make -j `nproc` && make -j `nproc` install;
+    cd ../.. && rm -rf ./casacore;
+
+.install-aoflagger: &install-aoflagger
+  - |
+    git clone https://gitlab.com/aroffringa/aoflagger.git;
+    cd aoflagger && git checkout ${AOFLAGGER_VERSION} && mkdir build && cd build;
+    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr .. && ninja install;
+    cd ../.. && rm -rf aoflagger;
+
+.install-idg: &install-idg
+  - |
+    git clone https://git.astron.nl/RD/idg.git;
+    cd idg && git checkout ${IDG_VERSION} && mkdir build && cd build;
+    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DPORTABLE=ON .. && ninja install;
+    cd ../../ && rm -rf ./idg;
+
+.install-everybeam: &install-everybeam
+  - |
+    git clone https://git.astron.nl/RD/EveryBeam.git;
+    cd EveryBeam && git checkout ${EVERYBEAM_VERSION} && mkdir build && cd build;
+    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DPYTHON_EXECUTABLE=/usr/bin/python3 .. && ninja install;
+    cd ../.. && rm -rf ./EveryBeam;
+
+.install-dp3: &install-dp3
+  - |
+    git clone https://github.com/lofar-astron/DP3.git;
+    cd DP3 && git checkout ${DP3_VERSION} &&mkdir build && cd build;
+    cmake .. && make && make install;
+    cd ../.. && rm -rf ./DP3;
+  - DP3 --version;
+
+python-lint:
+  before_script:
+    - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
+    - 'make help | grep python-test'
+    - poetry config virtualenvs.in-project true
+    - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
+    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
+    - | 
+      if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
+        echo "python-lint: Updating poetry to $CI_POETRY_VERSION";
+        pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
+      fi;
+      echo "python-lint: Installing with poetry";
+      time poetry install --all-extras;
+    - source "$(poetry env info --path)/bin/activate"
+
+docs-build:
+  before_script:
+    - '[ -f .make/docs.mk ] || (echo "File docs.mk not included in Makefile; exit 1")'
+    - 'make help | grep docs-build'
+    - poetry config virtualenvs.in-project true
+    - echo "docs-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
+    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
+    - |
+      if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
+        echo "docs-build: Updating poetry to $CI_POETRY_VERSION";
+        pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
+      fi;
+      echo "docs-build: Installing with poetry docs dependency group";
+      time poetry install --no-root --only docs;
+    - source "$(poetry env info --path)/bin/activate"
+
+python-test:
+  before_script:
+    - *install-packages
+    - *install-casacore
+    - *install-aoflagger
+    - *install-idg
+    - *install-everybeam
+    - *install-dp3
+    - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
+    - 'make help | grep python-test'
+    - poetry config virtualenvs.in-project true
+    - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
+    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
+    - |
+      if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
+        echo "python-test: Updating poetry to $CI_POETRY_VERSION";
+        pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
+      fi;
+      echo "python-test: Installing with poetry";
+      time poetry install --all-extras;
+    - source "$(poetry env info --path)/bin/activate"
+
+
