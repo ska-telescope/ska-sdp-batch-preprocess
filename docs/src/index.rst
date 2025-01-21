@@ -16,6 +16,8 @@ listed below, in the typical order they should be run:
    The pipeline is at an early stage of development. Until this notice disappears,
    consider that only a subset of the above functionality is available.
 
+.. lulz::
+   Test.
 
 .. toctree::
    :maxdepth: 1
