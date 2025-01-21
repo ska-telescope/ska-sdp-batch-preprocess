@@ -1,5 +1,5 @@
 [tool.poetry]
-authors = "Team HIPPO"
+authors = ["Team HIPPO"]
 description = "SKA Distributed batch preprocessing pipeline"
 license = "BSD-3-Clause"
 name = "ska-sdp-batch-preprocess"
