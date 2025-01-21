@@ -27,59 +27,6 @@ def _step_validators() -> dict[str, Draft202012Validator]:
 
 
 @dataclass
-class StepDefinition:
-    """
-    Parameters of one step as specified in the config file. They still
-    need further conversion to DP3 parameters.
-    """
-
-    type: str
-    """
-    Step type as a lowercase string, e.g. 'preflagger'.
-    """
-
-    params: dict[str, Any]
-    """
-    Dictionary of parameters with values in their natural type.
-    """
-
-    def __post_init__(self):
-        validators = _step_validators()
-        if self.type.lower() not in validators:
-            raise ValidationError(
-                f"Invalid step name: {self.type!r}. Valid choices "
-                f"(case-insensitive): {sorted(validators.keys())}"
-            )
-        self.type = self.type.lower()
-        validators[self.type].validate(instance=self.params)
-
-    @classmethod
-    def from_step_dict(cls, step_dict: dict[str, Any]) -> "StepDefinition":
-        """
-        Create from dictionary of the form {step_type: {step_params}}, as
-        loaded from the config file.
-        """
-        if not len(step_dict.keys()) == 1:
-            msg = (
-                "Step must be given as a dictionary with one key: the step "
-                f"type. This is invalid: {step_dict!r}"
-            )
-            raise ValidationError(msg)
-
-        stype, params = next(iter(step_dict.items()))
-        params = {} if params is None else params
-        return cls(stype, params)
-
-
-def _assert_no_more_than_one_step_definition_with_type(
-    steps: Iterable[StepDefinition], stype: str
-):
-    if len([s for s in steps if s.type == stype]) > 1:
-        msg = f"Cannot specify more than 1 step with type {stype!r}"
-        raise ValidationError(msg)
-
-
-@dataclass
 class Step:
     """
     Step with parameters mapping 1:1 to what DP3 expects.
@@ -96,6 +43,9 @@ class Step:
     Dictionary of legal DP3 parameters with values in their natural type.
     """
 
+    def __post_init__(self):
+        self.type = self.type.lower()
+
 
 def validate_top_level_structure(conf: dict[str, Any]):
     """
@@ -107,8 +57,39 @@ def validate_top_level_structure(conf: dict[str, Any]):
     validator.validate(instance=conf)
 
 
+def parse_step_dictionary(step_dict: dict[str, Any]) -> Step:
+    """
+    First pass of parsing. Create a Step from a dictionary of the form
+    {step_type: {step_params}}, as loaded from the config file.
+    """
+    if not len(step_dict.keys()) == 1:
+        msg = (
+            "Step must be given as a dictionary with one key: the step "
+            f"type. This is invalid: {step_dict!r}"
+        )
+        raise ValidationError(msg)
+
+    stype, params = next(iter(step_dict.items()))
+    params = {} if params is None else params
+
+    validators = _step_validators()
+    if stype.lower() not in validators:
+        raise ValidationError(
+            f"Invalid step name: {stype!r}. Valid choices "
+            f"(case-insensitive): {sorted(validators.keys())}"
+        )
+    validators[stype.lower()].validate(instance=params)
+    return Step(stype, params)
+
+
+def _assert_no_more_than_one_step_with_type(steps: Iterable[Step], stype: str):
+    if len([s for s in steps if s.type == stype]) > 1:
+        msg = f"Cannot specify more than 1 step with type {stype!r}"
+        raise ValidationError(msg)
+
+
 def prepare_applycal_step(
-    step: StepDefinition, solutions_dir: Optional[Path] = None
+    step: Step, solutions_dir: Optional[Path] = None
 ) -> Step:
     """
     Prepare applycal step parameters based on the contents of the associated
@@ -153,20 +134,22 @@ def prepare_applycal_step(
 
 
 def prepare_steps(
-    step_definitions: Iterable[StepDefinition],
+    steps: Iterable[Step],
     solutions_dir: Optional[str | os.PathLike] = None,
 ) -> list[Step]:
     """
-    Create Steps with parameters ready to be passed to DP3.
+    Second pass of parsing. Create Steps with parameters ready to be passed to
+    DP3. This includes setting ApplyCal parameters based on the associated
+    H5Parm contents.
     """
     solutions_dir = Path(solutions_dir) if solutions_dir is not None else None
-    steps = []
-    for step_def in step_definitions:
-        if step_def.type == "applycal":
-            steps.append(prepare_applycal_step(step_def, solutions_dir))
+    prepared_steps = []
+    for step in steps:
+        if step.type == "applycal":
+            prepared_steps.append(prepare_applycal_step(step, solutions_dir))
         else:
-            steps.append(Step(type=step_def.type, params=step_def.params))
-    return steps
+            prepared_steps.append(step)
+    return prepared_steps
 
 
 def parse_config(
@@ -181,10 +164,10 @@ def parse_config(
     Raise jsonschema.ValidationError if the config is invalid.
     """
     validate_top_level_structure(conf)
-    step_defs = list(map(StepDefinition.from_step_dict, conf["steps"]))
-    _assert_no_more_than_one_step_definition_with_type(step_defs, "msin")
-    _assert_no_more_than_one_step_definition_with_type(step_defs, "msout")
-    return prepare_steps(step_defs, solutions_dir)
+    steps = list(map(parse_step_dictionary, conf["steps"]))
+    _assert_no_more_than_one_step_with_type(steps, "msin")
+    _assert_no_more_than_one_step_with_type(steps, "msout")
+    return prepare_steps(steps, solutions_dir)
 
 
 def parse_config_file(
