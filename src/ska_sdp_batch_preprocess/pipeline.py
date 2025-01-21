@@ -1,7 +1,7 @@
 import os
 import shlex
 import subprocess
-from typing import Iterable
+from typing import Iterable, Optional
 
 from ska_sdp_batch_preprocess.config import Step, parse_config_file
 
@@ -38,8 +38,13 @@ class Pipeline:
         LOGGER.info(f"Finished: {msin!s}")
 
     @classmethod
-    def from_yaml(cls, path: str | os.PathLike) -> "Pipeline":
+    def create(
+        cls,
+        config_path: str | os.PathLike,
+        solutions_dir: Optional[str | os.PathLike] = None,
+    ) -> "Pipeline":
         """
-        Creates a Pipeline from a YAML config file.
+        Create a Pipeline, given a YAML config file path and an optional
+        directory where the solution tables are stored.
         """
-        return cls(parse_config_file(path))
+        return cls(parse_config_file(config_path, solutions_dir))

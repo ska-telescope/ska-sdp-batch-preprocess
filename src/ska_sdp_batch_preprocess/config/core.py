@@ -3,7 +3,7 @@ import os
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional
 
 import yaml
 from jsonschema import Draft202012Validator, ValidationError
@@ -115,18 +115,25 @@ def validate_top_level_structure(conf: dict[str, Any]):
     validator.validate(instance=conf)
 
 
-def prepare_applycal_step(step: StepDefinition) -> StepDefinition:
+def prepare_applycal_step(
+    step: StepDefinition, solutions_dir: Optional[Path] = None
+) -> StepDefinition:
     """
     Prepare applycal step parameters based on the contents of the associated
     H5Parm.
     """
-    fname = step.params["parmdb"]
-    h5parm = H5Parm.from_file(fname)
+    parmdb = Path(step.params["parmdb"])
+    if not parmdb.is_absolute() and solutions_dir is not None:
+        parmdb = solutions_dir / parmdb
+
+    # NOTE: Make parmdb path absolute to avoid issues in a dask context
+    parmdb = str(parmdb.resolve())
+    h5parm = H5Parm.from_file(parmdb)
 
     if h5parm.is_fulljones:
         amp, phase = sorted(h5parm.soltabs, key=lambda s: s.solution_type)
         params = step.params | {
-            "parmdb": fname,
+            "parmdb": parmdb,
             "correction": "fulljones",
             "soltab": [amp.name, phase.name],
         }
@@ -134,7 +141,7 @@ def prepare_applycal_step(step: StepDefinition) -> StepDefinition:
 
     if len(h5parm.soltabs) == 1:
         params = step.params | {
-            "parmdb": fname,
+            "parmdb": parmdb,
             "correction": h5parm.soltabs[0].name,
         }
         return StepDefinition(type="applycal", params=params)
@@ -142,7 +149,7 @@ def prepare_applycal_step(step: StepDefinition) -> StepDefinition:
     if len(h5parm.soltabs) == 2:
         amp, phase = sorted(h5parm.soltabs, key=lambda s: s.solution_type)
         params = step.params | {
-            "parmdb": fname,
+            "parmdb": parmdb,
             "steps": ["amp", "phase"],
             "amp.correction": amp.name,
             "phase.correction": phase.name,
@@ -150,7 +157,7 @@ def prepare_applycal_step(step: StepDefinition) -> StepDefinition:
         return StepDefinition(type="applycal", params=params)
 
     raise ValidationError(
-        f"Failed to prepare applycal step: H5Parm {fname!r} "
+        f"Failed to prepare applycal step: H5Parm {str(parmdb)!r} "
         "has unexpected schema"
     )
 
@@ -172,29 +179,39 @@ def make_uniquely_named_steps(steps: Iterable[StepDefinition]) -> list[Step]:
     ]
 
 
-def parse_config(conf: dict) -> list[Step]:
+def parse_config(
+    conf: dict, solutions_dir: Optional[str | os.PathLike] = None
+) -> list[Step]:
     """
-    Parse config dictionary into a list of Steps. Raise
-    jsonschema.ValidationError if the config is invalid.
+    Parse config dictionary into a list of Steps. `solutions_dir` is an
+    optional directory path where the solution tables for ApplyCal steps are
+    expected to be stored; any solution table path in the config that is not
+    absolute will be prepended with `solutions_dir`.
+
+    Raise jsonschema.ValidationError if the config is invalid.
     """
     validate_top_level_structure(conf)
     steps = list(map(StepDefinition.from_step_dict, conf["steps"]))
     _assert_no_more_than_one_step_definition_with_type(steps, "msin")
     _assert_no_more_than_one_step_definition_with_type(steps, "msout")
 
+    solutions_dir = Path(solutions_dir) if solutions_dir is not None else None
     prepared_steps = []
     for step in steps:
         if step.type == "applycal":
-            prepared_steps.append(prepare_applycal_step(step))
+            prepared_steps.append(prepare_applycal_step(step, solutions_dir))
         else:
             prepared_steps.append(step)
 
     return make_uniquely_named_steps(prepared_steps)
 
 
-def parse_config_file(path: str | os.PathLike) -> list[Step]:
+def parse_config_file(
+    path: str | os.PathLike, solutions_dir: Optional[str | os.PathLike] = None
+) -> list[Step]:
     """
-    Same as parse_config, but takes a file path as input.
+    Same as parse_config, except that the first argument is a config file path
+    instead of a config dict.
     """
     with open(path, "r", encoding="utf-8") as file:
-        return parse_config(yaml.safe_load(file))
+        return parse_config(yaml.safe_load(file), solutions_dir)
