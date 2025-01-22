@@ -20,6 +20,14 @@ def dp3_available() -> bool:
         return False
 
 
+@pytest.fixture(name="yaml_config")
+def fixture_yaml_config() -> Path:
+    """
+    YAML config file path for the end-to-end test.
+    """
+    return Path(__file__).parent / "config.yaml"
+
+
 def test_pipeline_cli_app_entry_point_exists():
     """
     Check that the pipeline CLI app is available to run with the expected name.
@@ -29,7 +37,7 @@ def test_pipeline_cli_app_entry_point_exists():
 
 
 @pytest.mark.skipif(not dp3_available(), reason="DP3 not available")
-def test_pipeline_cli_app_with_model_config(
+def test_pipeline_cli_app(
     tmp_path_factory: pytest.TempPathFactory, yaml_config: Path, input_ms: Path
 ):
     """
