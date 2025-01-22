@@ -34,6 +34,22 @@ def create_diagonal_complex_identity_h5parm(
         )
 
 
+def create_fulljones_identity_h5parm(
+    path: Path, *, antenna_names: Iterable[str]
+):
+    """
+    Create an H5Parm file representing a full Jones identity matrix.
+    """
+    with h5py.File(path, mode="w") as file:
+        solset = file.create_group("sol000")
+        create_fulljones_phase_zeros_soltab(
+            solset, antenna_names=antenna_names
+        )
+        create_fulljones_amplitude_ones_soltab(
+            solset, antenna_names=antenna_names
+        )
+
+
 def create_scalarphase_zeros_soltab(
     solset: h5py.Group, *, antenna_names: Iterable[str]
 ):
@@ -74,6 +90,36 @@ def create_diagonal_amplitude_ones_soltab(
     write_val_and_weight_datasets(
         soltab, np.ones((num_antennas, 2)), ["ant", "pol"]
     )
+
+
+def create_fulljones_phase_zeros_soltab(
+    solset: h5py.Group, *, antenna_names: Iterable[str]
+):
+    """
+    Self-explanatory.
+    """
+    soltab = create_soltab_group(solset, "phase")
+    num_antennas = len(antenna_names)
+    write_ant_dataset(soltab, antenna_names)
+    write_pol_dataset(soltab, ["XX", "XY", "YX", "YY"])
+    write_val_and_weight_datasets(
+        soltab, np.zeros((num_antennas, 4)), ["ant", "pol"]
+    )
+
+
+def create_fulljones_amplitude_ones_soltab(
+    solset: h5py.Group, *, antenna_names: Iterable[str]
+):
+    """
+    Self-explanatory.
+    """
+    soltab = create_soltab_group(solset, "amplitude")
+    num_antennas = len(antenna_names)
+    write_ant_dataset(soltab, antenna_names)
+    write_pol_dataset(soltab, ["XX", "XY", "YX", "YY"])
+    data = np.zeros((num_antennas, 4))
+    data[:] = (1, 0, 0, 1)
+    write_val_and_weight_datasets(soltab, data, ["ant", "pol"])
 
 
 def create_soltab_group(
