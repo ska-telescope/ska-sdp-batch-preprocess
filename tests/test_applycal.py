@@ -11,7 +11,10 @@ from ska_sdp_batch_preprocess.config import parse_config
 from ska_sdp_batch_preprocess.pipeline import Pipeline
 
 from .common import skip_unless_dp3_available
-from .h5parm_generation import create_scalarphase_identity_h5parm
+from .h5parm_generation import (
+    create_diagonal_complex_identity_h5parm,
+    create_scalarphase_identity_h5parm,
+)
 
 
 def make_config(h5parm_filenames: Iterable[str]) -> dict[str, Any]:
@@ -60,7 +63,10 @@ def test_pipeline_with_multiple_applycal_steps_with_different_h5parm_layouts(
     create_scalarphase_identity_h5parm(
         solutions_dir / "scalarphase.h5", antenna_names=antenna_names
     )
-    config = make_config(["scalarphase.h5"])
+    create_diagonal_complex_identity_h5parm(
+        solutions_dir / "diagonal.h5", antenna_names=antenna_names
+    )
+    config = make_config(["scalarphase.h5", "diagonal.h5"])
 
     output_dir = tmp_path_factory.mktemp("applycal_outdir")
     output_ms = output_dir / input_ms.name
