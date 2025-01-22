@@ -1,0 +1,10 @@
+steps:
+  - MsIn:
+  - PreFlagger:
+  - AOFlagger:
+      memorymax: 8.0
+  - Averager:
+      timestep: 4
+      freqstep: 4
+  - MsOut:
+      overwrite: true

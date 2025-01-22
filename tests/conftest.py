@@ -18,11 +18,3 @@ def fixture_input_ms(
     # pylint: disable=consider-using-with
     zipfile.ZipFile(archive).extractall(datasets_tmpdir)
     return datasets_tmpdir / "mkt_ecdfs25_nano.ms"
-
-
-@pytest.fixture(name="yaml_config", scope="session")
-def fixture_yaml_config() -> Path:
-    """
-    YAML config file path.
-    """
-    return Path(__file__).parent / ".." / "config" / "config.yaml"
