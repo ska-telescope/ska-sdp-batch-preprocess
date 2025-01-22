@@ -5,7 +5,7 @@ import pytest
 
 from ska_sdp_batch_preprocess.apps.pipeline import run_program
 
-from ..common import skip_unless_dp3_available
+from ..dp3_availability import skip_unless_dp3_available
 from ..h5parm_generation import create_diagonal_complex_identity_h5parm
 from ..ms_reading import load_antenna_names_from_msv2
 
