@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Literal
 
 import h5py
 import numpy as np
@@ -40,20 +40,10 @@ def create_scalarphase_zeros_soltab(
     """
     Self-explanatory.
     """
-    soltab = solset.create_group("phase000")
-    soltab.attrs["TITLE"] = np.bytes_("phase")
-
+    soltab = create_soltab_group(solset, "phase")
     num_antennas = len(antenna_names)
-
-    soltab.create_dataset(
-        "ant", data=_ndarray_of_null_terminated_bytes(antenna_names)
-    )
-
-    val = soltab.create_dataset("val", data=np.zeros(shape=num_antennas))
-    val.attrs["AXES"] = np.bytes_("ant")
-
-    weight = soltab.create_dataset("weight", data=np.ones(shape=num_antennas))
-    weight.attrs["AXES"] = np.bytes_("ant")
+    write_ant_dataset(soltab, antenna_names)
+    write_val_and_weight_datasets(soltab, np.zeros(num_antennas), ["ant"])
 
 
 def create_diagonal_phase_zeros_soltab(
@@ -62,30 +52,13 @@ def create_diagonal_phase_zeros_soltab(
     """
     Self-explanatory.
     """
-    soltab = solset.create_group("phase000")
-    soltab.attrs["TITLE"] = np.bytes_("phase")
-
-    pol_codes = ["XX", "YY"]
-
+    soltab = create_soltab_group(solset, "phase")
     num_antennas = len(antenna_names)
-    num_pols = len(pol_codes)
-
-    soltab.create_dataset(
-        "ant", data=_ndarray_of_null_terminated_bytes(antenna_names)
+    write_ant_dataset(soltab, antenna_names)
+    write_pol_dataset(soltab, ["XX", "YY"])
+    write_val_and_weight_datasets(
+        soltab, np.zeros((num_antennas, 2)), ["ant", "pol"]
     )
-    soltab.create_dataset(
-        "pol", data=_ndarray_of_null_terminated_bytes(pol_codes)
-    )
-
-    val = soltab.create_dataset(
-        "val", data=np.zeros(shape=(num_antennas, num_pols))
-    )
-    val.attrs["AXES"] = np.bytes_("ant,pol")
-
-    weight = soltab.create_dataset(
-        "weight", data=np.ones(shape=(num_antennas, num_pols))
-    )
-    weight.attrs["AXES"] = np.bytes_("ant,pol")
 
 
 def create_diagonal_amplitude_ones_soltab(
@@ -94,30 +67,60 @@ def create_diagonal_amplitude_ones_soltab(
     """
     Self-explanatory.
     """
-    soltab = solset.create_group("amplitude000")
-    soltab.attrs["TITLE"] = np.bytes_("amplitude")
-
-    pol_codes = ["XX", "YY"]
-
+    soltab = create_soltab_group(solset, "amplitude")
     num_antennas = len(antenna_names)
-    num_pols = len(pol_codes)
+    write_ant_dataset(soltab, antenna_names)
+    write_pol_dataset(soltab, ["XX", "YY"])
+    write_val_and_weight_datasets(
+        soltab, np.ones((num_antennas, 2)), ["ant", "pol"]
+    )
 
+
+def create_soltab_group(
+    solset: h5py.Group, solution_type: Literal["amplitude", "phase"]
+) -> h5py.Group:
+    """
+    Create soltab group under given solset group. 'solution_type' must be
+    'amplitude' or 'phase'.
+    """
+    soltab = solset.create_group(f"{solution_type}000")
+    soltab.attrs["TITLE"] = np.bytes_(solution_type)
+    return soltab
+
+
+def write_ant_dataset(soltab: h5py.Group, antenna_names: Iterable[str]):
+    """
+    Self-explanatory.
+    """
     soltab.create_dataset(
         "ant", data=_ndarray_of_null_terminated_bytes(antenna_names)
     )
+
+
+def write_pol_dataset(soltab: h5py.Group, pol_codes: Iterable[str]):
+    """
+    Self-explanatory.
+    """
     soltab.create_dataset(
         "pol", data=_ndarray_of_null_terminated_bytes(pol_codes)
     )
 
-    val = soltab.create_dataset(
-        "val", data=np.ones(shape=(num_antennas, num_pols))
-    )
-    val.attrs["AXES"] = np.bytes_("ant,pol")
 
-    weight = soltab.create_dataset(
-        "weight", data=np.ones(shape=(num_antennas, num_pols))
+def write_val_and_weight_datasets(
+    soltab: h5py.Group, val: NDArray, axis_names: Iterable[str]
+):
+    """
+    Write 'val' dataset with the given values and axis names;
+    also write a corresponding 'weight' dataset with the same shape, filled
+    with ones.
+    """
+    axes_attribute = np.bytes_(",".join(axis_names))
+    val_dataset = soltab.create_dataset("val", data=val)
+    val_dataset.attrs["AXES"] = axes_attribute
+    weight_dataset = soltab.create_dataset(
+        "weight", data=np.ones(shape=val.shape, dtype=float)
     )
-    weight.attrs["AXES"] = np.bytes_("ant,pol")
+    weight_dataset.attrs["AXES"] = axes_attribute
 
 
 def _ndarray_of_null_terminated_bytes(strings: Iterable[str]) -> NDArray:
