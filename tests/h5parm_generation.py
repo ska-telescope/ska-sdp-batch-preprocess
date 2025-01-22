@@ -162,4 +162,9 @@ def write_val_and_weight_datasets(
 
 
 def _ndarray_of_null_terminated_bytes(strings: Iterable[str]) -> NDArray:
-    return np.asarray([s.encode() + b"\0" for s in strings])
+    # NOTE: we have to make the antenna names in the H5Parm one character
+    # longer, otherwise DP3 throws an error along the lines of:
+    # "SolTab has no element <ANTENNA_NAME> in ant"
+    # Adding any character (not just the null terminator) is a valid
+    # fix to the problem; I don't know why.
+    return np.asarray([s.encode("ascii") + b"\0" for s in strings])
