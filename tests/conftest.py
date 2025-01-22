@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 
-@pytest.fixture(name="input_ms", scope="module")
+@pytest.fixture(name="input_ms", scope="session")
 def fixture_input_ms(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Path:
@@ -13,7 +13,7 @@ def fixture_input_ms(
     The dataset has 38 time samples, 4 freq channels and the 4 linear
     polarisation channels.
     """
-    archive = Path(__file__).parent / "mkt_ecdfs25_nano.ms.zip"
+    archive = Path(__file__).parent / "data" / "mkt_ecdfs25_nano.ms.zip"
     datasets_tmpdir = Path(tmp_path_factory.mktemp("xradio_datasets"))
     # pylint: disable=consider-using-with
     zipfile.ZipFile(archive).extractall(datasets_tmpdir)
@@ -25,4 +25,4 @@ def fixture_yaml_config() -> Path:
     """
     YAML config file path.
     """
-    return Path(__file__).parent / ".." / ".." / "config" / "config.yaml"
+    return Path(__file__).parent / ".." / "config" / "config.yaml"
