@@ -27,7 +27,7 @@ def test_pipeline_cli_app_entry_point_exists():
 
 
 @skip_unless_dp3_available
-def test_pipeline_cli_app(
+def test_pipeline_cli_app_produces_output_ms_without_errors(
     tmp_path_factory: pytest.TempPathFactory, yaml_config: Path, input_ms: Path
 ):
     """
