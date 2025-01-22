@@ -21,7 +21,7 @@ include:
 
 # Override python-test job to use custom spack image 
 python-test:
-  image: saliei/ska-sdp-spack:0.2.0
+  image: saliei/ska-sdp-spack:0.3.0
   before_script:
     - . /spack/share/spack/setup-env.sh
     - spack env activate sdp
