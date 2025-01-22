@@ -27,6 +27,7 @@ python-test:
     # Activate spack environment
     - . /spack/share/spack/setup-env.sh
     - spack env activate sdp
+    - spack load dp3
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
     - poetry config virtualenvs.in-project true
