@@ -6,6 +6,8 @@ import pytest
 from ska_sdp_batch_preprocess.config import parse_config
 from ska_sdp_batch_preprocess.pipeline import Pipeline
 
+from .common import skip_unless_dp3_available
+
 
 def make_config(h5parm_filenames: Iterable[str]) -> dict[str, Any]:
     """
@@ -16,6 +18,7 @@ def make_config(h5parm_filenames: Iterable[str]) -> dict[str, Any]:
     return {"steps": steps}
 
 
+@skip_unless_dp3_available
 def test_pipeline_with_multiple_applycal_steps_with_different_h5parm_layouts(
     tmp_path_factory: pytest.TempPathFactory, input_ms: Path
 ):
