@@ -36,10 +36,9 @@ def test_pipeline_cli_app(
     output_dir = tmp_path_factory.mktemp("output_dir")
     solutions_dir = tmp_path_factory.mktemp("solutions_dir")
 
-    h5parm_path = solutions_dir / "diagonal.h5"
     antenna_names = load_antenna_names_from_msv2(input_ms)
     create_diagonal_complex_identity_h5parm(
-        h5parm_path, antenna_names=antenna_names
+        solutions_dir / "diagonal.h5", antenna_names=antenna_names
     )
 
     cli_args = [
