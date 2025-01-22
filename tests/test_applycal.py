@@ -29,11 +29,15 @@ def make_config(h5parm_filenames: Iterable[str]) -> dict[str, Any]:
 
 
 @skip_unless_dp3_available
-def test_pipeline_with_multiple_applycal_steps_with_different_h5parm_layouts(
+def test_applycal_steps_with_identity_gain_tables_preserve_visibilities(
     tmp_path_factory: pytest.TempPathFactory, input_ms: Path
 ):
     """
-    Self-explanatory.
+    Run the pipeline with multiple applycal steps, each associated with
+    an H5Parm file that carries an identity gain table. Each table has a
+    different schema (scalarphase, diagonal, fulljones) that must be handled
+    differently when generating the parameters for the DP3 call; that way, we
+    trigger all associated code paths.
     """
     antenna_names = load_antenna_names_from_msv2(input_ms)
     solutions_dir = tmp_path_factory.mktemp("applycal_solutions_dir")
