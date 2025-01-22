@@ -37,3 +37,10 @@ def load_visibilities_from_msv2(
     unique_timestamps = set(getcol(path, "MAIN", "TIME"))
     __, nchan, npol = vis.shape
     return vis.reshape(len(unique_timestamps), -1, nchan, npol)
+
+
+def load_antenna_names_from_msv2(path: str | os.PathLike) -> list[str]:
+    """
+    Load the list of antenna names from an MSv2.
+    """
+    return getcol(path, "ANTENNA", "NAME")

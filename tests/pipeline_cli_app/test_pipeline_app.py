@@ -7,7 +7,7 @@ from ska_sdp_batch_preprocess.apps.pipeline import run_program
 
 from ..common import skip_unless_dp3_available
 from ..h5parm_generation import create_diagonal_complex_identity_h5parm
-from ..ms_reading import getcol
+from ..ms_reading import load_antenna_names_from_msv2
 
 
 @pytest.fixture(name="yaml_config")
@@ -37,7 +37,7 @@ def test_pipeline_cli_app(
     solutions_dir = tmp_path_factory.mktemp("solutions_dir")
 
     h5parm_path = solutions_dir / "diagonal.h5"
-    antenna_names = getcol(input_ms, "ANTENNA", "NAME")
+    antenna_names = load_antenna_names_from_msv2(input_ms)
     create_diagonal_complex_identity_h5parm(
         h5parm_path, antenna_names=antenna_names
     )
