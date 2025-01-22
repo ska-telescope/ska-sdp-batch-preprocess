@@ -38,13 +38,13 @@ def test_pipeline_with_multiple_applycal_steps_with_different_h5parm_layouts(
     antenna_names = load_antenna_names_from_msv2(input_ms)
     solutions_dir = tmp_path_factory.mktemp("applycal_solutions_dir")
     create_scalarphase_identity_h5parm(
-        solutions_dir / "scalarphase.h5", antenna_names=antenna_names
+        solutions_dir / "scalarphase.h5", antenna_names
     )
     create_diagonal_complex_identity_h5parm(
-        solutions_dir / "diagonal.h5", antenna_names=antenna_names
+        solutions_dir / "diagonal.h5", antenna_names
     )
     create_fulljones_identity_h5parm(
-        solutions_dir / "fulljones.h5", antenna_names=antenna_names
+        solutions_dir / "fulljones.h5", antenna_names
     )
     config = make_config(["scalarphase.h5", "diagonal.h5", "fulljones.h5"])
 

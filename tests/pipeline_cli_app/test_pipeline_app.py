@@ -38,7 +38,7 @@ def test_pipeline_cli_app_produces_output_ms_without_errors(
 
     antenna_names = load_antenna_names_from_msv2(input_ms)
     create_diagonal_complex_identity_h5parm(
-        solutions_dir / "diagonal.h5", antenna_names=antenna_names
+        solutions_dir / "diagonal.h5", antenna_names
     )
 
     cli_args = [
