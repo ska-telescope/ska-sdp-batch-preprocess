@@ -13,7 +13,10 @@ from .h5parm_generation import (
     create_fulljones_identity_h5parm,
     create_scalarphase_identity_h5parm,
 )
-from .ms_reading import getcol, load_visibilities_from_msv2
+from .ms_reading import (
+    load_antenna_names_from_msv2,
+    load_visibilities_from_msv2,
+)
 
 
 def make_config(h5parm_filenames: Iterable[str]) -> dict[str, Any]:
@@ -32,7 +35,7 @@ def test_pipeline_with_multiple_applycal_steps_with_different_h5parm_layouts(
     """
     Self-explanatory.
     """
-    antenna_names = getcol(input_ms, "ANTENNA", "NAME")
+    antenna_names = load_antenna_names_from_msv2(input_ms)
     solutions_dir = tmp_path_factory.mktemp("applycal_solutions_dir")
     create_scalarphase_identity_h5parm(
         solutions_dir / "scalarphase.h5", antenna_names=antenna_names
