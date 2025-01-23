@@ -21,10 +21,8 @@ include:
 
 # Override python-test job to use a custom image 
 python-test:
-  image: saliei/everybeam:1.1.0
+  image: saliei/everybeam:1.2.0
   before_script:
-    - apt update -y && apt upgrade -y
-    - apt install -y python3-poetry
     - git clone https://github.com/lofar-astron/DP3.git
     - cd DP3 && mkdir build && cd build && cmake .. && make && make install
     - cd ../.. &&  rm -rf ./DP3 && DP3 --version
