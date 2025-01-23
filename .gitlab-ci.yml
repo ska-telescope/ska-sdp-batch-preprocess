@@ -33,5 +33,5 @@ python-test:
     - poetry config virtualenvs.in-project true
     - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
     - poetry config virtualenvs.create true
-    - echo "python-test: Installing with poetry"
+    - echo "python-test - Installing with poetry"
     - time poetry install --all-extras
