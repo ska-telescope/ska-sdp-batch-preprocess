@@ -25,7 +25,7 @@ python-test:
   before_script:
     - git clone https://github.com/lofar-astron/DP3.git
     - cd DP3 && mkdir build && cd build && cmake .. && make && make install
-    - DP3 --version
+    - cd ../.. &&  rm -rf ./DP3 && DP3 --version
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
     - poetry config virtualenvs.in-project true
