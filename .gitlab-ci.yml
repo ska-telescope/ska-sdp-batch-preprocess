@@ -21,9 +21,11 @@ include:
 
 # Override python-test job to use a custom image 
 python-test:
-  image: saliei/dp3:1.0.0
+  image: saliei/everybeam:1.0.0
   before_script:
-    - DP3 --version
+    - git clone https://github.com/lofar-astron/DP3.git
+    - cd DP3 && mkdir build && cmake .. && make && make install
+    - cd / && DP3 --version
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
     - poetry config virtualenvs.in-project true
