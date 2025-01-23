@@ -24,8 +24,7 @@ python-test:
   image: saliei/ska-sdp-spack:0.5.0
   before_script:
     - . /spack/share/spack/setup-env.sh
-    - spack env activate sdp
-    - spack load dp3
+    - spack install dp3
     - DP3 --version
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
