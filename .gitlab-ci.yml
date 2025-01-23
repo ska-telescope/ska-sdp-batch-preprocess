@@ -30,6 +30,6 @@ python-test:
     - 'make help | grep python-test'
     - pipx install poetry && pipx ensurepath && export PATH=$PATH:~/.local/bin
     - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
-    - poetry config virtualenvs.in-project true && poetry config virtualenvs.create false
+    - poetry config virtualenvs.in-project true && poetry config virtualenvs.create true
     - echo "python-test - Installing with poetry"
     - time poetry install --all-extras
