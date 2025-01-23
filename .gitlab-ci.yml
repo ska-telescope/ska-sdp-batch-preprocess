@@ -21,7 +21,7 @@ include:
 
 # Override python-test job to use a custom image 
 python-test:
-  image: saliei/everybeam:1.0.0
+  image: saliei/everybeam:1.1.0
   before_script:
     - apt update -y && apt upgrade -y
     - apt install -y python3-poetry
