@@ -1,0 +1,12 @@
+steps:
+  - MsIn:
+  - PreFlagger:
+  - AOFlagger:
+      memorymax: 8.0
+  - ApplyCal:
+      parmdb: diagonal.h5
+  - Averager:
+      timestep: 4
+      freqstep: 4
+  - MsOut:
+      overwrite: true

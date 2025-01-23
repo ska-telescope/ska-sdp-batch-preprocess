@@ -36,6 +36,17 @@ def make_parser() -> ArgumentParser:
         help=("Output directory where the pre-processed data will be written"),
     )
     parser.add_argument(
+        "-s",
+        "--solutions-dir",
+        type=existing_directory,
+        help=(
+            "Directory containing solution tables (in H5Parm format). "
+            "Any solution table paths in the config file ApplyCal "
+            "steps that are not absolute will be preprended with this "
+            "directory."
+        ),
+    )
+    parser.add_argument(
         "--dask-scheduler",
         help=(
             "Network address of the dask scheduler to use for distribution; "
@@ -78,7 +89,7 @@ def run_program(cli_args: list[str]):
     input_ms_list: list[Path] = args.input_ms
     output_dir: Path = args.output_dir
 
-    pipeline = Pipeline.from_yaml(args.config)
+    pipeline = Pipeline.create(args.config, args.solutions_dir)
 
     for input_ms in input_ms_list:
         pipeline.run(input_ms, output_dir / input_ms.name)

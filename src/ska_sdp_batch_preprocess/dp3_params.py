@@ -1,9 +1,30 @@
 import os
+from collections import defaultdict
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 
 from ska_sdp_batch_preprocess.config import Step
+
+
+# pylint:disable=too-few-public-methods
+class UniqueNamer:
+    """
+    Makes unique names for DP3 steps.
+    """
+
+    def __init__(self):
+        self._counter: dict[str, int] = defaultdict(int)
+
+    def make_name(self, step: Step) -> str:
+        """
+        Make name for given Step, such as 'applycal_02'.
+        """
+        if step.type in {"msin", "msout"}:
+            return step.type
+        self._counter[step.type] += 1
+        index = self._counter[step.type]
+        return f"{step.type}_{index:02d}"
 
 
 class DP3Params(Mapping[str, Any]):
@@ -33,7 +54,7 @@ class DP3Params(Mapping[str, Any]):
         msout: str | os.PathLike,
     ) -> "DP3Params":
         """
-        Create DP3Config, translating pipeline steps into parameters for a
+        Create DP3Params, translating pipeline steps into parameters for a
         single DP3 execution.
         """
         step_names: list[str] = []
@@ -43,14 +64,17 @@ class DP3Params(Mapping[str, Any]):
             "msin.name": Path(msin),
             "msout.name": Path(msout),
         }
+        unique_namer = UniqueNamer()
 
         for step in steps:
+            step_name = unique_namer.make_name(step)
+
             if step.type not in {"msin", "msout"}:
-                step_names.append(step.name)
-                conf[f"{step.name}.type"] = step.type
+                step_names.append(step_name)
+                conf[f"{step_name}.type"] = step.type
 
             for key, val in step.params.items():
-                conf[f"{step.name}.{key}"] = val
+                conf[f"{step_name}.{key}"] = val
 
         return cls(conf)
 

@@ -11,12 +11,6 @@ listed below, in the typical order they should be run:
 - **Application of calibration solutions**, derived from observing calibrator sources and provided by the instrumental calibration pipeline
 - **Averaging of the data** in both time and frequency
 
-.. warning::
-
-   The pipeline is at an early stage of development. Until this notice disappears,
-   consider that only a subset of the above functionality is available.
-
-
 .. toctree::
    :maxdepth: 1
    :caption: Contents:

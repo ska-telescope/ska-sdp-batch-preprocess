@@ -1,27 +1,29 @@
 from pathlib import Path
 
 import pytest
-import yaml
 
-from ska_sdp_batch_preprocess.config import Step, parse_config
+from ska_sdp_batch_preprocess.config import Step
 from ska_sdp_batch_preprocess.dp3_params import DP3Params
 
 
 @pytest.fixture(name="steps")
 def fixture_steps() -> list[Step]:
     """
-    List of pipeline steps, loaded from the example config file provided in the
-    repository.
+    List of pipeline steps for which we want to generate a DP3 call.
     """
-    path = Path(__file__).parent / ".." / "config" / "config.yaml"
-    with open(path, "r", encoding="utf-8") as file:
-        config = yaml.safe_load(file)
-        return parse_config(config)
+
+    return [
+        Step(type="preflagger", params={}),
+        Step(type="aoflagger", params={"memorymax": 8.0}),
+        Step(type="averager", params={"timestep": 4, "freqstep": 4}),
+        Step(type="aoflagger", params={"memorymax": 16.0}),
+        Step(type="msout", params={"overwrite": True}),
+    ]
 
 
 def test_generated_dp3_command_is_correct(steps: list[Step]):
     """
-    Generate a DP3 command based on the pipeline configuration and check that
+    Generate a DP3 command based on the given pipeline steps, check that
     it is as expected.
     """
     msin = Path("/path/to/input.ms")
@@ -31,7 +33,7 @@ def test_generated_dp3_command_is_correct(steps: list[Step]):
     expected_command = [
         "DP3",
         "checkparset=1",
-        "steps=[preflagger_01,aoflagger_01,averager_01]",
+        "steps=[preflagger_01,aoflagger_01,averager_01,aoflagger_02]",
         "msin.name=/path/to/input.ms",
         "msout.name=/path/to/output.ms",
         "preflagger_01.type=preflagger",
@@ -40,6 +42,8 @@ def test_generated_dp3_command_is_correct(steps: list[Step]):
         "averager_01.type=averager",
         "averager_01.timestep=4",
         "averager_01.freqstep=4",
+        "aoflagger_02.type=aoflagger",
+        "aoflagger_02.memorymax=16.0",
         "msout.overwrite=true",
     ]
     assert command == expected_command

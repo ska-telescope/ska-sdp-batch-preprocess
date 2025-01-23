@@ -1,4 +1,3 @@
-import os
 import subprocess
 from pathlib import Path
 
@@ -6,18 +5,17 @@ import pytest
 
 from ska_sdp_batch_preprocess.apps.pipeline import run_program
 
+from ..dp3_availability import skip_unless_dp3_available
+from ..h5parm_generation import create_diagonal_complex_identity_h5parm
+from ..ms_reading import load_antenna_names_from_msv2
 
-def dp3_available() -> bool:
+
+@pytest.fixture(name="yaml_config")
+def fixture_yaml_config() -> Path:
     """
-    True if DP3 is available to run via CLI.
+    YAML config file path for the end-to-end test.
     """
-    try:
-        subprocess.check_call(
-            ["DP3"], env=os.environ | {"OPENBLAS_NUM_THREADS": "1"}
-        )
-        return True
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return False
+    return Path(__file__).parent / "config.yaml"
 
 
 def test_pipeline_cli_app_entry_point_exists():
@@ -28,19 +26,28 @@ def test_pipeline_cli_app_entry_point_exists():
     assert exit_code == 0
 
 
-@pytest.mark.skipif(not dp3_available(), reason="DP3 not available")
-def test_pipeline_cli_app_with_model_config(
+@skip_unless_dp3_available
+def test_pipeline_cli_app_produces_output_ms_without_errors(
     tmp_path_factory: pytest.TempPathFactory, yaml_config: Path, input_ms: Path
 ):
     """
     Test the pipeline CLI app on a small Measurement Set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
+    solutions_dir = tmp_path_factory.mktemp("solutions_dir")
+
+    antenna_names = load_antenna_names_from_msv2(input_ms)
+    create_diagonal_complex_identity_h5parm(
+        solutions_dir / "diagonal.h5", antenna_names
+    )
+
     cli_args = [
         "--config",
         str(yaml_config),
         "--output-dir",
         str(output_dir),
+        "--solutions-dir",
+        str(solutions_dir),
         "--dask-scheduler",
         "localhost:8786",
         str(input_ms),
