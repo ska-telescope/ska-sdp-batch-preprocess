@@ -23,7 +23,7 @@ python-lint:
     - 'make help | grep python-lint'
     - pipx install poetry
     - poetry install --all-extras
-    - eval `poetry env activate`
+    - eval $(poetry env activate)
   script:
     - make python-lint
   artifacts:
