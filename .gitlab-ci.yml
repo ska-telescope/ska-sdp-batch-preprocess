@@ -21,8 +21,10 @@ include:
 python-lint:
   before_script:
     - 'make help | grep python-lint'
-    - pipx install poetry
     - poetry install --all-extras
+    - poetry env list
+    - poetry env info
+    - poetry env activate
     - eval $(poetry env activate)
   script:
     - make python-lint
