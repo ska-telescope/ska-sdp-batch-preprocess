@@ -36,7 +36,7 @@ def test_pipeline_cli_app_entry_point_exists():
 
 
 @skip_unless_dp3_available
-def test_pipeline_cli_app_produces_output_ms_without_errors(
+def test_pipeline_cli_app_produces_output_ms_without_errors_in_sequential_mode(
     tmp_path_factory: pytest.TempPathFactory, yaml_config: Path, input_ms: Path
 ):
     """
@@ -57,8 +57,6 @@ def test_pipeline_cli_app_produces_output_ms_without_errors(
         str(output_dir),
         "--solutions-dir",
         str(solutions_dir),
-        "--dask-scheduler",
-        "localhost:8786",
         str(input_ms),
     ]
 
