@@ -26,7 +26,7 @@ python-test:
     - |
       git clone https://github.com/casacore/casacore.git;
       cd casacore && git checkout v3.6.0 && mkdir build && cd build;
-      cmake -DBUILD_PYTHON=OFF -DBUILD_TESTING=OFF -DDATA_DIR=/usr/share/casacore/data .. && make -j `nproc` make -j `nproc` install;
+      cmake -DBUILD_PYTHON=OFF -DBUILD_TESTING=OFF -DDATA_DIR=/usr/share/casacore/data .. && make -j `nproc` && make -j `nproc` install;
       cd ../.. && rm -rf ./casacore;
     - |
       git clone https://git.astron.nl/RD/idg.git;
@@ -50,3 +50,4 @@ python-test:
     - echo "python-test - Installing with poetry"
     - time poetry install --all-extras
     - source .venv/bin/activate
+
