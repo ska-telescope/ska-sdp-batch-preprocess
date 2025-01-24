@@ -21,7 +21,7 @@ include:
 
 # Override python-test job to use a custom image 
 python-test:
-  image: saliei/aoflagger:1.1.0
+  image: saliei/base-ubuntu-24.04:1.0.0
   before_script:
     - |
       git clone https://github.com/casacore/casacore.git;
@@ -29,19 +29,26 @@ python-test:
       cmake -DBUILD_PYTHON=OFF -DBUILD_TESTING=OFF -DDATA_DIR=/usr/share/casacore/data .. && make -j `nproc` && make -j `nproc` install;
       cd ../.. && rm -rf ./casacore;
     - |
+      git clone https://gitlab.com/aroffringa/aoflagger.git;
+      cd aoflagger && git checkout b1256de90b00a5a83477274390decd6671cdcd38 && mkdir build && cd build;
+      cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr .. && ninja install;
+      cd ../.. && rm -rf aoflagger;
+    - |
       git clone https://git.astron.nl/RD/idg.git;
-      cd idg && mkdir build && cd build;
+      cd idg && git checkout 9ce6fa88b9d746d8d7146c474992aba9b98eb41f && mkdir build && cd build;
       cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DPORTABLE=ON .. && ninja install;
       cd ../../ && rm -rf ./idg;
     - |
       git clone https://git.astron.nl/RD/EveryBeam.git;
-      cd EveryBeam && mkdir build && cd build;
+      cd EveryBeam && git checkout 0578473cacf64c69bc2e05e15754cf94dd1051b9 && mkdir build && cd build;
       cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DPYTHON_EXECUTABLE=/usr/bin/python3 .. && ninja install;
-      cd ../.. && rm -rf ./EveryBeam
+      cd ../.. && rm -rf ./EveryBeam;
     - |
       git clone https://github.com/lofar-astron/DP3.git;
-      cd DP3 && mkdir build && cd build && cmake .. && make -j `nproc` && make -j `nproc` install;
-      cd ../.. && rm -rf ./DP3 && DP3 --version;
+      cd DP3 && mkdir build && cd build;
+      cmake .. && make -j `nproc` && make -j `nproc` install;
+      cd ../.. && rm -rf ./DP3;
+    - DP3 --version;
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
     - pipx install poetry && pipx ensurepath && export PATH=$PATH:~/.local/bin
