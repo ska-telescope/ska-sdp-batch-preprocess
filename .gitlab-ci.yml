@@ -75,38 +75,6 @@ include:
     cd ../.. && rm -rf ./DP3;
   - DP3 --version;
 
-python-lint:
-  before_script:
-    - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
-    - 'make help | grep python-test'
-    - poetry config virtualenvs.in-project true
-    - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
-    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
-    - | 
-      if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
-        echo "python-lint: Updating poetry to $CI_POETRY_VERSION";
-        pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
-      fi;
-      echo "python-lint: Installing with poetry";
-      time poetry install --all-extras;
-    - source "$(poetry env info --path)/bin/activate"
-
-docs-build:
-  before_script:
-    - '[ -f .make/docs.mk ] || (echo "File docs.mk not included in Makefile; exit 1")'
-    - 'make help | grep docs-build'
-    - poetry config virtualenvs.in-project true
-    - echo "docs-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
-    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
-    - |
-      if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
-        echo "docs-build: Updating poetry to $CI_POETRY_VERSION";
-        pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
-      fi;
-      echo "docs-build: Installing with poetry docs dependency group";
-      time poetry install --no-root --only docs;
-    - source "$(poetry env info --path)/bin/activate"
-
 python-test:
   before_script:
     - *install-packages
@@ -128,5 +96,3 @@ python-test:
       echo "python-test: Installing with poetry";
       time poetry install --all-extras;
     - source "$(poetry env info --path)/bin/activate"
-
-
