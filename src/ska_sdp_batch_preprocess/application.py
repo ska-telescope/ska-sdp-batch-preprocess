@@ -51,12 +51,13 @@ class Application:
     def _process_distributed(self, input_mses: Iterable[Path]):
         client = dask.distributed.Client(self._dask_scheduler, timeout=5.0)
         client.forward_logging(LOGGER.name, level=logging.DEBUG)
-        delayed_results = [
-            dask.delayed(self._process_ms_on_dask_worker)(input_ms)
-            for input_ms in input_mses
-        ]
-        dask.compute(*delayed_results)
-        client.close()
+        futures = client.compute(
+            [
+                dask.delayed(self._process_ms_on_dask_worker)(input_ms)
+                for input_ms in input_mses
+            ]
+        )
+        dask.distributed.wait(futures)
 
     def _process_ms_on_dask_worker(self, input_ms: Path):
         LOGGER.setLevel(logging.DEBUG)
