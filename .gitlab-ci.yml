@@ -31,7 +31,7 @@ python-test:
     - |
       git clone https://git.astron.nl/RD/EveryBeam.git;
       cd EveryBeam && mkdir build && cd build;
-      cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../src -DPYTHON_EXECUTABLE=/usr/bin/python3 && ninja install;
+      cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DPYTHON_EXECUTABLE=/usr/bin/python3 .. && ninja install;
       cd ../.. && rm -rf ./EveryBeam
     - |
       git clone https://github.com/lofar-astron/DP3.git;
