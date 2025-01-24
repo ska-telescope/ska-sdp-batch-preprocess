@@ -18,7 +18,3 @@ include:
      - "gitlab-ci/includes/docs.gitlab-ci.yml"
      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
      - "gitlab-ci/includes/release.gitlab-ci.yml"
-
-python-test:
-  before_script:
-  - echo "here!"
