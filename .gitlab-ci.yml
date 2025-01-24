@@ -25,7 +25,7 @@ python-lint:
     - ${SKA_DEFAULT_RUNNER}
   before_script:
     - apt-get -y update
-    - apt-get -y install python3 pipx git
+    - apt-get -y install make python3 pipx git
     - pipx ensurepath && export PATH=$PATH:~/.local/bin 
     - 'make help | grep python-lint'
     - pipx install poetry
