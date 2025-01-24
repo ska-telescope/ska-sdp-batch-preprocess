@@ -20,16 +20,29 @@ class Pipeline:
         """
         self._steps = tuple(steps)
 
-    def run(self, msin: str | os.PathLike, msout: str | os.PathLike):
+    def run(
+        self,
+        msin: str | os.PathLike,
+        msout: str | os.PathLike,
+        *,
+        numthreads: Optional[int] = None,
+    ):
         """
         Run the pipeline on given input Measurement Set path `msin`, write
-        the pre-processed output at path `msout`.
+        the pre-processed output at path `msout`. If not specified,
+        `numthreads` defaults to the total number of threads available.
         """
-        LOGGER.info(f"Processing: {msin!s}")
+        numthreads = (
+            max(int(numthreads), 1)
+            if numthreads is not None
+            else os.cpu_count()
+        )
 
-        command_line = DP3Params.create(
-            self._steps, msin, msout
-        ).to_command_line()
+        LOGGER.info(f"Processing: {msin!s}")
+        params = DP3Params.create(
+            self._steps, msin, msout, numthreads=numthreads
+        )
+        command_line = params.to_command_line()
         LOGGER.info(shlex.join(command_line))
 
         subprocess.check_call(

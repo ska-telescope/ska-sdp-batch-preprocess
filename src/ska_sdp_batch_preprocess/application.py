@@ -5,11 +5,11 @@ from typing import Iterable, Optional
 import dask
 import dask.distributed
 
-from ska_sdp_batch_preprocess import __version__
 from ska_sdp_batch_preprocess.logging_setup import LOGGER
 from ska_sdp_batch_preprocess.pipeline import Pipeline
 
 
+# pylint:disable=too-few-public-methods
 class Application:
     """
     Main application class. Applies the same pipeline (i.e. sequence of steps)
@@ -52,12 +52,17 @@ class Application:
         client = dask.distributed.Client(self._dask_scheduler, timeout=5.0)
         client.forward_logging(LOGGER.name, level=logging.DEBUG)
         delayed_results = [
-            dask.delayed(self._process_ms_on_worker)(input_ms)
+            dask.delayed(self._process_ms_on_dask_worker)(input_ms)
             for input_ms in input_mses
         ]
         dask.compute(*delayed_results)
         client.close()
 
-    def _process_ms_on_worker(self, input_ms: Path):
+    def _process_ms_on_dask_worker(self, input_ms: Path):
         LOGGER.setLevel(logging.DEBUG)
-        self._pipeline.run(input_ms, self._output_dir / input_ms.name)
+        worker = dask.distributed.get_worker()
+        self._pipeline.run(
+            input_ms,
+            self._output_dir / input_ms.name,
+            numthreads=worker.state.nthreads,
+        )
