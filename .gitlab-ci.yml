@@ -19,10 +19,6 @@ include:
      - "gitlab-ci/includes/release.gitlab-ci.yml"
 
 python-lint:
-  image: ubuntu:24.04
-  stage: lint
-  tags:
-    - ${SKA_DEFAULT_RUNNER}
   before_script:
     - apt-get -y update
     - apt-get -y install make python3 pipx git
@@ -30,8 +26,6 @@ python-lint:
     - ls -la
     - 'make help | grep python-lint'
     - pipx install poetry
-    - poetry config virtualenvs.in-project true
-    - poetry config virtualenvs.create true
     - poetry install --all-extras
   script:
     - make python-lint
