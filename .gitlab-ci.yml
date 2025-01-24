@@ -1,6 +1,11 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DEBIAN_FRONTEND: "noninteractive"
+  CASACORE_VERSION: v3.6.0
+  AOFLAGGER_VERSION: b1256de90b00a5a83477274390decd6671cdcd38 
+  IDG_VERSION: 9ce6fa88b9d746d8d7146c474992aba9b98eb41f 
+  EVERYBEAM_VERSION: 0578473cacf64c69bc2e05e15754cf94dd1051b9 
+  DP3_VERSION: v6.2.1
 
 stages:
   - lint
@@ -37,7 +42,7 @@ include:
 .install-casacore: &install-casacore
   - |
     git clone https://github.com/casacore/casacore.git;
-    cd casacore && git checkout v3.6.0 && mkdir build && cd build;
+    cd casacore && git checkout ${CASACORE_VERSION} && mkdir build && cd build;
     cmake -DBUILD_PYTHON=OFF -DBUILD_TESTING=OFF -DDATA_DIR=/usr/share/casacore/data ..; 
     make -j `nproc` && make -j `nproc` install;
     cd ../.. && rm -rf ./casacore;
@@ -45,32 +50,31 @@ include:
 .install-aoflagger: &install-aoflagger
   - |
     git clone https://gitlab.com/aroffringa/aoflagger.git;
-    cd aoflagger && git checkout b1256de90b00a5a83477274390decd6671cdcd38 && mkdir build && cd build;
+    cd aoflagger && git checkout ${AOFLAGGER_VERSION} && mkdir build && cd build;
     cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr .. && ninja install;
     cd ../.. && rm -rf aoflagger;
 
 .install-idg: &install-idg
   - |
     git clone https://git.astron.nl/RD/idg.git;
-    cd idg && git checkout 9ce6fa88b9d746d8d7146c474992aba9b98eb41f && mkdir build && cd build;
+    cd idg && git checkout ${IDG_VERSION} && mkdir build && cd build;
     cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DPORTABLE=ON .. && ninja install;
     cd ../../ && rm -rf ./idg;
 
 .install-everybeam: &install-everybeam
   - |
     git clone https://git.astron.nl/RD/EveryBeam.git;
-    cd EveryBeam && git checkout 0578473cacf64c69bc2e05e15754cf94dd1051b9 && mkdir build && cd build;
+    cd EveryBeam && git checkout ${EVERYBEAM_VERSION} && mkdir build && cd build;
     cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DPYTHON_EXECUTABLE=/usr/bin/python3 .. && ninja install;
     cd ../.. && rm -rf ./EveryBeam;
 
 .install-dp3: &install-dp3
   - |
     git clone https://github.com/lofar-astron/DP3.git;
-    cd DP3 && mkdir build && cd build;
+    cd DP3 && git checkout ${DP3_VERSION} &&mkdir build && cd build;
     cmake .. && make -j `nproc` && make -j `nproc` install;
     cd ../.. && rm -rf ./DP3;
   - DP3 --version;
-
 
 python-lint:
   before_script:
@@ -86,6 +90,22 @@ python-lint:
       fi;
       echo "python-lint: Installing with poetry";
       time poetry install --all-extras;
+    - source "$(poetry env info --path)/bin/activate"
+
+docs-build:
+  before_script:
+    - '[ -f .make/docs.mk ] || (echo "File docs.mk not included in Makefile; exit 1")'
+    - 'make help | grep docs-build'
+    - poetry config virtualenvs.in-project true
+    - echo "docs-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
+    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
+    - |
+      if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
+        echo "docs-build: Updating poetry to $CI_POETRY_VERSION";
+        pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
+      fi;
+      echo "docs-build: Installing with poetry docs dependency group";
+      time poetry install --no-root --only docs;
     - source "$(poetry env info --path)/bin/activate"
 
 python-test:
