@@ -71,7 +71,7 @@ include:
   - |
     git clone https://github.com/lofar-astron/DP3.git;
     cd DP3 && git checkout ${DP3_VERSION} &&mkdir build && cd build;
-    cmake .. && make -j `nproc` && make -j `nproc` install;
+    cmake .. && make && make -j `nproc` install;
     cd ../.. && rm -rf ./DP3;
   - DP3 --version;
 
@@ -108,6 +108,7 @@ docs-build:
     - source "$(poetry env info --path)/bin/activate"
 
 python-test:
+  image: ubuntu:24.04
   before_script:
     - *install-packages
     - *install-casacore
