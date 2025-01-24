@@ -21,8 +21,13 @@ include:
 
 # Override python-test job to use a custom image 
 python-test:
-  image: saliei/aoflagger:1.0.0
+  image: saliei/aoflagger:1.1.0
   before_script:
+    - |
+      git clone https://github.com/casacore/casacore.git;
+      cd casacore && git checkout v3.6.0 && mkdir build && cd build;
+      cmake -DBUILD_PYTHON=OFF -DBUILD_TESTING=OFF -DDATA_DIR=/usr/share/casacore/data .. && make -j `nproc` make -j `nproc` install;
+      cd ../.. && rm -rf ./casacore;
     - |
       git clone https://git.astron.nl/RD/idg.git;
       cd idg && mkdir build && cd build;
@@ -35,7 +40,7 @@ python-test:
       cd ../.. && rm -rf ./EveryBeam
     - |
       git clone https://github.com/lofar-astron/DP3.git;
-      cd DP3 && mkdir build && cd build && cmake .. && make && make install;
+      cd DP3 && mkdir build && cd build && cmake .. && make -j `nproc` && make -j `nproc` install;
       cd ../.. && rm -rf ./DP3 && DP3 --version;
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
@@ -45,4 +50,3 @@ python-test:
     - echo "python-test - Installing with poetry"
     - time poetry install --all-extras
     - source .venv/bin/activate
-
