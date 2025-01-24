@@ -9,12 +9,9 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Iterable
 
-import dask
-import dask.distributed
-
 from ska_sdp_batch_preprocess import __version__
+from ska_sdp_batch_preprocess.application import Application
 from ska_sdp_batch_preprocess.logging_setup import configure_logger
-from ska_sdp_batch_preprocess.pipeline import Pipeline
 
 
 def make_parser() -> ArgumentParser:
@@ -80,7 +77,7 @@ def existing_directory(dirname: str) -> Path:
     Validate CLI argument that must be an existing directory.
     """
     path = Path(dirname)
-    if not (path.exists() and path.is_dir()):
+    if not path.is_dir():
         raise ArgumentTypeError(f"{dirname!r} must be an existing directory")
     return path
 
@@ -118,27 +115,15 @@ def run_program(cli_args: list[str]):
     Runs the batch preprocessing pipeline.
     """
     configure_logger()
-    parser = make_parser()
-    args = parser.parse_args(cli_args)
-
-    input_ms_list: list[Path] = args.input_ms
-    assert_no_duplicate_input_names(input_ms_list)
-
-    output_dir: Path = args.output_dir
-    pipeline = Pipeline.create(args.config, args.solutions_dir)
-
-    if args.dask_scheduler is not None:
-        client = dask.distributed.Client(args.dask_scheduler, timeout=5.0)
-        delayed_results = [
-            dask.delayed(pipeline.run)(input_ms, output_dir / input_ms.name)
-            for input_ms in input_ms_list
-        ]
-        dask.compute(*delayed_results)
-        client.close()
-
-    else:
-        for input_ms in input_ms_list:
-            pipeline.run(input_ms, output_dir / input_ms.name)
+    args = make_parser().parse_args(cli_args)
+    assert_no_duplicate_input_names(args.input_ms)
+    app = Application(
+        args.config,
+        args.output_dir,
+        solutions_dir=args.solutions_dir,
+        dask_scheduler=args.dask_scheduler,
+    )
+    app.process(args.input_ms)
 
 
 def main():
