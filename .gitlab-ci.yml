@@ -36,6 +36,7 @@ python-lint:
       echo "python-lint: Updating poetry to $CI_POETRY_VERSION";
       pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
       fi;
+      pipx install isort
 
       echo "python-lint: Installing with poetry";
       time poetry install --all-extras;
