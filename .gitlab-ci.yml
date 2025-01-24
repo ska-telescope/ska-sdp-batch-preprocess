@@ -25,7 +25,7 @@ include:
 
 .install-packages: &install-packages
   - | 
-    apt-get install -y \
+    apt-get update -y && apt-get install -y \
     bison build-essential clang-format-14 cmake doxygen curl \
     wget flex gcc g++ gcovr gfortran git libarmadillo-dev \
     libboost-date-time-dev libboost-filesystem-dev \
