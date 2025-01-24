@@ -32,7 +32,7 @@ python-lint:
       fi;
       echo "python-lint: Installing with poetry";
       time poetry install --all-extras;
-    - eval $(poetry env activate)
+    - source "$(poetry env info --path)/bin/activate"
 
   script:
     - make python-lint
