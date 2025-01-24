@@ -20,13 +20,10 @@ include:
 
 python-lint:
   before_script:
-    - apt-get -y update
-    - apt-get -y install make python3 pipx git
-    - pipx ensurepath && export PATH=$PATH:~/.local/bin 
-    - ls -la
     - 'make help | grep python-lint'
     - pipx install poetry
     - poetry install --all-extras
+    - eval `poetry env acitvate`
   script:
     - make python-lint
   artifacts:
