@@ -20,7 +20,7 @@ include:
      - "gitlab-ci/includes/release.gitlab-ci.yml"
 
 python-test:
-  image: ubuntu:24.04
+  image: saliei/base-ubuntu-24.04:1.0.0
   before_script:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
