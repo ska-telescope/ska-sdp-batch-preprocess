@@ -101,8 +101,4 @@ def _dp3_format_value(value: Any) -> str:
     if isinstance(value, bool):
         return "true" if value else "false"
 
-    # Make paths absolute so we can safely call DP3 from any working directory
-    if isinstance(value, Path):
-        return str(value.resolve())
-
     return str(value)
