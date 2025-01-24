@@ -27,9 +27,9 @@ python-lint:
   before_script:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile"; exit 1;)'
     - 'make help | grep python-lint'
-    - poetry config virtualenvs.in-project false
+    - poetry config virtualenvs.in-project true
     - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
-    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
+    - poetry config virtualenvs.create true
     - |
       if [[ -f pyproject.toml ]]; then
       if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
