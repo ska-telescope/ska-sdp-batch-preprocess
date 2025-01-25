@@ -121,9 +121,11 @@ def run_program(cli_args: list[str]):
         args.config,
         args.output_dir,
         solutions_dir=args.solutions_dir,
-        dask_scheduler=args.dask_scheduler,
     )
-    app.process(args.input_ms)
+    if args.dask_scheduler:
+        app.process_distributed(args.input_ms, args.dask_scheduler)
+    else:
+        app.process_sequentially(args.input_ms)
 
 
 def main():

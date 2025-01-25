@@ -9,7 +9,6 @@ from ska_sdp_batch_preprocess.logging_setup import LOGGER
 from ska_sdp_batch_preprocess.pipeline import Pipeline
 
 
-# pylint:disable=too-few-public-methods
 class Application:
     """
     Main application class. Applies the same pipeline (i.e. sequence of steps)
@@ -22,7 +21,6 @@ class Application:
         output_dir: Path,
         *,
         solutions_dir: Optional[Path] = None,
-        dask_scheduler: Optional[str] = None,
     ):
         """
         Create a new Application.
@@ -30,31 +28,29 @@ class Application:
         # All paths must be made absolute before being sent to dask workers,
         # because they may operate from a different working directory.
         self._output_dir = output_dir.resolve()
-        self._dask_scheduler = dask_scheduler
         solutions_dir = solutions_dir.resolve() if solutions_dir else None
         self._pipeline = Pipeline.create(config_file, solutions_dir)
 
-    def process(self, input_mses: Iterable[Path]):
+    def process_sequentially(self, input_mses: Iterable[Path]):
         """
-        Process the given MSv2 paths.
+        Process MeasurementSets sequentially.
         """
-        input_mses = map(Path.resolve, input_mses)
-        if self._dask_scheduler:
-            self._process_distributed(input_mses)
-        else:
-            self._process_sequentially(input_mses)
-
-    def _process_sequentially(self, input_mses: Iterable[Path]):
-        for input_ms in input_mses:
+        for input_ms in map(Path.resolve, input_mses):
             self._pipeline.run(input_ms, self._output_dir / input_ms.name)
 
-    def _process_distributed(self, input_mses: Iterable[Path]):
-        client = dask.distributed.Client(self._dask_scheduler, timeout=5.0)
+    def process_distributed(
+        self, input_mses: Iterable[Path], dask_scheduler: str
+    ):
+        """
+        Process MeasurementSets in parallel on a dask cluster, given its
+        scheduler network address.
+        """
+        client = dask.distributed.Client(dask_scheduler, timeout=5.0)
         client.forward_logging(LOGGER.name, level=logging.DEBUG)
         futures = client.compute(
             [
                 dask.delayed(self._process_ms_on_dask_worker)(input_ms)
-                for input_ms in input_mses
+                for input_ms in map(Path.resolve, input_mses)
             ]
         )
         dask.distributed.wait(futures)
