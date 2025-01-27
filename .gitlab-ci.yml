@@ -95,4 +95,3 @@ python-test:
       fi;
       echo "python-test: Installing with poetry";
       time poetry install --all-extras;
-    - source "$(poetry env info --path)/bin/activate"
