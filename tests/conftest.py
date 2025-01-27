@@ -14,7 +14,7 @@ def fixture_input_ms(
     polarisation channels.
     """
     archive = Path(__file__).parent / "data" / "mkt_ecdfs25_nano.ms.zip"
-    datasets_tmpdir = Path(tmp_path_factory.mktemp("xradio_datasets"))
+    datasets_tmpdir = Path(tmp_path_factory.mktemp("datasets"))
     # pylint: disable=consider-using-with
     zipfile.ZipFile(archive).extractall(datasets_tmpdir)
     return datasets_tmpdir / "mkt_ecdfs25_nano.ms"
