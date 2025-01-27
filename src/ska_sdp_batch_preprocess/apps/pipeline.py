@@ -19,23 +19,33 @@ def make_parser() -> ArgumentParser:
     parser = ArgumentParser(
         description="SKA Batch pre-processing pipeline",
         formatter_class=ArgumentDefaultsHelpFormatter,
+        add_help=False,
     )
-    parser.add_argument("--version", action="version", version=__version__)
-    parser.add_argument(
+
+    required = parser.add_argument_group("required arguments")
+    required.add_argument(
         "-c",
         "--config",
         type=Path,
         required=True,
         help="YAML configuration file",
     )
-    parser.add_argument(
+    required.add_argument(
         "-o",
         "--output-dir",
         type=existing_directory,
         required=True,
         help=("Output directory where the pre-processed data will be written"),
     )
-    parser.add_argument(
+    required.add_argument(
+        "input_ms",
+        type=existing_directory,
+        nargs="+",
+        help="Input measurement set(s)",
+    )
+
+    optional = parser.add_argument_group("optional arguments")
+    optional.add_argument(
         "-s",
         "--solutions-dir",
         type=existing_directory,
@@ -46,19 +56,17 @@ def make_parser() -> ArgumentParser:
             "directory."
         ),
     )
-    parser.add_argument(
+    optional.add_argument(
         "--dask-scheduler",
         help=(
             "Network address of the dask scheduler to use for distribution; "
             "format is HOST:PORT"
         ),
     )
-    parser.add_argument(
-        "input_ms",
-        type=existing_directory,
-        nargs="+",
-        help="Input measurement set(s)",
+    optional.add_argument(
+        "-h", "--help", action="help", help="show this help message and exit"
     )
+    optional.add_argument("--version", action="version", version=__version__)
     return parser
 
 
