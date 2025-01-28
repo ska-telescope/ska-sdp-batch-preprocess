@@ -1,3 +1,4 @@
+import itertools
 import sys
 import warnings
 from argparse import (
@@ -5,7 +6,9 @@ from argparse import (
     ArgumentParser,
     ArgumentTypeError,
 )
+from collections import defaultdict
 from pathlib import Path
+from typing import Iterable
 
 from ska_sdp_batch_preprocess import __version__
 from ska_sdp_batch_preprocess.logging_setup import configure_logger
@@ -80,6 +83,34 @@ def existing_directory(dirname: str) -> Path:
     return path
 
 
+def assert_no_duplicate_input_names(paths: Iterable[Path]):
+    """
+    Given input paths, raise ValueError if any two paths have the same name,
+    i.e. the same last component.
+
+    We have to run this check on input MS paths, because two input MSes with
+    different paths but identical names would correspond to the same output
+    path.
+    """
+    name_to_full_path_mapping: dict[str, list[str]] = defaultdict(list)
+    for path in paths:
+        name_to_full_path_mapping[path.name].append(str(path.resolve()))
+
+    duplicate_paths = list(
+        itertools.chain.from_iterable(
+            path_list
+            for path_list in name_to_full_path_mapping.values()
+            if len(path_list) > 1
+        )
+    )
+
+    if duplicate_paths:
+        lines = [
+            "There are duplicate input MS names. Offending paths: "
+        ] + duplicate_paths
+        raise ValueError("\n".join(lines))
+
+
 def run_program(cli_args: list[str]):
     """
     Runs the batch preprocessing pipeline.
@@ -95,8 +126,9 @@ def run_program(cli_args: list[str]):
         )
 
     input_ms_list: list[Path] = args.input_ms
-    output_dir: Path = args.output_dir
+    assert_no_duplicate_input_names(input_ms_list)
 
+    output_dir: Path = args.output_dir
     pipeline = Pipeline.create(args.config, args.solutions_dir)
 
     for input_ms in input_ms_list:
