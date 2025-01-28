@@ -1,17 +1,7 @@
 import os
-from typing import Any, Iterable
 
 import casacore.tables
 from numpy.typing import NDArray
-
-
-def make_config(h5parm_filenames: Iterable[str]) -> dict[str, Any]:
-    """
-    Make a pipeline configuration dictionary with one ApplyCal step per given
-    h5parm file.
-    """
-    steps = [{"applycal": {"parmdb": fname}} for fname in h5parm_filenames]
-    return {"steps": steps}
 
 
 def getcol(path: str | os.PathLike, table_name: str, col_name: str):
