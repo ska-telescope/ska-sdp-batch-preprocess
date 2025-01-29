@@ -41,27 +41,29 @@ class Application:
         self._pipeline = Pipeline.create(config_file, solutions_dir)
 
     def process(
-        self, input_mses: Iterable[Path], dask_scheduler: Optional[str] = None
+        self,
+        measurement_sets: Iterable[Path],
+        dask_scheduler: Optional[str] = None,
     ):
         """
         Process a list of measurement sets, sequentially or using a dask
         cluster if the network address of its scheduler is given via
         the `dask_scheduler` argument.
         """
-        assert_no_duplicate_input_names(input_mses)
-        input_mses = map(Path.resolve, input_mses)
+        assert_no_duplicate_input_names(measurement_sets)
+        measurement_sets = map(Path.resolve, measurement_sets)
 
         if dask_scheduler:
-            self._process_distributed(input_mses, dask_scheduler)
+            self._process_distributed(measurement_sets, dask_scheduler)
         else:
-            self._process_sequentially(input_mses)
+            self._process_sequentially(measurement_sets)
 
-    def _process_sequentially(self, input_mses: Iterable[Path]):
-        for input_ms in input_mses:
-            self._pipeline.run(input_ms, self._output_dir / input_ms.name)
+    def _process_sequentially(self, absolute_ms_paths: Iterable[Path]):
+        for path in absolute_ms_paths:
+            self._pipeline.run(path, self._output_dir / path.name)
 
     def _process_distributed(
-        self, input_mses: Iterable[Path], dask_scheduler: str
+        self, absolute_ms_paths: Iterable[Path], dask_scheduler: str
     ):
         client = dask.distributed.Client(dask_scheduler, timeout=5.0)
         _assert_at_least_one_worker_with_subprocess_resource(client)
@@ -69,18 +71,18 @@ class Application:
 
         with dask.annotate(resources={SUBPROCESS_RESOURCE: 1}):
             delayed_list = [
-                dask.delayed(self._process_ms_on_dask_worker)(input_ms)
-                for input_ms in input_mses
+                dask.delayed(self._process_ms_on_dask_worker)(path)
+                for path in absolute_ms_paths
             ]
         futures = client.compute(delayed_list)
         dask.distributed.wait(futures)
 
-    def _process_ms_on_dask_worker(self, input_ms: Path):
+    def _process_ms_on_dask_worker(self, absolute_ms_path: Path):
         LOGGER.setLevel(logging.DEBUG)
         worker = dask.distributed.get_worker()
         self._pipeline.run(
-            input_ms,
-            self._output_dir / input_ms.name,
+            absolute_ms_path,
+            self._output_dir / absolute_ms_path.name,
             numthreads=worker.state.nthreads,
         )
 
