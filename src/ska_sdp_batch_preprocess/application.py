@@ -48,7 +48,9 @@ class Application:
         cluster if the network address of its scheduler is given via
         the `dask_scheduler` argument.
         """
-        input_mses = validate_and_make_input_paths_absolute(input_mses)
+        assert_no_duplicate_input_names(input_mses)
+        input_mses = map(Path.resolve, input_mses)
+
         if dask_scheduler:
             self._process_distributed(input_mses, dask_scheduler)
         else:
@@ -83,27 +85,23 @@ class Application:
         )
 
 
-def validate_and_make_input_paths_absolute(
-    paths: Iterable[Path],
-) -> list[Path]:
+def assert_no_duplicate_input_names(paths: Iterable[Path]):
     """
-    Check that there are no two paths with the same name (i.e. the same last
-    component), and make paths absolutie.
+    Given input paths, raise ValueError if any two paths have the same name,
+    i.e. the same last component.
 
     We have to run this check on input MS paths, because two input MSes with
     different paths but identical names would correspond to the same output
     path.
     """
-    absolute_paths = list(map(Path.resolve, paths))
-
-    name_to_path_mapping: dict[str, list[str]] = defaultdict(list)
-    for abspath in absolute_paths:
-        name_to_path_mapping[abspath.name].append(str(abspath))
+    name_to_full_path_mapping: dict[str, list[str]] = defaultdict(list)
+    for path in paths:
+        name_to_full_path_mapping[path.name].append(str(path.resolve()))
 
     duplicate_paths = list(
         itertools.chain.from_iterable(
             path_list
-            for path_list in name_to_path_mapping.values()
+            for path_list in name_to_full_path_mapping.values()
             if len(path_list) > 1
         )
     )
@@ -113,8 +111,6 @@ def validate_and_make_input_paths_absolute(
             "There are duplicate input MS names. Offending paths: "
         ] + duplicate_paths
         raise ValueError("\n".join(lines))
-
-    return absolute_paths
 
 
 def _assert_at_least_one_worker_with_subprocess_resource(
