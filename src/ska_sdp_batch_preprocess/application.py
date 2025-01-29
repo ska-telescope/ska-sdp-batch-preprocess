@@ -17,6 +17,7 @@ run simultaneously by dask workers.
 """
 
 
+# pylint:disable=too-few-public-methods
 class Application:
     """
     Main application class. Applies the same pipeline (i.e. sequence of steps)
@@ -39,22 +40,27 @@ class Application:
         solutions_dir = solutions_dir.resolve() if solutions_dir else None
         self._pipeline = Pipeline.create(config_file, solutions_dir)
 
-    def process_sequentially(self, input_mses: Iterable[Path]):
-        """
-        Process MeasurementSets sequentially.
-        """
-        assert_no_duplicate_input_names(input_mses)
-        for input_ms in map(Path.resolve, input_mses):
-            self._pipeline.run(input_ms, self._output_dir / input_ms.name)
-
-    def process_distributed(
-        self, input_mses: Iterable[Path], dask_scheduler: str
+    def process(
+        self, input_mses: Iterable[Path], dask_scheduler: Optional[str] = None
     ):
         """
-        Process MeasurementSets in parallel on a dask cluster, given its
-        scheduler network address.
+        Process a list of measurement sets, sequentially or using a dask
+        cluster if the network address of its scheduler is given via
+        the `dask_scheduler` argument.
         """
-        assert_no_duplicate_input_names(input_mses)
+        input_mses = validate_and_make_input_paths_absolute(input_mses)
+        if dask_scheduler:
+            self._process_distributed(input_mses, dask_scheduler)
+        else:
+            self._process_sequentially(input_mses)
+
+    def _process_sequentially(self, input_mses: Iterable[Path]):
+        for input_ms in input_mses:
+            self._pipeline.run(input_ms, self._output_dir / input_ms.name)
+
+    def _process_distributed(
+        self, input_mses: Iterable[Path], dask_scheduler: str
+    ):
         client = dask.distributed.Client(dask_scheduler, timeout=5.0)
         _assert_at_least_one_worker_with_subprocess_resource(client)
         client.forward_logging(LOGGER.name, level=logging.DEBUG)
@@ -62,7 +68,7 @@ class Application:
         with dask.annotate(resources={SUBPROCESS_RESOURCE: 1}):
             delayed_list = [
                 dask.delayed(self._process_ms_on_dask_worker)(input_ms)
-                for input_ms in map(Path.resolve, input_mses)
+                for input_ms in input_mses
             ]
         futures = client.compute(delayed_list)
         dask.distributed.wait(futures)
@@ -77,23 +83,27 @@ class Application:
         )
 
 
-def assert_no_duplicate_input_names(paths: Iterable[Path]):
+def validate_and_make_input_paths_absolute(
+    paths: Iterable[Path],
+) -> list[Path]:
     """
-    Given input paths, raise ValueError if any two paths have the same name,
-    i.e. the same last component.
+    Check that there are no two paths with the same name (i.e. the same last
+    component), and make paths absolutie.
 
     We have to run this check on input MS paths, because two input MSes with
     different paths but identical names would correspond to the same output
     path.
     """
-    name_to_full_path_mapping: dict[str, list[str]] = defaultdict(list)
-    for path in paths:
-        name_to_full_path_mapping[path.name].append(str(path.resolve()))
+    absolute_paths = list(map(Path.resolve, paths))
+
+    name_to_path_mapping: dict[str, list[str]] = defaultdict(list)
+    for abspath in absolute_paths:
+        name_to_path_mapping[abspath.name].append(str(abspath))
 
     duplicate_paths = list(
         itertools.chain.from_iterable(
             path_list
-            for path_list in name_to_full_path_mapping.values()
+            for path_list in name_to_path_mapping.values()
             if len(path_list) > 1
         )
     )
@@ -103,6 +113,8 @@ def assert_no_duplicate_input_names(paths: Iterable[Path]):
             "There are duplicate input MS names. Offending paths: "
         ] + duplicate_paths
         raise ValueError("\n".join(lines))
+
+    return absolute_paths
 
 
 def _assert_at_least_one_worker_with_subprocess_resource(

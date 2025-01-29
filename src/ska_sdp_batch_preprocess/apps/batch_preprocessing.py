@@ -90,10 +90,7 @@ def run_program(cli_args: list[str]):
         args.output_dir,
         solutions_dir=args.solutions_dir,
     )
-    if args.dask_scheduler:
-        app.process_distributed(args.input_ms, args.dask_scheduler)
-    else:
-        app.process_sequentially(args.input_ms)
+    app.process(args.input_ms, args.dask_scheduler)
 
 
 def main():
