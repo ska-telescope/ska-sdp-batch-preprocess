@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.1.0 - 2025-01-29
+
+ApplyCal step is now available to run.
+
+### Added
+
+- Ability to run ApplyCal step
+- CLI arguments are now grouped into "required" and "optional" groups, which makes the
+  batch pre-processing app help text clearer.
+
+### Fixed
+
+- The pipeline now checks that there are no duplicate input MeasurementSet names; if there are,
+  it raises an error. This is necessary because two input paths `dir1/data.ms` and `dir2/data.ms`
+  correspond to the same pre-processed output path. Previously, such a situation would have
+  resulted in either a crash or some output measurement sets being overwritten.
+
+
 ## 2.0.0 - 2025-01-20
 
 Preliminary release following a complete rewrite. The batch pre-processing pipeline now wraps DP3.
@@ -7,6 +25,7 @@ Preliminary release following a complete rewrite. The batch pre-processing pipel
 ### Added
 
 - Command line app can now be called via the command `ska-sdp-batch-preprocess`
+- Ability to run PreFlagger step
 - Ability to run AOFlagger step
 
 ### Changed
