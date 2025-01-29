@@ -1,4 +1,6 @@
+import itertools
 import logging
+from collections import defaultdict
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
@@ -41,6 +43,7 @@ class Application:
         """
         Process MeasurementSets sequentially.
         """
+        assert_no_duplicate_input_names(input_mses)
         for input_ms in map(Path.resolve, input_mses):
             self._pipeline.run(input_ms, self._output_dir / input_ms.name)
 
@@ -51,6 +54,7 @@ class Application:
         Process MeasurementSets in parallel on a dask cluster, given its
         scheduler network address.
         """
+        assert_no_duplicate_input_names(input_mses)
         client = dask.distributed.Client(dask_scheduler, timeout=5.0)
         _assert_at_least_one_worker_with_subprocess_resource(client)
         client.forward_logging(LOGGER.name, level=logging.DEBUG)
@@ -71,6 +75,34 @@ class Application:
             self._output_dir / input_ms.name,
             numthreads=worker.state.nthreads,
         )
+
+
+def assert_no_duplicate_input_names(paths: Iterable[Path]):
+    """
+    Given input paths, raise ValueError if any two paths have the same name,
+    i.e. the same last component.
+
+    We have to run this check on input MS paths, because two input MSes with
+    different paths but identical names would correspond to the same output
+    path.
+    """
+    name_to_full_path_mapping: dict[str, list[str]] = defaultdict(list)
+    for path in paths:
+        name_to_full_path_mapping[path.name].append(str(path.resolve()))
+
+    duplicate_paths = list(
+        itertools.chain.from_iterable(
+            path_list
+            for path_list in name_to_full_path_mapping.values()
+            if len(path_list) > 1
+        )
+    )
+
+    if duplicate_paths:
+        lines = [
+            "There are duplicate input MS names. Offending paths: "
+        ] + duplicate_paths
+        raise ValueError("\n".join(lines))
 
 
 def _assert_at_least_one_worker_with_subprocess_resource(
