@@ -94,17 +94,26 @@ def read_soltab_from_h5py_group(group: h5py.Group) -> Soltab:
     return Soltab(name, title, dimensions, val, weight)
 
 
+def read_bytes_attribute_as_string(obj: h5py.HLObject, attr_name: str) -> str:
+    """
+    Used to validate and read either the TITLE attribute of a soltab, or the
+    AXES attribute of a val or weight dataset.
+    """
+    attr: np.bytes_ = obj.attrs.get(attr_name, None)
+    _assert(attr, f"Group/Dataset {obj.name} has no {attr_name} attribute")
+    _assert(
+        isinstance(attr, np.bytes_),
+        f"The attribute {attr_name} of Group/Dataset {obj.name} should be"
+        "of type np.bytes_",
+    )
+    return attr.decode()
+
+
 def read_soltab_title(group: h5py.Group) -> str:
     """
-    Validate and read TITLE attribute as a string.
+    Validate and read a soltab's TITLE attribute.
     """
-    title: np.bytes_ = group.attrs.get("TITLE", None)
-    _assert(title, f"Soltab {group.name} has no TITLE attribute")
-    _assert(
-        isinstance(title, np.bytes_),
-        f"Soltab {group.name} has a TITLE that isn't of type np.bytes_",
-    )
-    return title.decode()
+    return read_bytes_attribute_as_string(group, "TITLE")
 
 
 def read_dimensions(group: h5py.Group) -> dict[str, int]:
@@ -162,14 +171,8 @@ def read_dataset_axis_names(ds: h5py.Dataset) -> tuple[str]:
     """
     Read the axis names of dataset "val" or "weight" from their AXES attribute.
     """
-    axes: np.bytes_ = ds.attrs.get("AXES", None)
-    _assert(axes, f"Dataset {ds.name} has no AXES attribute")
-    _assert(
-        isinstance(axes, np.bytes_),
-        f"Dataset {ds.name} has an AXES attribute that isn't of type "
-        "np.bytes_",
-    )
-    axis_names = tuple(axes.decode().split(","))
+    axes = read_bytes_attribute_as_string(ds, "AXES")
+    axis_names = tuple(axes.split(","))
     _assert(
         set(axis_names).issubset(VALID_AXIS_NAMES),
         f"Dataset {ds.name} has an AXES attribute that contains invalid axis "
