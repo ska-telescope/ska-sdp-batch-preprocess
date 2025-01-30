@@ -57,13 +57,22 @@ class Soltab:
 
         _assert(
             val.shape == weight.shape,
-            f"The val and weight datasets of Soltab {group.name} have "
+            f"The val and weight datasets of Soltab {group.name!r} have "
             "different shapes",
         )
         _assert(
             val.axes == weight.axes,
-            f"The val and weight datasets of Soltab {group.name} have "
+            f"The val and weight datasets of Soltab {group.name!r} have "
             "different axes",
+        )
+
+        metadata_shape = tuple(axes[key].length for key in val.axes)
+        _assert(
+            val.shape == metadata_shape,
+            f"Soltab {group.name!r} has val and weight datasets of shape "
+            f"{val.shape!r} with axes {val.axes!r}, but this is inconsistent "
+            f"with the length of the axes which specify shape "
+            f"{metadata_shape!r}",
         )
         return Soltab(name, title, axes, val, weight)
 
