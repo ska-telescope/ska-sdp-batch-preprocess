@@ -13,7 +13,7 @@ RESERVED_SOLSET_TOP_LEVEL_KEYS = {"antenna", "source"}
 class Dataset:
     name: str
     shape: tuple[int]
-    axes: tuple[str]
+    axis_names: tuple[str]
 
 
 @dataclass
@@ -44,17 +44,17 @@ class Soltab:
             "different shapes",
         )
         _assert(
-            val.axes == weight.axes,
+            val.axis_names == weight.axis_names,
             f"The val and weight datasets of Soltab {group.name!r} have "
             "different axes",
         )
 
-        metadata_shape = tuple(axes[key].length for key in val.axes)
+        metadata_shape = tuple(axes[key].length for key in val.axis_names)
         _assert(
             val.shape == metadata_shape,
             f"Soltab {group.name!r} has val and weight datasets of shape "
-            f"{val.shape!r} with axes {val.axes!r}, but this is inconsistent "
-            f"with the length of the axes which specify shape "
+            f"{val.shape!r} with axes {val.axis_names!r}, but this is inconsistent "
+            f"with the length of the axes which specify a shape of "
             f"{metadata_shape!r}",
         )
         return Soltab(name, title, axes, val, weight)
@@ -191,3 +191,11 @@ class InvalidH5Parm(Exception):
 def _assert(condition: bool, error_message: str):
     if not condition:
         raise InvalidH5Parm(error_message)
+
+
+if __name__ == "__main__":
+    parm = H5Parm.from_file("/home/vince/work/selfcal/batch_preprocessing/problem_h5parm_jan29/bandpass-slurm-2083.h5parm")
+
+    for soltab in parm.soltabs:
+        print(soltab)
+        print()
