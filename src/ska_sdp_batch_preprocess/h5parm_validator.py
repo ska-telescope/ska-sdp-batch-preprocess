@@ -7,6 +7,7 @@ import numpy as np
 VALID_DATASET_NAMES = {"val", "weight"}
 VALID_AXIS_NAMES = {"time", "freq", "ant", "pol", "dir"}
 RESERVED_SOLSET_TOP_LEVEL_KEYS = {"antenna", "source"}
+VALID_POL_AXIS_LENGTHS = {1, 2, 4}
 
 
 class InvalidH5Parm(Exception):
@@ -82,6 +83,13 @@ def read_soltab_from_h5py_group(group: h5py.Group) -> Soltab:
         f"{val.shape!r} with axes {val.axis_names!r}; this is "
         f"inconsistent with the length of the axes which specify a shape "
         f"of {metadata_shape!r}",
+    )
+
+    pol_dim = dimensions.get("pol", 1)
+    _assert(
+        pol_dim in VALID_POL_AXIS_LENGTHS,
+        f"pol dimension length is {pol_dim} but should be one of "
+        f"{VALID_POL_AXIS_LENGTHS}"
     )
     return Soltab(name, title, dimensions, val, weight)
 
@@ -207,3 +215,4 @@ if __name__ == "__main__":
     parm = H5Parm.from_file(
         "/home/vince/work/selfcal/batch_preprocessing/problem_h5parm_jan29/bandpass-slurm-2083.h5parm"
     )
+    print(parm)
