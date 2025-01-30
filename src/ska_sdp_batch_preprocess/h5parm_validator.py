@@ -31,15 +31,10 @@ class Dataset:
 
 
 @dataclass
-class Axis:
-    length: int
-
-
-@dataclass
 class Soltab:
     name: str
     title: str
-    axes: dict[str, Axis]
+    dimensions: dict[str, int]
     val: Dataset
     weight: Dataset
 
@@ -65,7 +60,7 @@ def read_soltab_from_h5py_group(group: h5py.Group) -> Soltab:
     """
     _, name = os.path.split(group.name)
     title = read_soltab_title(group)
-    axes = read_all_axes(group)
+    dimensions = read_dimensions(group)
     val = read_dataset(group, "val")
     weight = read_dataset(group, "weight")
 
@@ -80,7 +75,7 @@ def read_soltab_from_h5py_group(group: h5py.Group) -> Soltab:
         "different axes",
     )
 
-    metadata_shape = tuple(axes[key].length for key in val.axis_names)
+    metadata_shape = tuple(dimensions[key] for key in val.axis_names)
     _assert(
         val.shape == metadata_shape,
         f"Soltab {group.name!r} has val and weight datasets of shape "
@@ -88,7 +83,7 @@ def read_soltab_from_h5py_group(group: h5py.Group) -> Soltab:
         f"inconsistent with the length of the axes which specify a shape "
         f"of {metadata_shape!r}",
     )
-    return Soltab(name, title, axes, val, weight)
+    return Soltab(name, title, dimensions, val, weight)
 
 
 def read_soltab_title(group: h5py.Group) -> str:
@@ -104,9 +99,10 @@ def read_soltab_title(group: h5py.Group) -> str:
     return title.decode()
 
 
-def read_all_axes(group: h5py.Group) -> dict[str, Axis]:
+def read_dimensions(group: h5py.Group) -> dict[str, int]:
     """
-    Validate and read all soltab axes.
+    Validate and read all soltab axes, return the dimensions specified by the
+    axes as a dictionary {axis_name: length of axis}.
     """
     axis_keys = set(group.keys()).difference(VALID_DATASET_NAMES)
     _assert(
@@ -126,7 +122,7 @@ def read_all_axes(group: h5py.Group) -> dict[str, Axis]:
             member.ndim == 1,
             f"Axis {key!r} in soltab {group.name} should have 1 dimension",
         )
-        axes[key] = Axis(member.size)
+        axes[key] = member.size
     return axes
 
 
