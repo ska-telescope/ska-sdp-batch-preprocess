@@ -7,7 +7,7 @@ from typing import Any, Iterable, Optional
 import yaml
 from jsonschema import Draft202012Validator, ValidationError
 
-from ska_sdp_batch_preprocess.h5parm import H5Parm
+from ska_sdp_batch_preprocess.h5parm import H5Parm, InvalidH5Parm
 
 
 def _schemas_dir() -> Path:
@@ -99,10 +99,15 @@ def prepare_applycal_step(
     if not parmdb.is_absolute() and solutions_dir is not None:
         parmdb = solutions_dir / parmdb
 
-    h5parm = H5Parm.from_file(parmdb)
+    try:
+        h5parm = H5Parm.from_file(parmdb)
+    except InvalidH5Parm as err:
+        # Catch and re-raise to show the H5Parm file path in the error message
+        updated_msg = f"{parmdb!r} is invalid, reason: {str(err)}"
+        raise InvalidH5Parm(updated_msg) from err
 
     if h5parm.is_fulljones:
-        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.solution_type)
+        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.title)
         params = step.params | {
             "parmdb": parmdb,
             "correction": "fulljones",
@@ -118,7 +123,7 @@ def prepare_applycal_step(
         return Step(type="applycal", params=params)
 
     if len(h5parm.soltabs) == 2:
-        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.solution_type)
+        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.title)
         params = step.params | {
             "parmdb": parmdb,
             "steps": ["amp", "phase"],
@@ -127,7 +132,7 @@ def prepare_applycal_step(
         }
         return Step(type="applycal", params=params)
 
-    raise ValidationError(
+    raise InvalidH5Parm(
         f"Failed to prepare applycal step: H5Parm {str(parmdb)!r} "
         "has unexpected schema"
     )
