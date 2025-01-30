@@ -53,9 +53,9 @@ class Soltab:
         _assert(
             val.shape == metadata_shape,
             f"Soltab {group.name!r} has val and weight datasets of shape "
-            f"{val.shape!r} with axes {val.axis_names!r}, but this is inconsistent "
-            f"with the length of the axes which specify a shape of "
-            f"{metadata_shape!r}",
+            f"{val.shape!r} with axes {val.axis_names!r}; this is "
+            f"inconsistent with the length of the axes which specify a shape "
+            f"of {metadata_shape!r}",
         )
         return Soltab(name, title, axes, val, weight)
 
@@ -187,7 +187,8 @@ def _assert(condition: bool, error_message: str):
 
 
 if __name__ == "__main__":
-    parm = H5Parm.from_file("/home/vince/work/selfcal/batch_preprocessing/problem_h5parm_jan29/bandpass-slurm-2083.h5parm")
+    #parm = H5Parm.from_file("/home/vince/work/selfcal/batch_preprocessing/problem_h5parm_jan29/bandpass-slurm-2083.h5parm")
+    parm = H5Parm.from_file("/home/vince/work/selfcal/batch_preprocessing/applycal_experiments/table_twos.h5parm")
 
     for soltab in parm.soltabs:
         print(soltab)
