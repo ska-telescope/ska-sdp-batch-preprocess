@@ -133,12 +133,20 @@ def read_dataset(group: h5py.Group, key: str) -> Dataset:
     _assert(
         key in group.keys(), f"Soltab {group.name!r} has no {key!r} member"
     )
+
     member: h5py.Dataset = group[key]
     _assert(
         isinstance(member, h5py.Dataset),
         f"{key!r} in soltab {group.name!r} is not an HDF5 Dataset",
     )
+
     axis_names = read_dataset_axis_names(member)
+    _assert(
+        len(axis_names) == member.ndim,
+        f"{key!r} dataset in soltab {group.name!r} has {member.ndim} "
+        f"dimensions, but its AXES attribute specifies {len(axis_names)} "
+        "dimensions.",
+    )
     return Dataset(member.shape, axis_names)
 
 
