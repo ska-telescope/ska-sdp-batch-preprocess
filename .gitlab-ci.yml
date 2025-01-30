@@ -98,5 +98,5 @@ python-test:
 
 python-publish-to-gitlab:
   script:
-    - twine upload --username ${PYTHON_PUBLISH_USERNAME} --password ${PYTHON_PUBLISH_PASSWORD} --repository-url $(PYTHON_PUBLISH_URL) dist/* --skip-existing
+    - twine upload --username ${PYTHON_PUBLISH_USERNAME} --password ${PYTHON_PUBLISH_PASSWORD} --repository-url ${PYTHON_PUBLISH_URL} dist/* --skip-existing
 
