@@ -23,6 +23,9 @@ def _assert(condition: bool, error_message: str):
 
 @dataclass
 class Dataset:
+    """
+    Holds the attributes of either the "val" or "weight" dataset in a Soltab.
+    """
     name: str
     shape: tuple[int]
     axis_names: tuple[str]
