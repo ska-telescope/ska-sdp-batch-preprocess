@@ -144,9 +144,6 @@ class H5Parm:
 
     soltabs: tuple[Soltab]
 
-    def __post_init__(self):
-        pass
-
     @classmethod
     def from_file(cls, path: str | os.PathLike) -> "H5Parm":
         with h5py.File(path, "r") as file:
@@ -175,10 +172,6 @@ class H5Parm:
 
         soltabs = tuple(map(Soltab._from_h5py_group, soltab_items.values()))
         return cls(soltabs)
-
-    @property
-    def is_fulljones(self) -> bool:
-        pass
 
 
 class InvalidH5Parm(Exception):
