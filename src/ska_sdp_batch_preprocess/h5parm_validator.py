@@ -1,20 +1,3 @@
-"""
-Solset
-    Soltab
-        TITLE 
-        axes (time, freq, ant, pol, dir)
-        val
-            AXES
-        weight
-            AXES
-
-
-Dataset
-    shape
-    axes
-
-"""
-
 import os
 from dataclasses import dataclass
 
