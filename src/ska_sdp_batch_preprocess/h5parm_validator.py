@@ -47,7 +47,6 @@ class Soltab:
     val: Dataset
     weight: Dataset
 
-
     @classmethod
     def _from_h5py_group(cls, group: h5py.Group) -> "Soltab":
         _, name = os.path.split(group.name)
@@ -110,7 +109,8 @@ def read_dataset(group: h5py.Group, key: str) -> Dataset:
         f"{key!r} in soltab {group.name!r} is not an HDF5 Dataset",
     )
     axis_names = read_dataset_axis_names(member)
-    return Dataset(member.name, member.shape, axis_names)
+    _, dataset_name = os.path.split(member.name)
+    return Dataset(dataset_name, member.shape, axis_names)
 
 
 def read_dataset_axis_names(ds: h5py.Dataset) -> tuple[str]:
