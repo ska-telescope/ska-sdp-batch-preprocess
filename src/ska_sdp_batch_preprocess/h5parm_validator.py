@@ -54,6 +54,17 @@ class Soltab:
         axes = read_all_axes(group)
         val = read_dataset(group, "val")
         weight = read_dataset(group, "weight")
+
+        _assert(
+            val.shape == weight.shape,
+            f"The val and weight datasets of Soltab {group.name} have "
+            "different shapes",
+        )
+        _assert(
+            val.axes == weight.axes,
+            f"The val and weight datasets of Soltab {group.name} have "
+            "different axes",
+        )
         return Soltab(name, title, axes, val, weight)
 
 
