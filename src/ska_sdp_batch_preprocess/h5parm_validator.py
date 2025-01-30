@@ -9,6 +9,18 @@ VALID_AXIS_NAMES = {"time", "freq", "ant", "pol", "dir"}
 RESERVED_SOLSET_TOP_LEVEL_KEYS = {"antenna", "source"}
 
 
+class InvalidH5Parm(Exception):
+    """
+    Raised when the schema/layout of an H5Parm file does not conform to
+    expectations.
+    """
+
+
+def _assert(condition: bool, error_message: str):
+    if not condition:
+        raise InvalidH5Parm(error_message)
+
+
 @dataclass
 class Dataset:
     name: str
@@ -29,6 +41,21 @@ class Soltab:
     axes: dict[str, Axis]
     val: Dataset
     weight: Dataset
+
+
+@dataclass
+class H5Parm:
+    """
+    Class that reads and validates the schema of a single-solset H5Parm.
+    """
+
+    soltabs: tuple[Soltab]
+
+    @classmethod
+    def from_file(cls, path: str | os.PathLike) -> "H5Parm":
+        with h5py.File(path, "r") as file:
+            soltabs = read_soltabs_of_single_solset_h5parm(file)
+            return cls(soltabs)
 
 
 def read_soltab_from_h5py_group(group: h5py.Group) -> Soltab:
@@ -139,21 +166,6 @@ def read_dataset_axis_names(ds: h5py.Dataset) -> tuple[str]:
     return axis_names
 
 
-@dataclass
-class H5Parm:
-    """
-    Class that reads and validates the schema of a single-solset H5Parm.
-    """
-
-    soltabs: tuple[Soltab]
-
-    @classmethod
-    def from_file(cls, path: str | os.PathLike) -> "H5Parm":
-        with h5py.File(path, "r") as file:
-            soltabs = read_soltabs_of_single_solset_h5parm(file)
-            return cls(soltabs)
-
-
 def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> H5Parm:
     """
     Validate and read a single-solset H5Parm from an open h5py.File object.
@@ -177,18 +189,6 @@ def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> H5Parm:
     }
     _assert(soltab_items, f"Solset {solset.name!r} contains no soltabs")
     return tuple(map(read_soltab_from_h5py_group, soltab_items.values()))
-
-
-class InvalidH5Parm(Exception):
-    """
-    Raised when the schema/layout of an H5Parm file does not conform to
-    expectations.
-    """
-
-
-def _assert(condition: bool, error_message: str):
-    if not condition:
-        raise InvalidH5Parm(error_message)
 
 
 if __name__ == "__main__":
