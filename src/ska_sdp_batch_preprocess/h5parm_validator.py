@@ -30,34 +30,37 @@ class Soltab:
     val: Dataset
     weight: Dataset
 
-    @classmethod
-    def _from_h5py_group(cls, group: h5py.Group) -> "Soltab":
-        _, name = os.path.split(group.name)
-        title = read_soltab_title(group)
-        axes = read_all_axes(group)
-        val = read_dataset(group, "val")
-        weight = read_dataset(group, "weight")
 
-        _assert(
-            val.shape == weight.shape,
-            f"The val and weight datasets of Soltab {group.name!r} have "
-            "different shapes",
-        )
-        _assert(
-            val.axis_names == weight.axis_names,
-            f"The val and weight datasets of Soltab {group.name!r} have "
-            "different axes",
-        )
+def read_soltab_from_h5py_group(group: h5py.Group) -> Soltab:
+    """
+    Self-explanatory.
+    """
+    _, name = os.path.split(group.name)
+    title = read_soltab_title(group)
+    axes = read_all_axes(group)
+    val = read_dataset(group, "val")
+    weight = read_dataset(group, "weight")
 
-        metadata_shape = tuple(axes[key].length for key in val.axis_names)
-        _assert(
-            val.shape == metadata_shape,
-            f"Soltab {group.name!r} has val and weight datasets of shape "
-            f"{val.shape!r} with axes {val.axis_names!r}; this is "
-            f"inconsistent with the length of the axes which specify a shape "
-            f"of {metadata_shape!r}",
-        )
-        return Soltab(name, title, axes, val, weight)
+    _assert(
+        val.shape == weight.shape,
+        f"The val and weight datasets of Soltab {group.name!r} have "
+        "different shapes",
+    )
+    _assert(
+        val.axis_names == weight.axis_names,
+        f"The val and weight datasets of Soltab {group.name!r} have "
+        "different axes",
+    )
+
+    metadata_shape = tuple(axes[key].length for key in val.axis_names)
+    _assert(
+        val.shape == metadata_shape,
+        f"Soltab {group.name!r} has val and weight datasets of shape "
+        f"{val.shape!r} with axes {val.axis_names!r}; this is "
+        f"inconsistent with the length of the axes which specify a shape "
+        f"of {metadata_shape!r}",
+    )
+    return Soltab(name, title, axes, val, weight)
 
 
 def read_soltab_title(group: h5py.Group) -> str:
@@ -147,31 +150,33 @@ class H5Parm:
     @classmethod
     def from_file(cls, path: str | os.PathLike) -> "H5Parm":
         with h5py.File(path, "r") as file:
-            return cls._from_h5py_file(file)
+            soltabs = read_soltabs_of_single_solset_h5parm(file)
+            return cls(soltabs)
 
-    @classmethod
-    def _from_h5py_file(cls, file: h5py.File) -> "H5Parm":
-        keys = file.keys()
-        _assert(
-            len(keys) == 1,
-            f"H5Parm file has multiple top-level keys (solsets): {keys!r}",
-        )
 
-        solset: h5py.Group = next(iter(file.values()))
-        _assert(
-            isinstance(solset, h5py.Group),
-            "H5Parm top-level member objects must be HDF5 groups",
-        )
+def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> H5Parm:
+    """
+    Validate and read a single-solset H5Parm from an open h5py.File object.
+    """
+    keys = file.keys()
+    _assert(
+        len(keys) == 1,
+        f"H5Parm file has multiple top-level keys (solsets): {keys!r}",
+    )
 
-        soltab_items: dict[str, h5py.Group] = {
-            key: group
-            for key, group in solset.items()
-            if key not in RESERVED_SOLSET_TOP_LEVEL_KEYS
-        }
-        _assert(soltab_items, f"Solset {solset.name!r} contains no soltabs")
+    solset: h5py.Group = next(iter(file.values()))
+    _assert(
+        isinstance(solset, h5py.Group),
+        "H5Parm top-level member objects must be HDF5 groups",
+    )
 
-        soltabs = tuple(map(Soltab._from_h5py_group, soltab_items.values()))
-        return cls(soltabs)
+    soltab_items: dict[str, h5py.Group] = {
+        key: group
+        for key, group in solset.items()
+        if key not in RESERVED_SOLSET_TOP_LEVEL_KEYS
+    }
+    _assert(soltab_items, f"Solset {solset.name!r} contains no soltabs")
+    return tuple(map(read_soltab_from_h5py_group, soltab_items.values()))
 
 
 class InvalidH5Parm(Exception):
@@ -187,9 +192,14 @@ def _assert(condition: bool, error_message: str):
 
 
 if __name__ == "__main__":
-    #parm = H5Parm.from_file("/home/vince/work/selfcal/batch_preprocessing/problem_h5parm_jan29/bandpass-slurm-2083.h5parm")
-    parm = H5Parm.from_file("/home/vince/work/selfcal/batch_preprocessing/applycal_experiments/table_twos.h5parm")
+    parm = H5Parm.from_file(
+        "/home/vince/work/selfcal/batch_preprocessing/applycal_experiments/table_twos.h5parm"
+    )
 
     for soltab in parm.soltabs:
         print(soltab)
         print()
+
+    parm = H5Parm.from_file(
+        "/home/vince/work/selfcal/batch_preprocessing/problem_h5parm_jan29/bandpass-slurm-2083.h5parm"
+    )
