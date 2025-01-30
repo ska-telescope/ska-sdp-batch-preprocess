@@ -26,14 +26,12 @@ class Dataset:
     """
     Holds the attributes of either the "val" or "weight" dataset in a Soltab.
     """
-    name: str
     shape: tuple[int]
     axis_names: tuple[str]
 
 
 @dataclass
 class Axis:
-    name: str
     length: int
 
 
@@ -128,7 +126,7 @@ def read_all_axes(group: h5py.Group) -> dict[str, Axis]:
             member.ndim == 1,
             f"Axis {key!r} in soltab {group.name} should have 1 dimension",
         )
-        axes[key] = Axis(key, member.size)
+        axes[key] = Axis(member.size)
     return axes
 
 
@@ -145,8 +143,7 @@ def read_dataset(group: h5py.Group, key: str) -> Dataset:
         f"{key!r} in soltab {group.name!r} is not an HDF5 Dataset",
     )
     axis_names = read_dataset_axis_names(member)
-    _, dataset_name = os.path.split(member.name)
-    return Dataset(dataset_name, member.shape, axis_names)
+    return Dataset(member.shape, axis_names)
 
 
 def read_dataset_axis_names(ds: h5py.Dataset) -> tuple[str]:
