@@ -102,7 +102,7 @@ def prepare_applycal_step(
     h5parm = H5Parm.from_file(parmdb)
 
     if h5parm.is_fulljones:
-        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.solution_type)
+        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.title)
         params = step.params | {
             "parmdb": parmdb,
             "correction": "fulljones",
@@ -118,7 +118,7 @@ def prepare_applycal_step(
         return Step(type="applycal", params=params)
 
     if len(h5parm.soltabs) == 2:
-        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.solution_type)
+        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.title)
         params = step.params | {
             "parmdb": parmdb,
             "steps": ["amp", "phase"],
