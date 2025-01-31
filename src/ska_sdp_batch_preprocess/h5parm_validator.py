@@ -4,11 +4,11 @@ from dataclasses import dataclass
 import h5py
 import numpy as np
 
+RESERVED_SOLSET_TOP_LEVEL_KEYS = {"antenna", "source"}
+VALID_SOLTAB_TITLES = {"amplitude", "phase"}
 VALID_DATASET_NAMES = {"val", "weight"}
 VALID_AXIS_NAMES = {"time", "freq", "ant", "pol", "dir"}
-RESERVED_SOLSET_TOP_LEVEL_KEYS = {"antenna", "source"}
 VALID_POL_AXIS_LENGTHS = {1, 2, 4}
-VALID_SOLTAB_TITLES = {"amplitude", "phase"}
 
 
 class InvalidH5Parm(Exception):
