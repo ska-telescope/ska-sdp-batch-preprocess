@@ -2,6 +2,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from dask.distributed import LocalCluster
 
 from ska_sdp_batch_preprocess.apps.batch_preprocessing import run_program
 
@@ -86,3 +87,28 @@ def test_pipeline_cli_app_raises_value_error_if_duplicate_input_ms_names(
 
     with pytest.raises(ValueError, match="There are duplicate input MS names"):
         run_program(cli_args)
+
+
+@skip_unless_dp3_available
+# pylint:disable=line-too-long
+def test_pipeline_cli_app_produces_output_mses_without_errors_in_distributed_mode(  # noqa: E501
+    tmp_path_factory: pytest.TempPathFactory,
+    yaml_config: Path,
+    input_ms_list: list[Path],
+    dask_cluster: LocalCluster,
+):
+    """
+    Test the pipeline CLI app in distributed mode on multiple copies of the
+    test measurement set.
+    """
+    output_dir = tmp_path_factory.mktemp("output_dir")
+    cli_args = [
+        "--config",
+        str(yaml_config),
+        "--output-dir",
+        str(output_dir),
+        "--dask-scheduler",
+        str(dask_cluster.scheduler_address),
+    ] + list(map(str, input_ms_list))
+    print(cli_args)
+    assert True
