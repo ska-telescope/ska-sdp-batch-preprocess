@@ -7,8 +7,6 @@ from dask.distributed import LocalCluster
 from ska_sdp_batch_preprocess.apps.batch_preprocessing import run_program
 
 from ..dp3_availability import skip_unless_dp3_available
-from ..h5parm_generation import create_diagonal_complex_identity_h5parm
-from ..ms_reading import load_antenna_names_from_msv2
 
 
 @pytest.fixture(name="yaml_config")
@@ -38,18 +36,16 @@ def test_pipeline_cli_app_entry_point_exists():
 
 @skip_unless_dp3_available
 def test_pipeline_cli_app_produces_output_ms_without_errors_in_sequential_mode(
-    tmp_path_factory: pytest.TempPathFactory, yaml_config: Path, input_ms: Path
+    tmp_path_factory: pytest.TempPathFactory,
+    yaml_config: Path,
+    diagonal_identity_h5parm: Path,
+    input_ms: Path,
 ):
     """
     Test the pipeline CLI app on a small Measurement Set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
-    solutions_dir = tmp_path_factory.mktemp("solutions_dir")
-
-    antenna_names = load_antenna_names_from_msv2(input_ms)
-    create_diagonal_complex_identity_h5parm(
-        solutions_dir / "diagonal.h5", antenna_names
-    )
+    solutions_dir = diagonal_identity_h5parm.parent
 
     cli_args = [
         "--config",
@@ -94,21 +90,16 @@ def test_pipeline_cli_app_raises_value_error_if_duplicate_input_ms_names(
 def test_pipeline_cli_app_produces_output_mses_without_errors_in_distributed_mode(  # noqa: E501
     tmp_path_factory: pytest.TempPathFactory,
     yaml_config: Path,
-    input_ms_list: list[Path],
+    diagonal_identity_h5parm: Path,
     dask_cluster: LocalCluster,
+    input_ms_list: list[Path],
 ):
     """
     Test the pipeline CLI app in distributed mode on multiple copies of the
     test measurement set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
-    solutions_dir = tmp_path_factory.mktemp("solutions_dir")
-
-    # NOTE: need to factorise that into a fixture
-    antenna_names = load_antenna_names_from_msv2(input_ms_list[0])
-    create_diagonal_complex_identity_h5parm(
-        solutions_dir / "diagonal.h5", antenna_names
-    )
+    solutions_dir = diagonal_identity_h5parm.parent
 
     cli_args = [
         "--config",
