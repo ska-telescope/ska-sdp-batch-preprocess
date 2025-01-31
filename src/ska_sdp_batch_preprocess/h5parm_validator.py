@@ -64,6 +64,15 @@ class H5Parm:
             soltabs = read_soltabs_of_single_solset_h5parm(file)
             return cls(soltabs)
 
+    @property
+    def is_fulljones(self) -> bool:
+        """
+        True if the H5Parm represents a full Jones solution.
+        """
+        titles = set(tab.title for tab in self.soltabs)
+        num_pols = tuple(tab.num_pols for tab in self.soltabs)
+        return titles == {"amplitude", "phase"} and num_pols == (4, 4)
+
 
 def read_soltab_from_h5py_group(group: h5py.Group) -> Soltab:
     """
