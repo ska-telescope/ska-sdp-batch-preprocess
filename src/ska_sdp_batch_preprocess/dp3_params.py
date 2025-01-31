@@ -30,8 +30,7 @@ class UniqueNamer:
 class DP3Params(Mapping[str, Any]):
     """
     Parameters for DP3, as a dict-like object. Parameters are stored in
-    their natural Python type. Paths must be given as `Path` objects,
-    so that they can be distinguished from plain strings and made absolute.
+    their natural Python type.
     """
 
     def __init__(self, params: dict[str, Any]):
