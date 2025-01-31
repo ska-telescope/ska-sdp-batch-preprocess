@@ -41,6 +41,14 @@ class Soltab:
     val: Dataset
     weight: Dataset
 
+    @property
+    def num_pols(self) -> int:
+        """
+        Length of the pol dimension. Returns None if the dataset has no pol
+        axis.
+        """
+        return self.dimensions.get("pol", None)
+
 
 @dataclass
 class H5Parm:
@@ -204,18 +212,37 @@ def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> tuple[Soltab]:
         "H5Parm top-level member objects must be HDF5 groups",
     )
 
-    soltab_items: dict[str, h5py.Group] = {
-        key: group
-        for key, group in solset.items()
-        if key not in RESERVED_SOLSET_TOP_LEVEL_KEYS
-    }
-    _assert(soltab_items, f"Solset {solset.name!r} contains no soltabs")
-    soltabs = tuple(map(read_soltab_from_h5py_group, soltab_items.values()))
+    soltab_groups = [
+        member
+        for key, member in solset.items()
+        if (key not in RESERVED_SOLSET_TOP_LEVEL_KEYS)
+        and isinstance(member, h5py.Group)
+    ]
+    soltabs = tuple(map(read_soltab_from_h5py_group, soltab_groups))
 
-    _assert(
-        len(soltabs) in (1, 2),
-        f"H5Parm has {len(soltabs)}, expected 1 or 2"
-    )
+    num_tabs = len(soltabs)
+    _assert(num_tabs in (1, 2), f"H5Parm has {num_tabs}, expected 1 or 2")
+
+    # Forbid single-soltab fulljones
+    if num_tabs == 1:
+        tab = soltabs[0]
+        _assert(
+            tab.num_pols in (None, 1, 2),
+            f"H5Parm contains a single soltab with an invalid number of pols "
+            f"({tab.num_pols}); it must have either no pol axis, 1, or 2 pols",
+        )
+
+    if num_tabs == 2:
+        first, second = soltabs
+        _assert(
+            first.num_pols == second.num_pols,
+            "H5Parm has 2 soltabs but they have different numbers of pols",
+        )
+        _assert(
+            {first.title, second.title} == {"amplitude", "phase"},
+            "H5Parm has 2 soltabs, but their titles are not 'amplitude' and "
+            "'phase' as expected",
+        )
     return soltabs
 
 
