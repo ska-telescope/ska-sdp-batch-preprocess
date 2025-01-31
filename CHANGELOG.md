@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.1 - 2025-01-31
+
+Improved H5Parm validator.
+
+### Added
+
+- H5Parm validator is now much stricter and will raise a helpful error message even on unlikely corner cases.
+
+
 ## 2.1.0 - 2025-01-29
 
 ApplyCal step is now available to run.
