@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from typing import Optional
 
 import h5py
 import numpy as np
@@ -42,7 +43,7 @@ class Soltab:
     weight: Dataset
 
     @property
-    def num_pols(self) -> int:
+    def num_pols(self) -> Optional[int]:
         """
         Length of the pol dimension. Returns None if the dataset has no pol
         axis.
