@@ -238,7 +238,10 @@ def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> tuple[Soltab]:
     soltabs = tuple(map(read_soltab_from_h5py_group, soltab_groups))
 
     num_tabs = len(soltabs)
-    _assert(num_tabs in (1, 2), f"H5Parm has {num_tabs}, expected 1 or 2")
+    _assert(
+        num_tabs in (1, 2),
+        f"H5Parm has {num_tabs} soltabs, expected 1 or 2"
+    )
 
     # Forbid single-soltab fulljones
     if num_tabs == 1:
