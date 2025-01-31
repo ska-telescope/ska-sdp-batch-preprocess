@@ -2,19 +2,13 @@ import itertools
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Iterable, Optional
+from typing import Iterable, Optional
 
 import dask
 import dask.distributed
 
 from ska_sdp_batch_preprocess.logging_setup import LOGGER
 from ska_sdp_batch_preprocess.pipeline import Pipeline
-
-SUBPROCESS_RESOURCE = "subprocess"
-"""
-Name of the dask resource used to limit the number of DP3 subprocesses
-run simultaneously by dask workers.
-"""
 
 
 # pylint:disable=too-few-public-methods
@@ -66,10 +60,9 @@ class Application:
         self, absolute_ms_paths: Iterable[Path], dask_scheduler: str
     ):
         client = dask.distributed.Client(dask_scheduler, timeout=5.0)
-        _assert_at_least_one_worker_with_subprocess_resource(client)
         client.forward_logging(LOGGER.name, level=logging.DEBUG)
 
-        with dask.annotate(resources={SUBPROCESS_RESOURCE: 1}):
+        with dask.annotate(resources={"subprocess": 1}):
             delayed_list = [
                 dask.delayed(self._process_ms_on_dask_worker)(path)
                 for path in absolute_ms_paths
@@ -113,17 +106,3 @@ def assert_no_duplicate_input_names(paths: Iterable[Path]):
             "There are duplicate input MS names. Offending paths: "
         ] + duplicate_paths
         raise ValueError("\n".join(lines))
-
-
-def _assert_at_least_one_worker_with_subprocess_resource(
-    client: dask.distributed.Client,
-):
-    def _usable_worker(worker: dict[str, Any]) -> bool:
-        resources: dict[str, float] = worker["resources"]
-        return resources.get(SUBPROCESS_RESOURCE, 0) >= 1
-
-    workers_dict: dict[str, dict] = client.scheduler_info()["workers"]
-    if not any(map(_usable_worker, workers_dict.values())):
-        raise RuntimeError(
-            f"Found no workers with resource {SUBPROCESS_RESOURCE!r} >= 1"
-        )
