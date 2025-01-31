@@ -8,6 +8,7 @@ VALID_DATASET_NAMES = {"val", "weight"}
 VALID_AXIS_NAMES = {"time", "freq", "ant", "pol", "dir"}
 RESERVED_SOLSET_TOP_LEVEL_KEYS = {"antenna", "source"}
 VALID_POL_AXIS_LENGTHS = {1, 2, 4}
+VALID_SOLTAB_TITLES = {"amplitude", "phase"}
 
 
 class InvalidH5Parm(Exception):
@@ -27,6 +28,7 @@ class Dataset:
     """
     Holds the attributes of either the "val" or "weight" dataset in a Soltab.
     """
+
     shape: tuple[int]
     axis_names: tuple[str]
 
@@ -89,7 +91,7 @@ def read_soltab_from_h5py_group(group: h5py.Group) -> Soltab:
     _assert(
         pol_dim in VALID_POL_AXIS_LENGTHS,
         f"pol dimension length is {pol_dim} but should be one of "
-        f"{VALID_POL_AXIS_LENGTHS}"
+        f"{VALID_POL_AXIS_LENGTHS}",
     )
     return Soltab(name, title, dimensions, val, weight)
 
@@ -113,7 +115,12 @@ def read_soltab_title(group: h5py.Group) -> str:
     """
     Validate and read a soltab's TITLE attribute.
     """
-    return read_bytes_attribute_as_string(group, "TITLE")
+    title = read_bytes_attribute_as_string(group, "TITLE")
+    _assert(
+        title in VALID_SOLTAB_TITLES,
+        f"Soltab {group.name!r} has invalid TITLE {title!r}",
+    )
+    return title
 
 
 def read_dimensions(group: h5py.Group) -> dict[str, int]:
@@ -181,7 +188,7 @@ def read_dataset_axis_names(ds: h5py.Dataset) -> tuple[str]:
     return axis_names
 
 
-def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> H5Parm:
+def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> tuple[Soltab]:
     """
     Validate and read a single-solset H5Parm from an open h5py.File object.
     """
