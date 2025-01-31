@@ -210,7 +210,13 @@ def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> tuple[Soltab]:
         if key not in RESERVED_SOLSET_TOP_LEVEL_KEYS
     }
     _assert(soltab_items, f"Solset {solset.name!r} contains no soltabs")
-    return tuple(map(read_soltab_from_h5py_group, soltab_items.values()))
+    soltabs = tuple(map(read_soltab_from_h5py_group, soltab_items.values()))
+
+    _assert(
+        len(soltabs) in (1, 2),
+        f"H5Parm has {len(soltabs)}, expected 1 or 2"
+    )
+    return soltabs
 
 
 if __name__ == "__main__":
