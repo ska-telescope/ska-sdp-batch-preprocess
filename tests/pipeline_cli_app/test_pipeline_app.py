@@ -102,13 +102,27 @@ def test_pipeline_cli_app_produces_output_mses_without_errors_in_distributed_mod
     test measurement set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
+    solutions_dir = tmp_path_factory.mktemp("solutions_dir")
+
+    # NOTE: need to factorise that into a fixture
+    antenna_names = load_antenna_names_from_msv2(input_ms_list[0])
+    create_diagonal_complex_identity_h5parm(
+        solutions_dir / "diagonal.h5", antenna_names
+    )
+
     cli_args = [
         "--config",
         str(yaml_config),
+        "--solutions-dir",
+        str(solutions_dir),
         "--output-dir",
         str(output_dir),
         "--dask-scheduler",
         str(dask_cluster.scheduler_address),
     ] + list(map(str, input_ms_list))
-    print(cli_args)
-    assert True
+
+    run_program(cli_args)
+
+    expected_output_paths = [output_dir / path.name for path in input_ms_list]
+    for path in expected_output_paths:
+        assert path.is_dir()
