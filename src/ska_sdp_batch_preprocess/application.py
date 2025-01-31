@@ -62,7 +62,7 @@ class Application:
         client = dask.distributed.Client(dask_scheduler, timeout=5.0)
         client.forward_logging(LOGGER.name, level=logging.DEBUG)
 
-        with dask.annotate(resources={"subprocess": 1}):
+        with dask.annotate(resources={"process": 1}):
             delayed_list = [
                 dask.delayed(self._process_ms_on_dask_worker)(path)
                 for path in absolute_ms_paths

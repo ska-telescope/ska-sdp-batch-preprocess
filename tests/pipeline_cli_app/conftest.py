@@ -48,7 +48,7 @@ def dask_cluster() -> LocalCluster:
     return LocalCluster(
         n_workers=2,
         threads_per_worker=1,
-        resources={"subprocess": 1},
+        resources={"process": 1},
     )
 
 
