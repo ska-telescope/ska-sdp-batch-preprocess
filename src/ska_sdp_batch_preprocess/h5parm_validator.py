@@ -235,13 +235,13 @@ def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> tuple[Soltab]:
     if num_tabs == 2:
         first, second = soltabs
         _assert(
-            first.num_pols == second.num_pols,
-            "H5Parm has 2 soltabs but they have different numbers of pols",
-        )
-        _assert(
             {first.title, second.title} == {"amplitude", "phase"},
             "H5Parm has 2 soltabs, but their titles are not 'amplitude' and "
             "'phase' as expected",
+        )
+        _assert(
+            first.num_pols == second.num_pols,
+            "H5Parm has 2 soltabs but they have different numbers of pols",
         )
     return soltabs
 
