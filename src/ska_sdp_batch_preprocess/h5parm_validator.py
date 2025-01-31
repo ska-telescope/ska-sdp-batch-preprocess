@@ -183,7 +183,7 @@ def read_dataset_axis_names(ds: h5py.Dataset) -> tuple[str]:
     _assert(
         set(axis_names).issubset(VALID_AXIS_NAMES),
         f"Dataset {ds.name} has an AXES attribute that contains invalid axis "
-        f"names: {axes!r}",
+        f"names: {axis_names!r}",
     )
     return axis_names
 
