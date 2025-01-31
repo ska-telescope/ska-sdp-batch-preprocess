@@ -261,20 +261,3 @@ def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> tuple[Soltab]:
             "H5Parm has 2 soltabs but they have different numbers of pols",
         )
     return soltabs
-
-
-if __name__ == "__main__":
-    parm = H5Parm.from_file(
-        "/home/vince/work/selfcal/batch_preprocessing/"
-        "applycal_experiments/table_twos.h5parm"
-    )
-
-    for soltab in parm.soltabs:
-        print(soltab)
-        print()
-
-    parm = H5Parm.from_file(
-        "/home/vince/work/selfcal/batch_preprocessing/"
-        "problem_h5parm_jan29/bandpass-slurm-2083.h5parm"
-    )
-    print(parm)
