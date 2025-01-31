@@ -9,6 +9,38 @@ from ..ms_reading import load_antenna_names_from_msv2
 
 
 @pytest.fixture
+def yaml_config() -> Path:
+    """
+    YAML config file path for the end-to-end test.
+    """
+    return Path(__file__).parent / "config.yaml"
+
+
+@pytest.fixture
+def yaml_config_trivial() -> Path:
+    """
+    Trivial YAML config file path, just to test some error paths of the CLI
+    app.
+    """
+    return Path(__file__).parent / "config_trivial.yaml"
+
+
+@pytest.fixture
+def diagonal_identity_h5parm(
+    tmp_path_factory: pytest.TempPathFactory, input_ms: Path
+) -> Path:
+    """
+    Complex diagonal identity H5Parm file. Its name must match what is in the
+    config file's applycal step.
+    """
+    solutions_dir = tmp_path_factory.mktemp("solutions_dir")
+    antenna_names = load_antenna_names_from_msv2(input_ms)
+    path = solutions_dir / "diagonal.h5"
+    create_diagonal_complex_identity_h5parm(path, antenna_names)
+    return path
+
+
+@pytest.fixture
 def dask_cluster() -> LocalCluster:
     """
     Dask cluster used for distribution tests.
@@ -34,18 +66,3 @@ def input_ms_list(
     for path in paths:
         shutil.copytree(input_ms, path)
     return paths
-
-
-@pytest.fixture
-def diagonal_identity_h5parm(
-    tmp_path_factory: pytest.TempPathFactory, input_ms: Path
-) -> Path:
-    """
-    Complex diagonal identity H5Parm file. Its name must match what is in the
-    config file's applycal step.
-    """
-    solutions_dir = tmp_path_factory.mktemp("solutions_dir")
-    antenna_names = load_antenna_names_from_msv2(input_ms)
-    path = solutions_dir / "diagonal.h5"
-    create_diagonal_complex_identity_h5parm(path, antenna_names)
-    return path

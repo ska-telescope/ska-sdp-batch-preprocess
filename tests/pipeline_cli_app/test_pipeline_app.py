@@ -9,23 +9,6 @@ from ska_sdp_batch_preprocess.apps.batch_preprocessing import run_program
 from ..dp3_availability import skip_unless_dp3_available
 
 
-@pytest.fixture(name="yaml_config")
-def fixture_yaml_config() -> Path:
-    """
-    YAML config file path for the end-to-end test.
-    """
-    return Path(__file__).parent / "config.yaml"
-
-
-@pytest.fixture(name="yaml_config_trivial")
-def fixture_yaml_config_trivial() -> Path:
-    """
-    Trivial YAML config file path, just to test some error paths of the CLI
-    app.
-    """
-    return Path(__file__).parent / "config_trivial.yaml"
-
-
 def test_pipeline_cli_app_entry_point_exists():
     """
     Check that the pipeline CLI app is available to run with the expected name.
