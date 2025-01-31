@@ -36,6 +36,10 @@ class Dataset:
 
 @dataclass
 class Soltab:
+    """
+    Holds the attributes of a soltab.
+    """
+
     name: str
     title: str
     dimensions: dict[str, int]
@@ -61,6 +65,9 @@ class H5Parm:
 
     @classmethod
     def from_file(cls, path: str | os.PathLike) -> "H5Parm":
+        """
+        Initialise from h5parm file.
+        """
         with h5py.File(path, "r") as file:
             soltabs = read_soltabs_of_single_solset_h5parm(file)
             return cls(soltabs)
@@ -192,16 +199,16 @@ def read_dataset(group: h5py.Group, key: str) -> Dataset:
     return Dataset(member.shape, axis_names)
 
 
-def read_dataset_axis_names(ds: h5py.Dataset) -> tuple[str]:
+def read_dataset_axis_names(dataset: h5py.Dataset) -> tuple[str]:
     """
     Read the axis names of dataset "val" or "weight" from their AXES attribute.
     """
-    axes = read_bytes_attribute_as_string(ds, "AXES")
+    axes = read_bytes_attribute_as_string(dataset, "AXES")
     axis_names = tuple(axes.split(","))
     _assert(
         set(axis_names).issubset(VALID_AXIS_NAMES),
-        f"Dataset {ds.name} has an AXES attribute that contains invalid axis "
-        f"names: {axis_names!r}",
+        f"Dataset {dataset.name} has an AXES attribute that contains invalid "
+        f"axis names: {axis_names!r}",
     )
     return axis_names
 
@@ -258,7 +265,8 @@ def read_soltabs_of_single_solset_h5parm(file: h5py.File) -> tuple[Soltab]:
 
 if __name__ == "__main__":
     parm = H5Parm.from_file(
-        "/home/vince/work/selfcal/batch_preprocessing/applycal_experiments/table_twos.h5parm"
+        "/home/vince/work/selfcal/batch_preprocessing/"
+        "applycal_experiments/table_twos.h5parm"
     )
 
     for soltab in parm.soltabs:
@@ -266,6 +274,7 @@ if __name__ == "__main__":
         print()
 
     parm = H5Parm.from_file(
-        "/home/vince/work/selfcal/batch_preprocessing/problem_h5parm_jan29/bandpass-slurm-2083.h5parm"
+        "/home/vince/work/selfcal/batch_preprocessing/"
+        "problem_h5parm_jan29/bandpass-slurm-2083.h5parm"
     )
     print(parm)
