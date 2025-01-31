@@ -69,6 +69,7 @@ class Application:
             ]
         futures = client.compute(delayed_list)
         dask.distributed.wait(futures)
+        client.close()
 
     def _process_ms_on_dask_worker(self, absolute_ms_path: Path):
         LOGGER.setLevel(logging.DEBUG)
