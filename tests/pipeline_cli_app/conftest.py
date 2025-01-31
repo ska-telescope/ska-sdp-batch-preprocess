@@ -26,10 +26,8 @@ def input_ms_list(
     Used for distribution tests.
     """
     num_copies = 8
-    paths = []
-    for _ in range(num_copies):
-        tempdir = tmp_path_factory.mktemp("duplicated_data", numbered=True)
-        destination = tempdir / input_ms.name
-        shutil.copytree(input_ms, destination)
-        paths.append(destination)
+    tempdir = tmp_path_factory.mktemp("distributed_test_data")
+    paths = [tempdir / f"input_{index:02d}.ms" for index in range(num_copies)]
+    for path in paths:
+        shutil.copytree(input_ms, path)
     return paths
