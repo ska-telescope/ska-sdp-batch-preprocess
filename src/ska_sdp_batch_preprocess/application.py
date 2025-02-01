@@ -74,6 +74,9 @@ class Application:
     def _process_ms_on_dask_worker(self, absolute_ms_path: Path):
         LOGGER.setLevel(logging.DEBUG)
         worker = dask.distributed.get_worker()
+        LOGGER.info(
+            f"Processing {absolute_ms_path!s} on worker {worker.address!s}"
+        )
         self._pipeline.run(
             absolute_ms_path,
             self._output_dir / absolute_ms_path.name,
