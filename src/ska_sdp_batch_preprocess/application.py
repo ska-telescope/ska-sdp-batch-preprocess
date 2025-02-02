@@ -53,8 +53,8 @@ class Application:
             self._process_sequentially(measurement_sets)
 
     def _process_sequentially(self, absolute_ms_paths: Iterable[Path]):
-        for path in absolute_ms_paths:
-            self._pipeline.run(path, self._output_dir / path.name)
+        for mset in absolute_ms_paths:
+            self._pipeline.run(mset, self._output_dir / mset.name)
 
     def _process_distributed(
         self, absolute_ms_paths: Iterable[Path], dask_scheduler: str
@@ -63,25 +63,30 @@ class Application:
         client.forward_logging(LOGGER.name, level=logging.DEBUG)
 
         with dask.annotate(resources={"process": 1}):
-            delayed_list = [
-                dask.delayed(self._process_ms_on_dask_worker)(path)
-                for path in absolute_ms_paths
+            tasks = [
+                dask.delayed(process_ms_on_dask_worker)(
+                    self._pipeline, self._output_dir, mset
+                )
+                for mset in absolute_ms_paths
             ]
-        futures = client.compute(delayed_list)
+
+        futures = client.compute(tasks)
         dask.distributed.wait(futures)
         client.close()
 
-    def _process_ms_on_dask_worker(self, absolute_ms_path: Path):
-        LOGGER.setLevel(logging.DEBUG)
-        worker = dask.distributed.get_worker()
-        LOGGER.info(
-            f"Processing {absolute_ms_path!s} on worker {worker.address!s}"
-        )
-        self._pipeline.run(
-            absolute_ms_path,
-            self._output_dir / absolute_ms_path.name,
-            numthreads=worker.state.nthreads,
-        )
+
+def process_ms_on_dask_worker(
+    pipeline: Pipeline, output_dir: Path, mset: Path
+):
+    """
+    Self-explanatory. All Path arguments must be absolute.
+    """
+    # Ensure all logs created on the worker are forwarded to the client
+    LOGGER.setLevel(logging.DEBUG)
+    worker = dask.distributed.get_worker()
+    LOGGER.info(f"Processing {mset!s} on worker {worker.address!s}")
+    numthreads = worker.state.nthreads
+    pipeline.run(mset, output_dir / mset.name, numthreads=numthreads)
 
 
 def assert_no_duplicate_input_names(paths: Iterable[Path]):
