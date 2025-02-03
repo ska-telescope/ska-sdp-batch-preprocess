@@ -59,7 +59,10 @@ def make_parser() -> ArgumentParser:
         "--dask-scheduler",
         help=(
             "Network address of the dask scheduler to use for distribution; "
-            "format is HOST:PORT"
+            "format is HOST:PORT. NOTE: the pipeline expects workers to "
+            "define a dask resource called 'process' and each worker to hold "
+            "exactly 1 of it. Make sure to add '--resources \"process=1\"' to "
+            "the command that launches the dask workers."
         ),
     )
     optional.add_argument(
