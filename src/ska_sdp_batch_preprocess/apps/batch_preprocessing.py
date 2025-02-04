@@ -1,18 +1,14 @@
-import itertools
 import sys
-import warnings
 from argparse import (
     ArgumentDefaultsHelpFormatter,
     ArgumentParser,
     ArgumentTypeError,
 )
-from collections import defaultdict
 from pathlib import Path
-from typing import Iterable
 
 from ska_sdp_batch_preprocess import __version__
+from ska_sdp_batch_preprocess.application import Application
 from ska_sdp_batch_preprocess.logging_setup import configure_logger
-from ska_sdp_batch_preprocess.pipeline import Pipeline
 
 
 def make_parser() -> ArgumentParser:
@@ -63,7 +59,10 @@ def make_parser() -> ArgumentParser:
         "--dask-scheduler",
         help=(
             "Network address of the dask scheduler to use for distribution; "
-            "format is HOST:PORT"
+            "format is HOST:PORT. NOTE: the pipeline expects workers to "
+            "define a dask resource called 'process' and each worker to hold "
+            "exactly 1 of it. Make sure to add '--resources \"process=1\"' to "
+            "the command that launches the dask workers."
         ),
     )
     optional.add_argument(
@@ -78,37 +77,9 @@ def existing_directory(dirname: str) -> Path:
     Validate CLI argument that must be an existing directory.
     """
     path = Path(dirname)
-    if not (path.exists() and path.is_dir()):
+    if not path.is_dir():
         raise ArgumentTypeError(f"{dirname!r} must be an existing directory")
     return path
-
-
-def assert_no_duplicate_input_names(paths: Iterable[Path]):
-    """
-    Given input paths, raise ValueError if any two paths have the same name,
-    i.e. the same last component.
-
-    We have to run this check on input MS paths, because two input MSes with
-    different paths but identical names would correspond to the same output
-    path.
-    """
-    name_to_full_path_mapping: dict[str, list[str]] = defaultdict(list)
-    for path in paths:
-        name_to_full_path_mapping[path.name].append(str(path.resolve()))
-
-    duplicate_paths = list(
-        itertools.chain.from_iterable(
-            path_list
-            for path_list in name_to_full_path_mapping.values()
-            if len(path_list) > 1
-        )
-    )
-
-    if duplicate_paths:
-        lines = [
-            "There are duplicate input MS names. Offending paths: "
-        ] + duplicate_paths
-        raise ValueError("\n".join(lines))
 
 
 def run_program(cli_args: list[str]):
@@ -116,23 +87,13 @@ def run_program(cli_args: list[str]):
     Runs the batch preprocessing pipeline.
     """
     configure_logger()
-    parser = make_parser()
-    args = parser.parse_args(cli_args)
-
-    if args.dask_scheduler is not None:
-        warnings.warn(
-            "Dask distribution is not implemented yet, "
-            "ignoring --dask-scheduler argument"
-        )
-
-    input_ms_list: list[Path] = args.input_ms
-    assert_no_duplicate_input_names(input_ms_list)
-
-    output_dir: Path = args.output_dir
-    pipeline = Pipeline.create(args.config, args.solutions_dir)
-
-    for input_ms in input_ms_list:
-        pipeline.run(input_ms, output_dir / input_ms.name)
+    args = make_parser().parse_args(cli_args)
+    app = Application(
+        args.config,
+        args.output_dir,
+        solutions_dir=args.solutions_dir,
+    )
+    app.process(args.input_ms, args.dask_scheduler)
 
 
 def main():

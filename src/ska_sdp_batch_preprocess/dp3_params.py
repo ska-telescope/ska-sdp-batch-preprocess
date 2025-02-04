@@ -2,7 +2,7 @@ import os
 from collections import defaultdict
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Iterable, Iterator
+from typing import Any, Iterable, Iterator, Optional
 
 from ska_sdp_batch_preprocess.config import Step
 
@@ -30,8 +30,7 @@ class UniqueNamer:
 class DP3Params(Mapping[str, Any]):
     """
     Parameters for DP3, as a dict-like object. Parameters are stored in
-    their natural Python type. Paths must be given as `Path` objects,
-    so that they can be distinguished from plain strings and made absolute.
+    their natural Python type.
     """
 
     def __init__(self, params: dict[str, Any]):
@@ -52,10 +51,12 @@ class DP3Params(Mapping[str, Any]):
         steps: Iterable[Step],
         msin: str | os.PathLike,
         msout: str | os.PathLike,
+        numthreads: Optional[int] = None,
     ) -> "DP3Params":
         """
         Create DP3Params, translating pipeline steps into parameters for a
-        single DP3 execution.
+        single DP3 execution. DP3's `numthreads` parameter will be set to the
+        given value if different from None.
         """
         step_names: list[str] = []
         conf = {
@@ -64,6 +65,9 @@ class DP3Params(Mapping[str, Any]):
             "msin.name": Path(msin),
             "msout.name": Path(msout),
         }
+        if numthreads:
+            conf["numthreads"] = numthreads
+
         unique_namer = UniqueNamer()
 
         for step in steps:
@@ -95,9 +99,5 @@ def _dp3_format_value(value: Any) -> str:
 
     if isinstance(value, bool):
         return "true" if value else "false"
-
-    # Make paths absolute so we can safely call DP3 from any working directory
-    if isinstance(value, Path):
-        return str(value.resolve())
 
     return str(value)

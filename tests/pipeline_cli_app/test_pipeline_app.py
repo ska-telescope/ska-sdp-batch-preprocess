@@ -2,29 +2,11 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from dask.distributed import LocalCluster
 
-from ska_sdp_batch_preprocess.apps.pipeline import run_program
+from ska_sdp_batch_preprocess.apps.batch_preprocessing import run_program
 
 from ..dp3_availability import skip_unless_dp3_available
-from ..h5parm_generation import create_diagonal_complex_identity_h5parm
-from ..ms_reading import load_antenna_names_from_msv2
-
-
-@pytest.fixture(name="yaml_config")
-def fixture_yaml_config() -> Path:
-    """
-    YAML config file path for the end-to-end test.
-    """
-    return Path(__file__).parent / "config.yaml"
-
-
-@pytest.fixture(name="yaml_config_trivial")
-def fixture_yaml_config_trivial() -> Path:
-    """
-    Trivial YAML config file path, just to test some error paths of the CLI
-    app.
-    """
-    return Path(__file__).parent / "config_trivial.yaml"
 
 
 def test_pipeline_cli_app_entry_point_exists():
@@ -36,19 +18,17 @@ def test_pipeline_cli_app_entry_point_exists():
 
 
 @skip_unless_dp3_available
-def test_pipeline_cli_app_produces_output_ms_without_errors(
-    tmp_path_factory: pytest.TempPathFactory, yaml_config: Path, input_ms: Path
+def test_pipeline_cli_app_produces_output_ms_without_errors_in_sequential_mode(
+    tmp_path_factory: pytest.TempPathFactory,
+    yaml_config: Path,
+    diagonal_identity_h5parm: Path,
+    input_ms: Path,
 ):
     """
     Test the pipeline CLI app on a small Measurement Set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
-    solutions_dir = tmp_path_factory.mktemp("solutions_dir")
-
-    antenna_names = load_antenna_names_from_msv2(input_ms)
-    create_diagonal_complex_identity_h5parm(
-        solutions_dir / "diagonal.h5", antenna_names
-    )
+    solutions_dir = diagonal_identity_h5parm.parent
 
     cli_args = [
         "--config",
@@ -57,8 +37,6 @@ def test_pipeline_cli_app_produces_output_ms_without_errors(
         str(output_dir),
         "--solutions-dir",
         str(solutions_dir),
-        "--dask-scheduler",
-        "localhost:8786",
         str(input_ms),
     ]
 
@@ -88,3 +66,37 @@ def test_pipeline_cli_app_raises_value_error_if_duplicate_input_ms_names(
 
     with pytest.raises(ValueError, match="There are duplicate input MS names"):
         run_program(cli_args)
+
+
+@skip_unless_dp3_available
+# pylint:disable=line-too-long
+def test_pipeline_cli_app_produces_output_mses_without_errors_in_distributed_mode(  # noqa: E501
+    tmp_path_factory: pytest.TempPathFactory,
+    yaml_config: Path,
+    diagonal_identity_h5parm: Path,
+    dask_cluster: LocalCluster,
+    input_ms_list: list[Path],
+):
+    """
+    Test the pipeline CLI app in distributed mode on multiple copies of the
+    test measurement set.
+    """
+    output_dir = tmp_path_factory.mktemp("output_dir")
+    solutions_dir = diagonal_identity_h5parm.parent
+
+    cli_args = [
+        "--config",
+        str(yaml_config),
+        "--solutions-dir",
+        str(solutions_dir),
+        "--output-dir",
+        str(output_dir),
+        "--dask-scheduler",
+        str(dask_cluster.scheduler_address),
+    ] + list(map(str, input_ms_list))
+
+    run_program(cli_args)
+
+    expected_output_paths = [output_dir / path.name for path in input_ms_list]
+    for path in expected_output_paths:
+        assert path.is_dir()

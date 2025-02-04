@@ -7,7 +7,7 @@ Pipeline Usage
 Interface
 =========
 
-The pipeline is a CLI app; the typical usage is:
+The pipeline is a CLI app; a typical usage might be:
 
 .. code-block:: text
     
@@ -15,6 +15,7 @@ The pipeline is a CLI app; the typical usage is:
         --config myConfig.yaml
         --output-dir /path/to/base_output_dir
         --solutions-dir /path/to/solution_tables_dir
+        --dask-scheduler localhost:8786
         input1.ms
         input2.ms
         ...
@@ -22,6 +23,9 @@ The pipeline is a CLI app; the typical usage is:
 The pipeline works on a **single configuration, multiple data basis**: the same
 sequence of pre-processing steps defined by the configuration file is applied
 to each of the input measurement sets.
+
+For each input ``<BASE_INPUT_NAME>.ms``, the associated output MSv2 path is
+``<OUTPUT_DIR>/<BASE_INPUT_NAME>.ms``.
 
 **Positional arguments:**
 
@@ -40,9 +44,19 @@ to each of the input measurement sets.
   for each pipeline run, as the path to the solution tables may change on a per-dataset basis.
   Any solution table paths that appear in the config file and that are not absolute paths will be
   preprended with this directory.
+- ``--dask-scheduler``: Optional network address of a dask scheduler. If provided, the associated
+  dask workers are used for parallel processing.
 
-For each input ``<BASE_INPUT_NAME>.ms``, the associated output MSv2 path is
-``<OUTPUT_DIR>/<BASE_INPUT_NAME>.ms``.
+.. note::
+
+  When using distribution, the pipeline expects workers to define a
+  `dask resource <https://distributed.dask.org/en/latest/resources.html#worker-resources>`_
+  called ``process`` and each worker to hold exactly 1 of it. Make sure to
+  launch workers with the command below. See :ref:`dask` section for details.
+
+  .. code-block:: bash
+
+    dask worker <SCHEDULER_ADDRESS> <OPTIONS> --resources "process=1"
 
 
 Configuration file
@@ -161,3 +175,36 @@ on the H5Parm files it accepts for its ApplyCal steps:
   number of polarisations must be identical.
 - If there is only 1 soltab, it can only represent the phase or amplitude part
   of a scalar or diagonal solution table.
+
+
+.. _dask:
+
+Dask distribution
+=================
+
+In distributed mode, the batch pre-processing pipeline runs multiple DP3 tasks
+in parallel on a dask cluster. Dask has no mechanism to detect how many threads
+a task uses, and assumes that every task uses 1 thread from the worker's own
+Python ``ThreadPool``. This is problematic when running C/C++ code spawning its
+own pool of threads on the side, like DP3.
+
+The only reliable solution is to use
+`worker resources <https://distributed.dask.org/en/latest/resources.html#worker-resources>`_.
+The batch pre-processing pipeline assumes that all workers define a resource
+called ``process``; each worker holds 1, and each DP3 task is defined as
+requiring 1. When a DP3 task reaches a worker, DP3 is launched with the same
+number of threads as the worker officially owns. A worker thus only ever runs
+one task at a time, and all threads are used without risk of over-subscription.
+
+The drawback is that resources can only be defined when the workers are
+launched; make sure to add ``--resources "process=1"`` to the command when you
+do so:
+
+.. code-block:: bash
+
+  dask worker <SCHEDULER_ADDRESS> <OPTIONS> --resources "process=1"
+
+.. warning::
+
+  If the ``process`` resource is not defined on any worker, the pipeline
+  (or rather, the dask scheduler) will hang indefinitely.
