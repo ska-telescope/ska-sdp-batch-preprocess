@@ -9,7 +9,7 @@
 project = 'SKA Batch Preprocessing Pipeline'
 copyright = '2024, Team HIPPO'
 author = 'Team HIPPO'
-release = '2.1.1'
+release = '2.2.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

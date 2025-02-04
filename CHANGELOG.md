@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.2.0 - 2025-02-04
+
+Added option to use dask distribution.
+
+### Added
+
+- Ability to distribute over multiple dask workers, where one input MS corresponds to one task.
+  CLI app now accepts an optional `--dask-scheduler` argument followed by the network address of
+  the scheduler to use.
+
+
 ## 2.1.1 - 2025-01-31
 
 Improved H5Parm validator.
