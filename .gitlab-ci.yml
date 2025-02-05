@@ -21,13 +21,16 @@ include:
 python-test:
   image: vmorello/skao-ci-portable-dp3:latest
   before_script:
+    - DP3 --version
+    - echo Path is $PATH
+    - echo poetry version is $CI_POETRY_VERSION
     - |
-      echo "Installing poetry version $CI_POETRY_VERSION"
+      echo "Installing poetry"
       python3 -m venv $HOME/poetry_venv
       source $HOME/poetry_venv/bin/activate
       pip install poetry==$CI_POETRY_VERSION
       deactivate
-      export PATH=$HOME/poetry_venv/bin:$PATH
+      PATH=$HOME/poetry_venv/bin:$PATH
       poetry config virtualenvs.in-project true
     - |
       echo "python-test: Installing with poetry";
