@@ -23,6 +23,7 @@ python-test:
   before_script:
     - ls /opt
     - source /entrypoint.sh
+    - cat /proc/cpuinfo
     - env
     - DP3 --version
     - echo Path is $PATH
