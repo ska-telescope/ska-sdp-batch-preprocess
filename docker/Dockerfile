@@ -45,7 +45,7 @@ set -o noclobber \
 
 # Install the software, remove unnecessary deps
 # NOTE: added argument to spack install: -j $(nproc)
-RUN cd /opt/spack-environment && spack env activate . && spack install -j8 --fail-fast && spack gc -y
+RUN cd /opt/spack-environment && spack env activate . && spack install -j $(nproc) --fail-fast && spack gc -y
 
 # Strip all the binaries
 RUN find -L /opt/views/view/* -type f -exec readlink -f '{}' \; | \
