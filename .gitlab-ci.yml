@@ -19,4 +19,4 @@ include:
      - "gitlab-ci/includes/release.gitlab-ci.yml"
 
 python-test:
-  image: saliei/dp3:1.1.0
+  image: saliei/dp3:1.2.0
