@@ -27,12 +27,15 @@ RUN spack repo add /opt/repos/ska-sdp-spack
 # is specified in a manifest file (spack.yaml)
 # NOTE: Had to update the syntax of the YAML below
 # {"install_tree": PATH} must be replaced by {"install_tree": {"root": PATH}}
+# NOTE: Adding git lfs and make that are both required by the CI pipeline
 RUN mkdir -p /opt/spack-environment && \
 set -o noclobber \
 &&  (echo spack: \
 &&   echo '  # add package specs to the `specs` list' \
 &&   echo '  specs:' \
 &&   echo '  - dp3@6.3 arch=None-None-x86_64_v2' \
+&&   echo '  - git-lfs@3.5.1 arch=None-None-x86_64_v2' \
+&&   echo '  - gmake@4.4.1 arch=None-None-x86_64_v2' \
 &&   echo '  view: /opt/views/view' \
 &&   echo '  concretizer:' \
 &&   echo '    unify: true' \
