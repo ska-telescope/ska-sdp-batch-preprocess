@@ -39,6 +39,8 @@ set -o noclobber \
 &&   echo '  view: /opt/views/view' \
 &&   echo '  concretizer:' \
 &&   echo '    unify: true' \
+&&   echo '    targets:' \
+&&   echo '      granularity: generic' \
 &&   echo '  config:' \
 &&   echo '    install_tree:' \
 &&   echo '      root: /opt/software') > /opt/spack-environment/spack.yaml
