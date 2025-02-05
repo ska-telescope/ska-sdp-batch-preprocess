@@ -21,6 +21,8 @@ include:
 python-test:
   image: vmorello/skao-ci-portable-dp3:latest
   before_script:
+    - ls /opt
+    - env
     - DP3 --version
     - echo Path is $PATH
     - echo poetry version is $CI_POETRY_VERSION
