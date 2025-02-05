@@ -29,6 +29,7 @@ python-test:
     - DP3 --version
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
+    - apt-get update -y && apt-get install -y pipx && pipx install poetry
     - poetry config virtualenvs.in-project true
     - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
     - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
