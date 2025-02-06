@@ -21,7 +21,7 @@ On Debian/Ubuntu Linux:
 
     sudo apt-get install git-lfs
 
-Other installation methods are provided on the `Git LFS website <https://git-lfs.com/>_`.
+Other installation methods are provided on the `Git LFS website <https://git-lfs.com/>`_.
 
 
 Cloning the repository
