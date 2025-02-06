@@ -40,7 +40,7 @@ After that, just follow the rest of the instructions in :ref:`installation`.
 CI Pipeline simulation
 ======================
 
-Before pushing new commits, you should check whether they will pass CI pipeline as follows:
+Before pushing new commits, you should check whether they will pass the CI pipeline as follows:
 
 .. code-block::
 
