@@ -35,35 +35,35 @@ just run:
 Installing the batch pre-processing pipeline
 ============================================
 
+.. note::
+
+    If you plan on contributing, there are a few additional instructions to
+    follow first, see :ref:`devguide`.
+
+
 Clone the repository
 ---------------------
 
-Navigate to the parent directory of your choice, clone preferably with SSH if you plan on contributing: 
+Navigate to the parent directory of your choice and run: 
 
 .. code-block:: text
 
-    git clone git@gitlab.com:ska-telescope/sdp/science-pipeline-workflows/ska-sdp-batch-preprocess.git
+    git clone https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-batch-preprocess.git
 
 
 Create a Python environment
 ---------------------------
 
-It is highly recommended to install the pipeline inside a dedicated environment;
-here we use ``venv``, which part of the standard library -- again, alternatives are available.
-We will store the pipeline's virtual environment in a ``.venv/`` sub-directory of the repository,
-which is what ``poetry`` expects by default.
+It is highly recommended to install the pipeline inside a dedicated environment. Poetry will create
+one automatically if its configuration parameter ``virtualenvs.create`` is ``true``.
 
 .. code-block:: text
 
+    poetry config virtualenvs.create true
     cd ska-sdp-batch-preprocess/
-    python -m venv .venv/
-
-We can now install the pipeline and its dependencies; they will all be placed inside the ``.venv/``
-directory.
-
-.. code-block:: text
-
     poetry install
+
+The pipeline and its dependencies should now be installed in a ``.venv/`` sub-directory.
 
 
 Activate the environment and verify the installation
