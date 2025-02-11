@@ -55,3 +55,13 @@ class H5Parm:
         soltab, given complex-valued gains and associated metadata.
         """
         pass
+
+    def __str__(self) -> str:
+        clsname = type(self).__name__
+        indent = 4 * " "
+        lines = [indent + str(tab) + "," for tab in self.soltabs]
+        lines = [f"{clsname}(", *lines, ")"]
+        return "\n".join(lines)
+
+    def __repr__(self) -> str:
+        return str(self)
