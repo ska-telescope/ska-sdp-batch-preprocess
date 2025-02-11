@@ -48,7 +48,12 @@ class Soltab:
         """
         Convert ant, pol and dir axes data to np.str_
         """
-        pass
+        newaxes = {}
+        for key, arr in self.__axes.items():
+            if key in STRING_TYPED_AXIS_NAMES:
+                arr = np.asarray(arr, dtype=np.str_)
+            newaxes[key] = arr
+        self.__axes = newaxes
 
     def __validate(self):
         # TODO: check consistency between axes and datasets
@@ -62,6 +67,22 @@ class Soltab:
     def axes(self) -> dict[str, NDArray]:
         # Do not allow mutating the underlying dict
         return dict(self.__axes)
+
+    @property
+    def __string_typed_axes(self) -> dict[str, NDArray]:
+        return {
+            key: val
+            for key, val in self.__axes.items()
+            if key in STRING_TYPED_AXIS_NAMES
+        }
+
+    @property
+    def __non_string_typed_axes(self) -> dict[str, NDArray]:
+        return {
+            key: val
+            for key, val in self.__axes.items()
+            if key not in STRING_TYPED_AXIS_NAMES
+        }
 
     @property
     def axis_order(self) -> tuple[str]:
@@ -103,17 +124,13 @@ class Soltab:
         group.clear()
         group.attrs["TITLE"] = np.bytes_(self.title)
 
-        string_axes = set(self.axes.keys()).intersection(
-            STRING_TYPED_AXIS_NAMES
-        )
-        for name in string_axes:
+        for name, data in self.__string_typed_axes.items():
             group.create_dataset(
-                name, data=_ndarray_of_null_terminated_bytes(self.axes[name])
+                name, data=_ndarray_of_null_terminated_bytes(data)
             )
 
-        non_string_axes = set(self.axes.keys()).difference(string_axes)
-        for name in non_string_axes:
-            group.create_dataset(name, data=self.axes[name])
+        for name, data in self.__non_string_typed_axes.items():
+            group.create_dataset(name, data=data)
 
         axes_attr = np.bytes_(",".join(self.axes.keys()))
         val = group.create_dataset("val", data=self.values)
@@ -243,7 +260,6 @@ if __name__ == "__main__":
     print(soltab.axes)
     print(soltab.values.shape)
     print(soltab.weights.shape)
-    print([s.decode() for s in soltab.axes["pol"]])
 
     print(80 * "=")
 
@@ -259,4 +275,3 @@ if __name__ == "__main__":
     print(soltab.axes)
     print(soltab.values.shape)
     print(soltab.weights.shape)
-    print([s.decode() for s in soltab.axes["pol"]])
