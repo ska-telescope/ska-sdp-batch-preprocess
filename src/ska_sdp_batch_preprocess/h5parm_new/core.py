@@ -1,3 +1,4 @@
+import os
 from typing import Iterable
 
 import h5py
@@ -45,9 +46,6 @@ class Soltab:
         self.__validate()
 
     def __convert_string_typed_axes_to_str_type(self):
-        """
-        Convert ant, pol and dir axes data to np.str_.
-        """
         newaxes = {}
         # NOTE: preserving key order is important
         for key, arr in self.__axes.items():
@@ -81,6 +79,10 @@ class Soltab:
     @property
     def weights(self) -> NDArray:
         return self.__weights
+
+    @property
+    def dimensions(self) -> dict[str, int]:
+        return {key: len(arr) for key, arr in self.axes.items()}
 
     @classmethod
     def from_hdf5_group(cls, group: h5py.Group) -> "Soltab":
@@ -121,6 +123,15 @@ class Soltab:
 
         weight = group.create_dataset("weight", data=self.weights)
         weight.attrs["AXES"] = axes_attr
+
+    def __str__(self) -> str:
+        clsname = type(self).__name__
+        return (
+            f"{clsname}(title={self.title!r}, dimensions={self.dimensions!r})"
+        )
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 def read_bytes_attribute_as_string(obj: h5py.HLObject, attr_name: str) -> str:
@@ -199,7 +210,7 @@ def _ndarray_of_null_terminated_bytes(strings: Iterable[str]) -> NDArray:
 
 
 class H5Parm:
-    def __init__(self, soltabs):
+    def __init__(self, soltabs: Iterable[Soltab]):
         self.__soltabs = tuple(soltabs)
         self.__validate()
 
@@ -212,23 +223,31 @@ class H5Parm:
         pass
 
     @property
-    def soltabs(self):
+    def soltabs(self) -> tuple[Soltab]:
         return self.__soltabs
 
-    def save(self, path):
+    def save(self, path: str | os.PathLike):
         pass
 
     @classmethod
-    def load(self, path):
-        pass
+    def load(cls, path: str | os.PathLike) -> "H5Parm":
+        with h5py.File(path, "r") as file:
+            _assert(
+                len(file.keys()) == 1,
+                f"H5Parm {file.name!r} should have exactly one top-level "
+                "member (solset)",
+            )
+            solset: h5py.Group = next(iter(file.values()))
+            soltabs = list(map(Soltab.from_hdf5_group, solset.values()))
+        return cls(soltabs)
 
     @classmethod
-    def from_complex_gains(
+    def from_complex_gain_data(
         cls, axes: dict[str, NDArray], values: NDArray, weights: NDArray
-    ):
+    ) -> "H5Parm":
         """
         Convenience method to create an H5Parm with an amplitude and phase
-        soltab, given complex-value gains and associated metadata.
+        soltab, given complex-valued gains and associated metadata.
         """
         pass
 
@@ -258,3 +277,8 @@ if __name__ == "__main__":
     print(soltab.axes)
     print(soltab.values.shape)
     print(soltab.weights.shape)
+
+    print(80 * "=")
+    fname = "/home/vince/work/bpp/solutions/bandpass-e2e-feb7.h5parm"
+    parm = H5Parm.load(fname)
+    print(parm.soltabs)
