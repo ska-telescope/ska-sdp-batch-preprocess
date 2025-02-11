@@ -41,14 +41,15 @@ class Soltab:
         self.__axes = dict(axes)
         self.__values = values
         self.__weights = weights
-        self.__convert_string_axes_to_str_type()
+        self.__convert_string_typed_axes_to_str_type()
         self.__validate()
 
-    def __convert_string_axes_to_str_type(self):
+    def __convert_string_typed_axes_to_str_type(self):
         """
-        Convert ant, pol and dir axes data to np.str_
+        Convert ant, pol and dir axes data to np.str_.
         """
         newaxes = {}
+        # NOTE: preserving key order is important
         for key, arr in self.__axes.items():
             if key in STRING_TYPED_AXIS_NAMES:
                 arr = np.asarray(arr, dtype=np.str_)
@@ -69,6 +70,18 @@ class Soltab:
         return dict(self.__axes)
 
     @property
+    def axis_order(self) -> tuple[str]:
+        return tuple(self.__axes.keys())
+
+    @property
+    def values(self) -> NDArray:
+        return self.__values
+
+    @property
+    def weights(self) -> NDArray:
+        return self.__weights
+
+    @property
     def __string_typed_axes(self) -> dict[str, NDArray]:
         return {
             key: val
@@ -83,18 +96,6 @@ class Soltab:
             for key, val in self.__axes.items()
             if key not in STRING_TYPED_AXIS_NAMES
         }
-
-    @property
-    def axis_order(self) -> tuple[str]:
-        return tuple(self.__axes.keys())
-
-    @property
-    def values(self) -> NDArray:
-        return self.__values
-
-    @property
-    def weights(self) -> NDArray:
-        return self.__weights
 
     @classmethod
     def from_hdf5_group(cls, group: h5py.Group) -> "Soltab":
@@ -111,8 +112,8 @@ class Soltab:
             "have metadata specifying different axes",
         )
         # Reorder "axes" dict to match order specified by datasets
-        # Checking consistency between axes and datasets axes attribute
-        # is left to __init__()
+        # Checking consistency between axis order in "axes" dict and the
+        # dimensions of the datasets is left to __init__
         axes = {key: axes[key] for key in values_axes}
         return cls(title, axes, values, weights)
 
