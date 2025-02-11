@@ -1,3 +1,5 @@
+from typing import Iterable
+
 import h5py
 import numpy as np
 from numpy.typing import NDArray
@@ -5,6 +7,7 @@ from numpy.typing import NDArray
 VALID_AXIS_NAMES = {"time", "freq", "ant", "pol", "dir"}
 VALID_DATASET_NAMES = {"val", "weight"}
 VALID_SOLTAB_TITLES = {"amplitude", "phase"}
+STRING_TYPED_AXIS_NAMES = {"ant", "pol", "dir"}
 
 
 class InvalidH5Parm(Exception):
@@ -100,9 +103,17 @@ class Soltab:
         group.clear()
         group.attrs["TITLE"] = np.bytes_(self.title)
 
-        # TODO: convert string axes to array of null-terminated bytes
-        for name, data in self.axes.items():
-            group.create_dataset(name, data=data)
+        string_axes = set(self.axes.keys()).intersection(
+            STRING_TYPED_AXIS_NAMES
+        )
+        for name in string_axes:
+            group.create_dataset(
+                name, data=_ndarray_of_null_terminated_bytes(self.axes[name])
+            )
+
+        non_string_axes = set(self.axes.keys()).difference(string_axes)
+        for name in non_string_axes:
+            group.create_dataset(name, data=self.axes[name])
 
         axes_attr = np.bytes_(",".join(self.axes.keys()))
         val = group.create_dataset("val", data=self.values)
@@ -178,6 +189,15 @@ def read_soltab_axes(group: h5py.Group) -> dict[str, NDArray]:
     return {key: read_dataset(group[key]) for key in axis_keys}
 
 
+def _ndarray_of_null_terminated_bytes(strings: Iterable[str]) -> NDArray:
+    # NOTE: we have to make the antenna names in the H5Parm one character
+    # longer, otherwise DP3 throws an error along the lines of:
+    # "SolTab has no element <ANTENNA_NAME> in ant"
+    # Adding any character (not just the null terminator) is a valid
+    # fix to the problem; I don't know why.
+    return np.asarray([s.encode("ascii") + b"\0" for s in strings])
+
+
 class H5Parm:
     def __init__(self, soltabs):
         self.__soltabs = tuple(soltabs)
@@ -225,18 +245,16 @@ if __name__ == "__main__":
     print(soltab.weights.shape)
     print([s.decode() for s in soltab.axes["pol"]])
 
-
     print(80 * "=")
 
     fname = "/home/vince/work/bpp/solutions/test.h5parm"
     with h5py.File(fname, "w") as file:
         group = file.create_group("test")
         soltab.to_hdf5_group(group)
-    
+
     with h5py.File(fname, "r") as file:
         soltab.from_hdf5_group(file["test"])
 
-    
     print(soltab.title)
     print(soltab.axes)
     print(soltab.values.shape)
