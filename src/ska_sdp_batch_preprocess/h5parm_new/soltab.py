@@ -1,5 +1,6 @@
-from typing import Iterable
+from typing import Iterable, Optional
 
+import os
 import h5py
 import numpy as np
 from numpy.typing import NDArray
@@ -23,7 +24,12 @@ class Soltab:
         axes: dict[str, NDArray],
         values: NDArray,
         weights: NDArray,
+        name: Optional[str] = None
     ):
+        """
+        NOTE: 'name' is only used internally when loading from an existing
+        HDF5 file.
+        """
         # NOTE: we could add lazy loading of values and weights later on,
         # by allowing to pass a Callable instead of NDArray for 'values'
         # and 'weights'
@@ -31,13 +37,13 @@ class Soltab:
         self.__axes = dict(axes)
         self.__values = values
         self.__weights = weights
+        self.__name = name
         self.__convert_string_typed_axes_to_str_type()
         self.__validate()
 
-    # TODO: Need to implement a name attribute for BPP purposes
     @property
-    def name(self) -> str:
-        raise NotImplementedError
+    def name(self) -> Optional[str]:
+        return self.__name
 
     @property
     def title(self) -> str:
@@ -79,6 +85,7 @@ class Soltab:
         """
         Load from HDF5 group.
         """
+        name = os.path.basename(group.name)
         title = read_title_attribute(group)
         axes = read_soltab_axes(group)
         values, values_axes = read_dataset_with_named_axes(group, "val")
@@ -92,7 +99,7 @@ class Soltab:
         # Checking consistency between axis order in "axes" dict and the
         # dimensions of the datasets is left to __init__
         axes = {key: axes[key] for key in values_axes}
-        return cls(title, axes, values, weights)
+        return cls(title, axes, values, weights, name=name)
 
     def to_hdf5_group(self, group: h5py.Group) -> "Soltab":
         """
@@ -118,7 +125,8 @@ class Soltab:
     def __str__(self) -> str:
         clsname = type(self).__name__
         return (
-            f"{clsname}(title={self.title!r}, dimensions={self.dimensions!r})"
+            f"{clsname}(name={self.name!r}, title={self.title!r}, "
+            f"dimensions={self.dimensions!r})"
         )
 
     def __repr__(self) -> str:
