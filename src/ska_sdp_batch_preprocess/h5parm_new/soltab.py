@@ -9,7 +9,7 @@ from .exceptions import _assert
 
 VALID_AXIS_NAMES = {"time", "freq", "ant", "pol", "dir"}
 VALID_DATASET_NAMES = {"val", "weight"}
-VALID_SOLTAB_TITLES = {"amplitude", "phase"}
+VALID_SOLTAB_TITLES = {"amplitude", "phase"}  # TODO: add all others
 STRING_TYPED_AXIS_NAMES = {"ant", "pol", "dir"}
 
 
