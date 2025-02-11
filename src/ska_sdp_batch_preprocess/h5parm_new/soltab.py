@@ -1,9 +1,10 @@
-import os
 from typing import Iterable
 
 import h5py
 import numpy as np
 from numpy.typing import NDArray
+
+from .exceptions import _assert
 
 VALID_AXIS_NAMES = {"time", "freq", "ant", "pol", "dir"}
 VALID_DATASET_NAMES = {"val", "weight"}
@@ -11,21 +12,9 @@ VALID_SOLTAB_TITLES = {"amplitude", "phase"}
 STRING_TYPED_AXIS_NAMES = {"ant", "pol", "dir"}
 
 
-class InvalidH5Parm(Exception):
-    """
-    Raised when the schema/layout of an H5Parm file does not conform to
-    expectations.
-    """
-
-
-def _assert(condition: bool, error_message: str):
-    if not condition:
-        raise InvalidH5Parm(error_message)
-
-
 class Soltab:
     """
-    TODO.
+    TODO
     """
 
     def __init__(
@@ -44,19 +33,6 @@ class Soltab:
         self.__weights = weights
         self.__convert_string_typed_axes_to_str_type()
         self.__validate()
-
-    def __convert_string_typed_axes_to_str_type(self):
-        newaxes = {}
-        # NOTE: preserving key order is important
-        for key, arr in self.__axes.items():
-            if key in STRING_TYPED_AXIS_NAMES:
-                arr = np.asarray(arr, dtype=np.str_)
-            newaxes[key] = arr
-        self.__axes = newaxes
-
-    def __validate(self):
-        # TODO: check consistency between axes and datasets
-        pass
 
     @property
     def title(self) -> str:
@@ -79,6 +55,19 @@ class Soltab:
     @property
     def dimensions(self) -> dict[str, int]:
         return {key: len(arr) for key, arr in self.axes.items()}
+
+    def __convert_string_typed_axes_to_str_type(self):
+        newaxes = {}
+        # NOTE: preserving key order is important
+        for key, arr in self.__axes.items():
+            if key in STRING_TYPED_AXIS_NAMES:
+                arr = np.asarray(arr, dtype=np.str_)
+            newaxes[key] = arr
+        self.__axes = newaxes
+
+    def __validate(self):
+        # TODO: check consistency between axes and datasets
+        pass
 
     @classmethod
     def from_hdf5_group(cls, group: h5py.Group) -> "Soltab":
@@ -204,64 +193,3 @@ def _ndarray_of_null_terminated_bytes(strings: Iterable[str]) -> NDArray:
     # Adding any character (not just the null terminator) is a valid
     # fix to the problem; I don't know why.
     return np.asarray([s.encode("ascii") + b"\0" for s in strings])
-
-
-class H5Parm:
-    def __init__(self, soltabs: Iterable[Soltab]):
-        self.__soltabs = tuple(soltabs)
-        self.__validate()
-
-    def __validate(self):
-        # NOTE: soltabs are assumed to be validated already
-        # Refuse nsoltabs not in (1, 2)
-        # if nsoltabs == 1, it can't be phase or amplitude with 4 pols
-        # if nsoltabs == 2, check they are phase and amplitude, and consistent
-        # with each other
-        pass
-
-    @property
-    def soltabs(self) -> tuple[Soltab]:
-        return self.__soltabs
-
-    def save(self, path: str | os.PathLike):
-        with h5py.File(path, "w") as file:
-            # NOTE: group names for solsets and soltabs should not matter,
-            # but let's follow the LOFAR convention
-            solset = file.create_group("sol000")
-            for soltab in self.soltabs:
-                group = solset.create_group(f"{soltab.title}000")
-                soltab.to_hdf5_group(group)
-
-    @classmethod
-    def load(cls, path: str | os.PathLike) -> "H5Parm":
-        with h5py.File(path, "r") as file:
-            _assert(
-                len(file.keys()) == 1,
-                f"H5Parm {file.name!r} should have exactly one top-level "
-                "member (solset)",
-            )
-            solset: h5py.Group = next(iter(file.values()))
-            soltabs = list(map(Soltab.from_hdf5_group, solset.values()))
-        return cls(soltabs)
-
-    @classmethod
-    def from_complex_gain_data(
-        cls, axes: dict[str, NDArray], values: NDArray, weights: NDArray
-    ) -> "H5Parm":
-        """
-        Convenience method to create an H5Parm with an amplitude and phase
-        soltab, given complex-valued gains and associated metadata.
-        """
-        pass
-
-
-if __name__ == "__main__":
-    input_fname = "/home/vince/work/selfcal/batch_preprocessing/bandpass-e2e-feb7.h5parm"
-    output_fname = "/home/vince/work/selfcal/batch_preprocessing/test.h5parm"
-
-    parm = H5Parm.load(input_fname)
-    print(parm.soltabs)
-
-    parm.save(output_fname)
-    parm2 = H5Parm.load(output_fname)
-    print(parm2.soltabs)
