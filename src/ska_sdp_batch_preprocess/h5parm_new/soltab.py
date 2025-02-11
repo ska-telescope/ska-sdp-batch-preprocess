@@ -34,6 +34,11 @@ class Soltab:
         self.__convert_string_typed_axes_to_str_type()
         self.__validate()
 
+    # TODO: Need to implement a name attribute for BPP purposes
+    @property
+    def name(self) -> str:
+        raise NotImplementedError
+
     @property
     def title(self) -> str:
         return self.__title
