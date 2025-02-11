@@ -66,7 +66,8 @@ class Soltab:
 
     @property
     def axes(self) -> dict[str, NDArray]:
-        # Do not allow mutating the underlying dict
+        # Ensure the axes member dict can't be mutated; we allow edition of
+        # the data though.
         return dict(self.__axes)
 
     @property
@@ -80,22 +81,6 @@ class Soltab:
     @property
     def weights(self) -> NDArray:
         return self.__weights
-
-    @property
-    def __string_typed_axes(self) -> dict[str, NDArray]:
-        return {
-            key: val
-            for key, val in self.__axes.items()
-            if key in STRING_TYPED_AXIS_NAMES
-        }
-
-    @property
-    def __non_string_typed_axes(self) -> dict[str, NDArray]:
-        return {
-            key: val
-            for key, val in self.__axes.items()
-            if key not in STRING_TYPED_AXIS_NAMES
-        }
 
     @classmethod
     def from_hdf5_group(cls, group: h5py.Group) -> "Soltab":
@@ -125,12 +110,9 @@ class Soltab:
         group.clear()
         group.attrs["TITLE"] = np.bytes_(self.title)
 
-        for name, data in self.__string_typed_axes.items():
-            group.create_dataset(
-                name, data=_ndarray_of_null_terminated_bytes(data)
-            )
-
-        for name, data in self.__non_string_typed_axes.items():
+        for name, data in self.axes.items():
+            if name in STRING_TYPED_AXIS_NAMES:
+                data = _ndarray_of_null_terminated_bytes(data)
             group.create_dataset(name, data=data)
 
         axes_attr = np.bytes_(",".join(self.axes.keys()))
