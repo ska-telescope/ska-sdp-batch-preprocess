@@ -30,9 +30,13 @@ class Soltab:
         NOTE: 'name' is only used internally when loading from an existing
         HDF5 file.
         """
-        # NOTE: we could add lazy loading of values and weights later on,
-        # by allowing to pass a Callable instead of NDArray for 'values'
-        # and 'weights'
+        # NOTE: we could add lazy loading as follows:
+        # 'values' and 'weight' could be either a NDArray or a special object
+        # containing two fields: the path of the HDF5 file on disk, and
+        # the full name of the dataset object, e.g. 'sol000/phase000/val'
+        # that second initialisation path would only be used internally
+        # That special object should also carry a 'shape' attribute for
+        # validation
         self.__title = title
         self.__axes = dict(axes)
         self.__values = values
