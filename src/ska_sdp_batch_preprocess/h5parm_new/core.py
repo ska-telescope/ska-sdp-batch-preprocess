@@ -69,10 +69,6 @@ class Soltab:
         return dict(self.__axes)
 
     @property
-    def axis_order(self) -> tuple[str]:
-        return tuple(self.__axes.keys())
-
-    @property
     def values(self) -> NDArray:
         return self.__values
 
@@ -260,37 +256,12 @@ class H5Parm:
 
 
 if __name__ == "__main__":
-    fname = "/home/vince/work/bpp/solutions/bandpass-e2e-feb7.h5parm"
+    input_fname = "/home/vince/work/selfcal/batch_preprocessing/bandpass-e2e-feb7.h5parm"
+    output_fname = "/home/vince/work/selfcal/batch_preprocessing/test.h5parm"
 
-    with h5py.File(fname, "r") as file:
-        soltab = Soltab.from_hdf5_group(file["sol000"]["amplitude000"])
-
-    print(soltab.title)
-    print(soltab.axes)
-    print(soltab.values.shape)
-    print(soltab.weights.shape)
-
-    print(80 * "=")
-
-    fname = "/home/vince/work/bpp/solutions/test.h5parm"
-    with h5py.File(fname, "w") as file:
-        group = file.create_group("test")
-        soltab.to_hdf5_group(group)
-
-    with h5py.File(fname, "r") as file:
-        soltab.from_hdf5_group(file["test"])
-
-    print(soltab.title)
-    print(soltab.axes)
-    print(soltab.values.shape)
-    print(soltab.weights.shape)
-
-    print(80 * "=")
-    fname = "/home/vince/work/bpp/solutions/bandpass-e2e-feb7.h5parm"
-    parm = H5Parm.load(fname)
+    parm = H5Parm.load(input_fname)
     print(parm.soltabs)
 
-    fname = "/home/vince/work/bpp/solutions/test.h5parm"
-    parm.save(fname)
-    parm2 = H5Parm.load(fname)
+    parm.save(output_fname)
+    parm2 = H5Parm.load(output_fname)
     print(parm2.soltabs)
