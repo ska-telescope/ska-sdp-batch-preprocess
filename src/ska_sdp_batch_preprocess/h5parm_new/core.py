@@ -106,7 +106,8 @@ class Soltab:
 
     def to_hdf5_group(self, group: h5py.Group) -> "Soltab":
         """
-        Write to HDF5 group; any pre-existing contents of the group are
+        Write to HDF5 group that represents a soltab (i.e. a member of
+        a solset group). Any pre-existing contents of the group are
         deleted.
         """
         group.clear()
@@ -227,7 +228,13 @@ class H5Parm:
         return self.__soltabs
 
     def save(self, path: str | os.PathLike):
-        pass
+        with h5py.File(path, "w") as file:
+            # NOTE: group names for solsets and soltabs should not matter,
+            # but let's follow the LOFAR convention
+            solset = file.create_group("sol000")
+            for soltab in self.soltabs:
+                group = solset.create_group(f"{soltab.title}000")
+                soltab.to_hdf5_group(group)
 
     @classmethod
     def load(cls, path: str | os.PathLike) -> "H5Parm":
@@ -282,3 +289,8 @@ if __name__ == "__main__":
     fname = "/home/vince/work/bpp/solutions/bandpass-e2e-feb7.h5parm"
     parm = H5Parm.load(fname)
     print(parm.soltabs)
+
+    fname = "/home/vince/work/bpp/solutions/test.h5parm"
+    parm.save(fname)
+    parm2 = H5Parm.load(fname)
+    print(parm2.soltabs)
