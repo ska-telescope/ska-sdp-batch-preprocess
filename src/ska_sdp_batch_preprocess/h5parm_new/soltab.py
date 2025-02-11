@@ -1,6 +1,6 @@
+import os
 from typing import Iterable, Optional
 
-import os
 import h5py
 import numpy as np
 from numpy.typing import NDArray
@@ -24,7 +24,7 @@ class Soltab:
         axes: dict[str, NDArray],
         values: NDArray,
         weights: NDArray,
-        name: Optional[str] = None
+        name: Optional[str] = None,
     ):
         """
         NOTE: 'name' is only used internally when loading from an existing
