@@ -39,46 +39,7 @@ class Soltab:
         self.__values = np.asarray(values)
         self.__weights = np.asarray(weights)
         self.__name = str(name) if name is not None else None
-        self.__validate()
-
-    def __validate(self):
-        _assert(
-            self.title in VALID_SOLTAB_TITLES,
-            f"Invalid soltab title: {self.title!r}",
-        )
-
-        axis_names = set(self.axes.keys())
-        _assert(
-            set(self.axes.keys()).issubset(VALID_AXIS_NAMES),
-            f"Soltab contains invalid axis names: {axis_names!r}",
-        )
-
-        for key, data in self.axes.items():
-            _assert(
-                data.ndim == 1, f"Soltab axis {key!r} is not 1-dimensional"
-            )
-
-        pols = self.axes.get("pol", None)
-        if pols is not None:
-            pols_str_tuple = tuple(map(str, pols))
-            _assert(
-                pols_str_tuple in VALID_POL_AXIS_DATA,
-                f"Soltab pol axis data is invalid: {pols_str_tuple!r}, "
-                f"data should be one of {VALID_POL_AXIS_DATA!r}",
-            )
-
-        _assert(
-            self.values.shape == self.weights.shape,
-            "Soltab values and weights have different dimensions",
-        )
-
-        axes_shape = tuple(self.dimensions.values())
-        _assert(
-            axes_shape == self.values.shape,
-            f"Soltab values and weights shape {self.values.shape!r} "
-            "is inconsistent with the shape implied by the axes lengths "
-            f"{axes_shape!r}",
-        )
+        validate_soltab(self)
 
     @property
     def name(self) -> Optional[str]:
@@ -115,6 +76,47 @@ class Soltab:
 
     def __repr__(self) -> str:
         return str(self)
+
+
+def validate_soltab(soltab: Soltab):
+    """
+    Check that a Soltab instance is valid, raise an exception otherwise.
+    """
+    _assert(
+        soltab.title in VALID_SOLTAB_TITLES,
+        f"Invalid soltab title: {soltab.title!r}",
+    )
+
+    axis_names = set(soltab.axes.keys())
+    _assert(
+        set(soltab.axes.keys()).issubset(VALID_AXIS_NAMES),
+        f"Soltab contains invalid axis names: {axis_names!r}",
+    )
+
+    for key, data in soltab.axes.items():
+        _assert(data.ndim == 1, f"Soltab axis {key!r} is not 1-dimensional")
+
+    pols = soltab.axes.get("pol", None)
+    if pols is not None:
+        pols_str_tuple = tuple(map(str, pols))
+        _assert(
+            pols_str_tuple in VALID_POL_AXIS_DATA,
+            f"Soltab pol axis data is invalid: {pols_str_tuple!r}, "
+            f"data should be one of {VALID_POL_AXIS_DATA!r}",
+        )
+
+    _assert(
+        soltab.values.shape == soltab.weights.shape,
+        "Soltab values and weights have different dimensions",
+    )
+
+    axes_shape = tuple(soltab.dimensions.values())
+    _assert(
+        axes_shape == soltab.values.shape,
+        f"Soltab values and weights shape {soltab.values.shape!r} "
+        "is inconsistent with the shape implied by the axes lengths "
+        f"{axes_shape!r}",
+    )
 
 
 def read_soltab_from_hdf5_group(group: h5py.Group) -> Soltab:
