@@ -63,8 +63,8 @@ class Soltab:
             pols_str_tuple = tuple(map(str, pols))
             _assert(
                 pols_str_tuple in VALID_POL_AXIS_DATA,
-                f"Soltab pol axis contents are invalid: {pols_str_tuple!r}, "
-                f"contents should be one of {VALID_POL_AXIS_DATA!r}",
+                f"Soltab pol axis data is invalid: {pols_str_tuple!r}, "
+                f"data should be one of {VALID_POL_AXIS_DATA!r}",
             )
 
         _assert(
