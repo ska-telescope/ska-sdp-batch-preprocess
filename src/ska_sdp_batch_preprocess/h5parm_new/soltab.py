@@ -12,6 +12,11 @@ VALID_DATASET_NAMES = {"val", "weight"}
 VALID_SOLTAB_TITLES = {"amplitude", "phase"}  # TODO: add all others
 STRING_TYPED_AXIS_NAMES = {"ant", "pol", "dir"}
 
+VALID_POL_AXIS_DATA = {
+    ("XX", "YY"),
+    ("XX", "XY", "YX", "YY"),
+}
+
 
 class Soltab:
     """
@@ -44,20 +49,39 @@ class Soltab:
         self.__validate()
 
     def __validate(self):
-        # title
         _assert(
             self.title in VALID_SOLTAB_TITLES,
             f"Invalid soltab title: {self.title!r}",
         )
-        # axis names
+
         axis_names = set(self.axes.keys())
         _assert(
             set(self.axes.keys()).issubset(VALID_AXIS_NAMES),
             f"Soltab contains invalid axis names: {axis_names!r}",
         )
-        # Num pols
-        # pol contents
-        # Consistency axes - dataset dims
+
+        pols = self.axes.get("pol", None)
+        if pols is not None:
+            pols_str_tuple = tuple(map(str, pols))
+            _assert(
+                pols_str_tuple in VALID_POL_AXIS_DATA,
+                f"Soltab pol axis contents are invalid: {pols_str_tuple!r}, "
+                f"contents should be one of {VALID_POL_AXIS_DATA!r}",
+            )
+
+        _assert(
+            self.values.shape == self.weights.shape,
+            "Soltab values and weights have different dimensions"
+        )
+
+        axes_shape = tuple(self.dimensions.values())
+        _assert(
+            axes_shape == self.values.shape,
+            f"Soltab values and weights shape ({self.values.shape!r}) "
+            "is inconsistent with the shape implied by the axes lengths "
+            f"({axes_shape!r})"
+        )
+        
 
     @property
     def name(self) -> Optional[str]:
