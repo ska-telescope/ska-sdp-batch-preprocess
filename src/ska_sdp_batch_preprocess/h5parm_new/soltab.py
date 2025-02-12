@@ -106,48 +106,6 @@ class Soltab:
     def dimensions(self) -> dict[str, int]:
         return {key: len(arr) for key, arr in self.axes.items()}
 
-    @classmethod
-    def from_hdf5_group(cls, group: h5py.Group) -> "Soltab":
-        """
-        Load from HDF5 group.
-        """
-        name = os.path.basename(group.name)
-        title = read_title_attribute(group)
-        axes = read_soltab_axes(group)
-        values, values_axes = read_dataset_with_named_axes(group, "val")
-        weights, weight_axes = read_dataset_with_named_axes(group, "weight")
-        _assert(
-            values_axes == weight_axes,
-            f"val and weight datasets under soltab {group.name!r} "
-            "have metadata specifying different axes",
-        )
-        # Reorder "axes" dict to match order specified by datasets
-        # Checking consistency between axis order in "axes" dict and the
-        # dimensions of the datasets is left to __init__
-        axes = {key: axes[key] for key in values_axes}
-        return cls(title, axes, values, weights, name=name)
-
-    def to_hdf5_group(self, group: h5py.Group) -> "Soltab":
-        """
-        Write to HDF5 group that represents a soltab (i.e. a member of
-        a solset group). Any pre-existing contents of the group are
-        deleted.
-        """
-        group.clear()
-        group.attrs["TITLE"] = np.bytes_(self.title)
-
-        for name, data in self.axes.items():
-            if name in STRING_TYPED_AXIS_NAMES:
-                data = _ndarray_of_null_terminated_bytes(data)
-            group.create_dataset(name, data=data)
-
-        axes_attr = np.bytes_(",".join(self.axes.keys()))
-        val = group.create_dataset("val", data=self.values)
-        val.attrs["AXES"] = axes_attr
-
-        weight = group.create_dataset("weight", data=self.weights)
-        weight.attrs["AXES"] = axes_attr
-
     def __str__(self) -> str:
         clsname = type(self).__name__
         return (
@@ -157,6 +115,50 @@ class Soltab:
 
     def __repr__(self) -> str:
         return str(self)
+
+
+def read_soltab_from_hdf5_group(group: h5py.Group) -> Soltab:
+    """
+    Read Soltab from the associated HDF5 group; underlying file must be open
+    for reading.
+    """
+    name = os.path.basename(group.name)
+    title = read_title_attribute(group)
+    axes = read_soltab_axes(group)
+    values, values_axes = read_dataset_with_named_axes(group, "val")
+    weights, weight_axes = read_dataset_with_named_axes(group, "weight")
+    _assert(
+        values_axes == weight_axes,
+        f"val and weight datasets under soltab {group.name!r} "
+        "have metadata specifying different axes",
+    )
+    # Reorder "axes" dict to match order specified by datasets
+    # Checking consistency between axis order in "axes" dict and the
+    # dimensions of the datasets is left to __init__
+    axes = {key: axes[key] for key in values_axes}
+    return Soltab(title, axes, values, weights, name=name)
+
+
+def write_soltab_to_hdf5_group(soltab: Soltab, group: h5py.Group) -> "Soltab":
+    """
+    Write to HDF5 group that represents a soltab (i.e. a member of
+    a solset group); underlying file must be open for writing.
+    Any pre-existing contents of the group are deleted.
+    """
+    group.clear()
+    group.attrs["TITLE"] = np.bytes_(soltab.title)
+
+    for name, data in soltab.axes.items():
+        if name in STRING_TYPED_AXIS_NAMES:
+            data = _ndarray_of_null_terminated_bytes(data)
+        group.create_dataset(name, data=data)
+
+    axes_attr = np.bytes_(",".join(soltab.axes.keys()))
+    val = group.create_dataset("val", data=soltab.values)
+    val.attrs["AXES"] = axes_attr
+
+    weight = group.create_dataset("weight", data=soltab.weights)
+    weight.attrs["AXES"] = axes_attr
 
 
 def convert_string_typed_axes_to_unicode_ndarrays(

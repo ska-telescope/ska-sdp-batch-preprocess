@@ -5,7 +5,11 @@ import h5py
 from numpy.typing import NDArray
 
 from .exceptions import _assert
-from .soltab import Soltab
+from .soltab import (
+    Soltab,
+    read_soltab_from_hdf5_group,
+    write_soltab_to_hdf5_group,
+)
 
 
 class H5Parm:
@@ -32,7 +36,7 @@ class H5Parm:
             solset = file.create_group("sol000")
             for soltab in self.soltabs:
                 group = solset.create_group(f"{soltab.title}000")
-                soltab.to_hdf5_group(group)
+                write_soltab_to_hdf5_group(soltab, group)
 
     @classmethod
     def load(cls, path: str | os.PathLike) -> "H5Parm":
@@ -43,7 +47,7 @@ class H5Parm:
                 "member (solset)",
             )
             solset: h5py.Group = next(iter(file.values()))
-            soltabs = list(map(Soltab.from_hdf5_group, solset.values()))
+            soltabs = list(map(read_soltab_from_hdf5_group, solset.values()))
         return cls(soltabs)
 
     @classmethod
