@@ -3,7 +3,7 @@ from typing import Iterable, Optional
 
 import h5py
 import numpy as np
-from numpy.typing import NDArray
+from numpy.typing import ArrayLike, NDArray
 
 from .exceptions import _assert
 
@@ -26,19 +26,19 @@ class Soltab:
     def __init__(
         self,
         title: str,
-        axes: dict[str, NDArray],
-        values: NDArray,
-        weights: NDArray,
+        axes: dict[str, ArrayLike],
+        values: ArrayLike,
+        weights: ArrayLike,
         name: Optional[str] = None,
     ):
         """
         Create new Soltab instance.
         """
-        self.__title = title
-        self.__axes = convert_string_typed_axes_to_str_type(axes)
-        self.__values = values
-        self.__weights = weights
-        self.__name = name
+        self.__title = str(title)
+        self.__axes = convert_string_typed_axes_to_unicode_ndarrays(axes)
+        self.__values = np.asarray(values)
+        self.__weights = np.asarray(weights)
+        self.__name = str(name) if name is not None else None
         self.__validate()
 
     def __validate(self):
@@ -52,6 +52,11 @@ class Soltab:
             set(self.axes.keys()).issubset(VALID_AXIS_NAMES),
             f"Soltab contains invalid axis names: {axis_names!r}",
         )
+
+        for key, data in self.axes.items():
+            _assert(
+                data.ndim == 1, f"Soltab axis {key!r} is not 1-dimensional"
+            )
 
         pols = self.axes.get("pol", None)
         if pols is not None:
@@ -154,19 +159,19 @@ class Soltab:
         return str(self)
 
 
-def convert_string_typed_axes_to_str_type(
-    axes: dict[str, NDArray]
+def convert_string_typed_axes_to_unicode_ndarrays(
+    axes: dict[str, ArrayLike]
 ) -> dict[str, NDArray]:
     """
-    Ensure that axes whose elements are expected to be strings are numpy arrays
-    with type 'str', and not 'bytes'.
+    Self-explanatory. We do this to avoid internally dealing with `np.bytes_`
+    arrays loaded from H5Parm files.
     """
     newaxes = {}
     # NOTE: preserving key order is important
     for key, arr in axes.items():
         if key in STRING_TYPED_AXIS_NAMES:
             arr = np.asarray(arr, dtype=np.str_)
-        newaxes[key] = arr
+        newaxes[key] = np.asarray(arr)
     return newaxes
 
 
