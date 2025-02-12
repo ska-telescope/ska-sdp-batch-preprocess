@@ -34,13 +34,6 @@ class Soltab:
         """
         Create new Soltab instance.
         """
-        # NOTE: we could add lazy loading as follows:
-        # 'values' and 'weight' could be either a NDArray or a special object
-        # containing two fields: the path of the HDF5 file on disk, and
-        # the full name of the dataset object, e.g. 'sol000/phase000/val'
-        # that second initialisation path would only be used internally
-        # That special object should also carry a 'shape' attribute for
-        # validation
         self.__title = title
         self.__axes = convert_string_typed_axes_to_str_type(axes)
         self.__values = values
@@ -71,17 +64,16 @@ class Soltab:
 
         _assert(
             self.values.shape == self.weights.shape,
-            "Soltab values and weights have different dimensions"
+            "Soltab values and weights have different dimensions",
         )
 
         axes_shape = tuple(self.dimensions.values())
         _assert(
             axes_shape == self.values.shape,
-            f"Soltab values and weights shape ({self.values.shape!r}) "
+            f"Soltab values and weights shape {self.values.shape!r} "
             "is inconsistent with the shape implied by the axes lengths "
-            f"({axes_shape!r})"
+            f"{axes_shape!r}",
         )
-        
 
     @property
     def name(self) -> Optional[str]:
