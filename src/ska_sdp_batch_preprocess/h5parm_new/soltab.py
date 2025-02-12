@@ -27,8 +27,7 @@ class Soltab:
         name: Optional[str] = None,
     ):
         """
-        NOTE: 'name' is only used internally when loading from an existing
-        HDF5 file.
+        Create new Soltab instance.
         """
         # NOTE: we could add lazy loading as follows:
         # 'values' and 'weight' could be either a NDArray or a special object
@@ -38,12 +37,27 @@ class Soltab:
         # That special object should also carry a 'shape' attribute for
         # validation
         self.__title = title
-        self.__axes = dict(axes)
+        self.__axes = convert_string_typed_axes_to_str_type(axes)
         self.__values = values
         self.__weights = weights
         self.__name = name
-        self.__convert_string_typed_axes_to_str_type()
         self.__validate()
+
+    def __validate(self):
+        # title
+        _assert(
+            self.title in VALID_SOLTAB_TITLES,
+            f"Invalid soltab title: {self.title!r}",
+        )
+        # axis names
+        axis_names = set(self.axes.keys())
+        _assert(
+            set(self.axes.keys()).issubset(VALID_AXIS_NAMES),
+            f"Soltab contains invalid axis names: {axis_names!r}",
+        )
+        # Num pols
+        # pol contents
+        # Consistency axes - dataset dims
 
     @property
     def name(self) -> Optional[str]:
@@ -70,19 +84,6 @@ class Soltab:
     @property
     def dimensions(self) -> dict[str, int]:
         return {key: len(arr) for key, arr in self.axes.items()}
-
-    def __convert_string_typed_axes_to_str_type(self):
-        newaxes = {}
-        # NOTE: preserving key order is important
-        for key, arr in self.__axes.items():
-            if key in STRING_TYPED_AXIS_NAMES:
-                arr = np.asarray(arr, dtype=np.str_)
-            newaxes[key] = arr
-        self.__axes = newaxes
-
-    def __validate(self):
-        # TODO: check consistency between axes and datasets
-        pass
 
     @classmethod
     def from_hdf5_group(cls, group: h5py.Group) -> "Soltab":
@@ -137,6 +138,22 @@ class Soltab:
         return str(self)
 
 
+def convert_string_typed_axes_to_str_type(
+    axes: dict[str, NDArray]
+) -> dict[str, NDArray]:
+    """
+    Ensure that axes whose elements are expected to be strings are numpy arrays
+    with type 'str', and not 'bytes'.
+    """
+    newaxes = {}
+    # NOTE: preserving key order is important
+    for key, arr in axes.items():
+        if key in STRING_TYPED_AXIS_NAMES:
+            arr = np.asarray(arr, dtype=np.str_)
+        newaxes[key] = arr
+    return newaxes
+
+
 def read_bytes_attribute_as_string(obj: h5py.HLObject, attr_name: str) -> str:
     """
     Used to validate and read either the TITLE attribute of a soltab, or the
@@ -153,19 +170,11 @@ def read_bytes_attribute_as_string(obj: h5py.HLObject, attr_name: str) -> str:
 
 
 def read_title_attribute(obj: h5py.HLObject) -> str:
-    title = read_bytes_attribute_as_string(obj, "TITLE")
-    _assert(title in VALID_SOLTAB_TITLES, f"Invalid soltab title: {title!r}")
-    return title
+    return read_bytes_attribute_as_string(obj, "TITLE")
 
 
 def read_axes_attribute(dataset: h5py.Dataset) -> tuple[str]:
-    axes = tuple(read_bytes_attribute_as_string(dataset, "AXES").split(","))
-    _assert(
-        set(axes).issubset(VALID_AXIS_NAMES),
-        f"Dataset {dataset.name!r} has the following axes, "
-        f"some of which are invalid: {axes!r}",
-    )
-    return axes
+    return tuple(read_bytes_attribute_as_string(dataset, "AXES").split(","))
 
 
 def read_dataset(node: h5py.Dataset) -> NDArray:
@@ -195,11 +204,6 @@ def read_soltab_axes(group: h5py.Group) -> dict[str, NDArray]:
     Read the datasets corresponding to the axes in a soltab group.
     """
     axis_keys = set(group.keys()).difference(VALID_DATASET_NAMES)
-    _assert(
-        axis_keys.issubset(VALID_AXIS_NAMES),
-        f"Soltab {group.name!r} has the following axis names, "
-        f"some of which are invalid: {axis_keys!r}",
-    )
     return {key: read_dataset(group[key]) for key in axis_keys}
 
 
