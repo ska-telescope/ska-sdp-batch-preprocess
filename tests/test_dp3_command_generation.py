@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -30,12 +31,14 @@ def test_generated_dp3_command_is_correct(steps: list[Step]):
     msout = Path("/path/to/output.ms")
 
     command = DP3Params.create(steps, msin, msout).to_command_line()
+    expected_numthreads = len(os.sched_getaffinity(0))
     expected_command = [
         "DP3",
         "checkparset=1",
         "steps=[preflagger_01,aoflagger_01,averager_01,aoflagger_02]",
         "msin.name=/path/to/input.ms",
         "msout.name=/path/to/output.ms",
+        f"numthreads={expected_numthreads}",
         "preflagger_01.type=preflagger",
         "aoflagger_01.type=aoflagger",
         "aoflagger_01.memorymax=8.0",

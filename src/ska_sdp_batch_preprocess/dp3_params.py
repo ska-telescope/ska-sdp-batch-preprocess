@@ -65,8 +65,13 @@ class DP3Params(Mapping[str, Any]):
             "msin.name": Path(msin),
             "msout.name": Path(msout),
         }
-        if numthreads:
-            conf["numthreads"] = numthreads
+
+        # If 'numthreads' is not given, DP3 uses the total number of cores on
+        # the machine. We want instead the number of cores allocated to the
+        # process.
+        if numthreads is None:
+            numthreads = len(os.sched_getaffinity(0))
+        conf["numthreads"] = numthreads
 
         unique_namer = UniqueNamer()
 
