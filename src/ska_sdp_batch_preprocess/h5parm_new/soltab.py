@@ -78,12 +78,18 @@ class Soltab:
     @property
     def axes(self) -> dict[SoltabAxisName, NDArray]:
         """
-        Mapping axis name to data values; keys are in the same order as the
-        dimension order in the `values` and `weights` arrays.
+        Mapping axis name to data values (read-only); keys are in the same
+        order as the dimension order in the `values` and `weights` arrays.
         """
-        # Ensure the axes member dict can't be mutated; we allow edition of
-        # the underlying data though.
-        return dict(self.__axes)
+        def readonly_view(arr: NDArray) -> NDArray:
+            view = arr.view()
+            view.flags.writeable = False
+            return view
+
+        return {
+            key: readonly_view(arr)
+            for key, arr in self.__axes.items()
+        }
 
     @property
     def values(self) -> NDArray:
@@ -209,16 +215,19 @@ def prepare_axes_dict(
     axes: dict[str, ArrayLike]
 ) -> dict[str, NDArray]:
     """
-    Convert all dict values to numpy arrays; ensure that the axes arrays
-    containing string values are of unicode type. We do this to avoid
-    internally dealing with `np.bytes_` arrays loaded from H5Parm files.
+    Convert all dict values to numpy arrays.
+    Ensure that the axes arrays containing string values are of unicode type.
+    We do this to avoid internally dealing with `np.bytes_` arrays loaded from
+    H5Parm files.
     """
     newaxes = {}
     # NOTE: preserving key order is important
     for key, arr in axes.items():
         if key in STRING_TYPED_AXIS_NAMES:
             arr = np.asarray(arr, dtype=np.str_)
-        newaxes[key] = np.asarray(arr)
+        else:
+            arr = np.asarray(arr)
+        newaxes[key] = arr
     return newaxes
 
 
