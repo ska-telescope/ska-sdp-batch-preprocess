@@ -1,5 +1,5 @@
 import os
-from typing import Iterable, Optional
+from typing import Iterable, Literal, Optional, get_args
 
 import h5py
 import numpy as np
@@ -7,11 +7,14 @@ from numpy.typing import ArrayLike, NDArray
 
 from .assertions import assert_or_invalid_h5parm, assert_or_value_error
 
-VALID_AXIS_NAMES = {"time", "freq", "ant", "pol", "dir"}
-VALID_DATASET_NAMES = {"val", "weight"}
-VALID_SOLTAB_TITLES = {"amplitude", "phase"}  # TODO: add all others
+SoltabAxisName = Literal["time", "freq", "ant", "pol", "dir"]
+VALID_AXIS_NAMES = get_args(SoltabAxisName)
 STRING_TYPED_AXIS_NAMES = {"ant", "pol", "dir"}
 
+SoltabType = Literal["amplitude", "phase"]  # TODO: add all others
+VALID_SOLTYPES = get_args(SoltabType)
+
+VALID_DATASET_NAMES = {"val", "weight"}
 VALID_POL_AXIS_DATA = {
     ("XX", "YY"),
     ("XX", "XY", "YX", "YY"),
@@ -26,8 +29,8 @@ class Soltab:
 
     def __init__(
         self,
-        soltype: str,
-        axes: dict[str, ArrayLike],
+        soltype: SoltabType,
+        axes: dict[SoltabAxisName, ArrayLike],
         values: ArrayLike,
         weights: ArrayLike,
         name: Optional[str] = None,
@@ -65,7 +68,7 @@ class Soltab:
         return self.__name
 
     @property
-    def soltype(self) -> str:
+    def soltype(self) -> SoltabType:
         """
         A string that indicates the type of solution table; this maps to the
         `TITLE` attribute of the Soltab in an H5Parm file.
@@ -73,7 +76,7 @@ class Soltab:
         return self.__soltype
 
     @property
-    def axes(self) -> dict[str, NDArray]:
+    def axes(self) -> dict[SoltabAxisName, NDArray]:
         """
         Mapping axis name to data values; keys are in the same order as the
         dimension order in the `values` and `weights` arrays.
@@ -97,7 +100,7 @@ class Soltab:
         return self.__weights
 
     @property
-    def dimensions(self) -> dict[str, int]:
+    def dimensions(self) -> dict[SoltabAxisName, int]:
         """
         Mapping axis name to axis length; keys are in the same order as the
         dimension order in the `values` and `weights` arrays.
@@ -115,13 +118,12 @@ class Soltab:
         return str(self)
 
 
-
 def validate_soltab(soltab: Soltab):
     """
     Check that a Soltab instance is valid, raise an ValueError otherwise.
     """
     assert_or_value_error(
-        soltab.soltype in VALID_SOLTAB_TITLES,
+        soltab.soltype in VALID_SOLTYPES,
         f"Invalid soltab title: {soltab.soltype!r}",
     )
 

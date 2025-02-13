@@ -7,6 +7,7 @@ from numpy.typing import NDArray
 from .assertions import assert_or_invalid_h5parm
 from .soltab import (
     Soltab,
+    SoltabAxisName,
     read_soltab_from_hdf5_group,
     write_soltab_to_hdf5_group,
 )
@@ -52,7 +53,10 @@ class H5Parm:
 
     @classmethod
     def from_complex_gain_data(
-        cls, axes: dict[str, NDArray], values: NDArray, weights: NDArray
+        cls,
+        axes: dict[SoltabAxisName, NDArray],
+        values: NDArray,
+        weights: NDArray,
     ) -> "H5Parm":
         """
         Convenience method to create an H5Parm with an amplitude and phase
