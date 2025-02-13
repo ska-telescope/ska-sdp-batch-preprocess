@@ -26,7 +26,7 @@ class Soltab:
 
     def __init__(
         self,
-        title: str,
+        soltype: str,
         axes: dict[str, ArrayLike],
         values: ArrayLike,
         weights: ArrayLike,
@@ -36,9 +36,8 @@ class Soltab:
         Initializes a Soltab instance.
 
         Args:
-            title: A string that indicates the type of solution table; this
-                maps to the contents of the `TITLE` attribute of the Soltab in
-                an H5Parm file.
+            soltype: A string that indicates the type of solution table; this
+                maps to the `TITLE` attribute of the Soltab in an H5Parm file.
             axes: Mapping axis name to axis values, which describes the axes
                 of the `values` and `weights` arrays. Key order is important
                 and must match the dimension order in those arrays,
@@ -50,7 +49,7 @@ class Soltab:
             name: Internal use only, this is the HDF5 group name of the soltab
                 if it has been loaded from an H5Parm file.
         """
-        self.__title = str(title)
+        self.__soltype = str(soltype)
         self.__axes = convert_string_typed_axes_to_unicode_ndarrays(axes)
         self.__values = np.asarray(values)
         self.__weights = np.asarray(weights)
@@ -66,12 +65,12 @@ class Soltab:
         return self.__name
 
     @property
-    def title(self) -> str:
+    def soltype(self) -> str:
         """
         A string that indicates the type of solution table; this maps to the
-        contents of the `TITLE` attribute of the Soltab in an H5Parm file.
+        `TITLE` attribute of the Soltab in an H5Parm file.
         """
-        return self.__title
+        return self.__soltype
 
     @property
     def axes(self) -> dict[str, NDArray]:
@@ -108,7 +107,7 @@ class Soltab:
     def __str__(self) -> str:
         clsname = type(self).__name__
         return (
-            f"{clsname}(name={self.name!r}, title={self.title!r}, "
+            f"{clsname}(name={self.name!r}, title={self.soltype!r}, "
             f"dimensions={self.dimensions!r})"
         )
 
@@ -122,8 +121,8 @@ def validate_soltab(soltab: Soltab):
     Check that a Soltab instance is valid, raise an ValueError otherwise.
     """
     assert_or_value_error(
-        soltab.title in VALID_SOLTAB_TITLES,
-        f"Invalid soltab title: {soltab.title!r}",
+        soltab.soltype in VALID_SOLTAB_TITLES,
+        f"Invalid soltab title: {soltab.soltype!r}",
     )
 
     axis_names = set(soltab.axes.keys())
@@ -189,7 +188,7 @@ def write_soltab_to_hdf5_group(soltab: Soltab, group: h5py.Group) -> "Soltab":
     Any pre-existing contents of the group are deleted.
     """
     group.clear()
-    group.attrs["TITLE"] = np.bytes_(soltab.title)
+    group.attrs["TITLE"] = np.bytes_(soltab.soltype)
 
     for name, data in soltab.axes.items():
         if name in STRING_TYPED_AXIS_NAMES:

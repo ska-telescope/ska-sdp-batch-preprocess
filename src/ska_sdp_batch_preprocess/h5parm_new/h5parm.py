@@ -35,7 +35,7 @@ class H5Parm:
             # but let's follow the LOFAR convention
             solset = file.create_group("sol000")
             for soltab in self.soltabs:
-                group = solset.create_group(f"{soltab.title}000")
+                group = solset.create_group(f"{soltab.soltype}000")
                 write_soltab_to_hdf5_group(soltab, group)
 
     @classmethod
