@@ -43,12 +43,12 @@ class Soltab:
                 maps to the `TITLE` attribute of the Soltab in an H5Parm file.
             axes: Mapping axis name to axis values, which describes the axes
                 of the `values` and `weights` arrays. Key order is important
-                and must match the dimension order in those arrays,
-                ValueError is raised otherwise.
+                and must match the dimension order in those arrays.
                 Allowed keys are: `time, freq, ant, pol, dir`.
-            values: The main data values.
-            weights: The data weights associated with the values; must have the
-                same shape as `values`.
+                Values should be numpy arrays or array-likes.
+            values: The main data values, as a numpy array or array-like.
+            weights: The data weights associated with the values, as a numpy
+                array or array-like; must have the same shape as `values`.
             name: Internal use only, this is the HDF5 group name of the soltab
                 if it has been loaded from an H5Parm file.
         """
