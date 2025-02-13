@@ -53,7 +53,7 @@ class Soltab:
                 if it has been loaded from an H5Parm file.
         """
         self.__soltype = str(soltype)
-        self.__axes = convert_string_typed_axes_to_unicode_ndarrays(axes)
+        self.__axes = prepare_axes_dict(axes)
         self.__values = np.asarray(values)
         self.__weights = np.asarray(weights)
         self.__name = str(name) if name is not None else None
@@ -205,12 +205,13 @@ def write_soltab_to_hdf5_group(soltab: Soltab, group: h5py.Group) -> "Soltab":
     weight.attrs["AXES"] = axes_attr
 
 
-def convert_string_typed_axes_to_unicode_ndarrays(
+def prepare_axes_dict(
     axes: dict[str, ArrayLike]
 ) -> dict[str, NDArray]:
     """
-    Self-explanatory. We do this to avoid internally dealing with `np.bytes_`
-    arrays loaded from H5Parm files.
+    Convert all dict values to numpy arrays; ensure that the axes arrays
+    containing string values are of unicode type. We do this to avoid
+    internally dealing with `np.bytes_` arrays loaded from H5Parm files.
     """
     newaxes = {}
     # NOTE: preserving key order is important
