@@ -20,6 +20,11 @@ VALID_POL_AXIS_DATA = {
     ("XX", "XY", "YX", "YY"),
 }
 
+# These are the data types used in the schaapcommon code that writes H5Parm
+# Schaapcommon might support reading other types, but we're not risking it yet
+VALUES_DTYPE = np.float64
+WEIGHTS_DTYPE = np.float32
+
 
 class Soltab:
     """
@@ -54,8 +59,8 @@ class Soltab:
         """
         self.__soltype = str(soltype)
         self.__axes = prepare_axes_dict(axes)
-        self.__values = np.asarray(values)
-        self.__weights = np.asarray(weights)
+        self.__values = np.asarray(values, dtype=VALUES_DTYPE)
+        self.__weights = np.asarray(weights, dtype=WEIGHTS_DTYPE)
         self.__name = str(name) if name is not None else None
         validate_soltab(self)
 
