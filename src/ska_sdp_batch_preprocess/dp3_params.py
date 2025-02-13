@@ -55,8 +55,8 @@ class DP3Params(Mapping[str, Any]):
     ) -> "DP3Params":
         """
         Create DP3Params, translating pipeline steps into parameters for a
-        single DP3 execution. DP3's `numthreads` parameter will be set to the
-        given value if different from None.
+        single DP3 execution. If not specified, `numthreads` defaults to the
+        total number of threads allocated to the current process.
         """
         step_names: list[str] = []
         conf = {
