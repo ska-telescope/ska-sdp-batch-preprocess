@@ -20,7 +20,8 @@ VALID_POL_AXIS_DATA = {
 
 class Soltab:
     """
-    TODO
+    Represents the data of an H5Parm solution table with axes, values, and
+    weights.
     """
 
     def __init__(
@@ -32,7 +33,22 @@ class Soltab:
         name: Optional[str] = None,
     ):
         """
-        Create new Soltab instance.
+        Initializes a Soltab instance.
+
+        Args:
+            title: A string that indicates the type of solution table; this
+                maps to the contents of the `TITLE` attribute of the Soltab in
+                an H5Parm file.
+            axes: Mapping axis name to axis values, which describes the axes
+                of the `values` and `weights` arrays. Key order is important
+                and must match the dimension order in those arrays,
+                ValueError is raised otherwise.
+                Allowed keys are: `time, freq, ant, pol, dir`.
+            values: The main data values.
+            weights: The data weights associated with the values; must have the
+                same shape as `values`.
+            name: Internal use only, this is the HDF5 group name of the soltab
+                if it has been loaded from an H5Parm file.
         """
         self.__title = str(title)
         self.__axes = convert_string_typed_axes_to_unicode_ndarrays(axes)
@@ -43,28 +59,50 @@ class Soltab:
 
     @property
     def name(self) -> Optional[str]:
+        """
+        HDF5 group name of the soltab if it was loaded from an H5Parm file,
+        otherwise `None`.
+        """
         return self.__name
 
     @property
     def title(self) -> str:
+        """
+        A string that indicates the type of solution table; this maps to the
+        contents of the `TITLE` attribute of the Soltab in an H5Parm file.
+        """
         return self.__title
 
     @property
     def axes(self) -> dict[str, NDArray]:
+        """
+        Mapping axis name to data values; keys are in the same order as the
+        dimension order in the `values` and `weights` arrays.
+        """
         # Ensure the axes member dict can't be mutated; we allow edition of
-        # the data though.
+        # the underlying data though.
         return dict(self.__axes)
 
     @property
     def values(self) -> NDArray:
+        """
+        Array of values.
+        """
         return self.__values
 
     @property
     def weights(self) -> NDArray:
+        """
+        Array of weights associated with the values, with the same shape.
+        """
         return self.__weights
 
     @property
     def dimensions(self) -> dict[str, int]:
+        """
+        Mapping axis name to axis length; keys are in the same order as the
+        dimension order in the `values` and `weights` arrays.
+        """
         return {key: len(arr) for key, arr in self.axes.items()}
 
     def __str__(self) -> str:
@@ -76,6 +114,7 @@ class Soltab:
 
     def __repr__(self) -> str:
         return str(self)
+
 
 
 def validate_soltab(soltab: Soltab):
@@ -199,10 +238,17 @@ def read_bytes_attribute_as_string(obj: h5py.HLObject, attr_name: str) -> str:
 
 
 def read_title_attribute(obj: h5py.HLObject) -> str:
+    """
+    Self-explanatory.
+    """
     return read_bytes_attribute_as_string(obj, "TITLE")
 
 
 def read_axes_attribute(dataset: h5py.Dataset) -> tuple[str]:
+    """
+    Read `AXES` attribute of the `val` or `weight` array into a tuple of
+    strings with axis names.
+    """
     return tuple(read_bytes_attribute_as_string(dataset, "AXES").split(","))
 
 
