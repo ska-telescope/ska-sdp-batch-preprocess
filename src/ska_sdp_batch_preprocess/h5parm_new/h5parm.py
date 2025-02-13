@@ -4,7 +4,7 @@ from typing import Iterable
 import h5py
 from numpy.typing import NDArray
 
-from .exceptions import _assert
+from .assertions import assert_or_invalid_h5parm
 from .soltab import (
     Soltab,
     read_soltab_from_hdf5_group,
@@ -41,7 +41,7 @@ class H5Parm:
     @classmethod
     def load(cls, path: str | os.PathLike) -> "H5Parm":
         with h5py.File(path, "r") as file:
-            _assert(
+            assert_or_invalid_h5parm(
                 len(file.keys()) == 1,
                 f"H5Parm {file.name!r} should have exactly one top-level "
                 "member (solset)",

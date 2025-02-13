@@ -1,4 +1,4 @@
-from .exceptions import InvalidH5Parm
+from .assertions import InvalidH5Parm
 from .h5parm import H5Parm
 from .soltab import Soltab
 

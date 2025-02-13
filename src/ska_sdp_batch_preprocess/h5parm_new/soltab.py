@@ -5,7 +5,7 @@ import h5py
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from .exceptions import _assert
+from .assertions import assert_or_invalid_h5parm, assert_or_value_error
 
 VALID_AXIS_NAMES = {"time", "freq", "ant", "pol", "dir"}
 VALID_DATASET_NAMES = {"val", "weight"}
@@ -80,38 +80,40 @@ class Soltab:
 
 def validate_soltab(soltab: Soltab):
     """
-    Check that a Soltab instance is valid, raise an exception otherwise.
+    Check that a Soltab instance is valid, raise an ValueError otherwise.
     """
-    _assert(
+    assert_or_value_error(
         soltab.title in VALID_SOLTAB_TITLES,
         f"Invalid soltab title: {soltab.title!r}",
     )
 
     axis_names = set(soltab.axes.keys())
-    _assert(
+    assert_or_value_error(
         set(soltab.axes.keys()).issubset(VALID_AXIS_NAMES),
         f"Soltab contains invalid axis names: {axis_names!r}",
     )
 
     for key, data in soltab.axes.items():
-        _assert(data.ndim == 1, f"Soltab axis {key!r} is not 1-dimensional")
+        assert_or_value_error(
+            data.ndim == 1, f"Soltab axis {key!r} is not 1-dimensional"
+        )
 
     pols = soltab.axes.get("pol", None)
     if pols is not None:
         pols_str_tuple = tuple(map(str, pols))
-        _assert(
+        assert_or_value_error(
             pols_str_tuple in VALID_POL_AXIS_DATA,
             f"Soltab pol axis data is invalid: {pols_str_tuple!r}, "
             f"data should be one of {VALID_POL_AXIS_DATA!r}",
         )
 
-    _assert(
+    assert_or_value_error(
         soltab.values.shape == soltab.weights.shape,
         "Soltab values and weights have different dimensions",
     )
 
     axes_shape = tuple(soltab.dimensions.values())
-    _assert(
+    assert_or_value_error(
         axes_shape == soltab.values.shape,
         f"Soltab values and weights shape {soltab.values.shape!r} "
         "is inconsistent with the shape implied by the axes lengths "
@@ -129,7 +131,7 @@ def read_soltab_from_hdf5_group(group: h5py.Group) -> Soltab:
     axes = read_soltab_axes(group)
     values, values_axes = read_dataset_with_named_axes(group, "val")
     weights, weight_axes = read_dataset_with_named_axes(group, "weight")
-    _assert(
+    assert_or_invalid_h5parm(
         values_axes == weight_axes,
         f"val and weight datasets under soltab {group.name!r} "
         "have metadata specifying different axes",
@@ -185,8 +187,10 @@ def read_bytes_attribute_as_string(obj: h5py.HLObject, attr_name: str) -> str:
     AXES attribute of a val or weight dataset.
     """
     attr: np.bytes_ = obj.attrs.get(attr_name, None)
-    _assert(attr, f"Node {obj.name!r} has no attribute {attr_name!r}")
-    _assert(
+    assert_or_invalid_h5parm(
+        attr, f"Node {obj.name!r} has no attribute {attr_name!r}"
+    )
+    assert_or_invalid_h5parm(
         isinstance(attr, np.bytes_),
         f"The attribute {attr_name!r} of node {obj.name!r} should be "
         "of type np.bytes_",
@@ -206,7 +210,7 @@ def read_dataset(node: h5py.Dataset) -> NDArray:
     """
     Read an HDF5 dataset node into a numpy array.
     """
-    _assert(
+    assert_or_invalid_h5parm(
         isinstance(node, h5py.Dataset),
         f"Node {node.name} is not an h5py.Dataset",
     )
@@ -220,7 +224,9 @@ def read_dataset_with_named_axes(
     Read 'val' or 'weight' dataset
     """
     node = soltab.get(name, None)
-    _assert(node is not None, f"Soltab {soltab.name!r} has no member {name!r}")
+    assert_or_invalid_h5parm(
+        node is not None, f"Soltab {soltab.name!r} has no member {name!r}"
+    )
     return read_dataset(node), read_axes_attribute(node)
 
 
