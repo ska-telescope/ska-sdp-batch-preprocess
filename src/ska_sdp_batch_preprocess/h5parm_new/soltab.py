@@ -22,6 +22,7 @@ VALID_POL_AXIS_DATA = {
 
 # These are the data types used in the schaapcommon code that writes H5Parm
 # Schaapcommon might support reading other types, but we're not risking it yet
+FLOAT_AXES_DTYPE = np.float64
 VALUES_DTYPE = np.float64
 WEIGHTS_DTYPE = np.float32
 
@@ -213,20 +214,19 @@ def write_soltab_to_hdf5_group(soltab: Soltab, group: h5py.Group) -> "Soltab":
 
 def prepare_axes_dict(axes: dict[str, ArrayLike]) -> dict[str, NDArray]:
     """
-    Convert all dict values to numpy arrays.
+    Convert all dict values to numpy arrays with the appropriate dtype.
     Ensure that the axes arrays containing string values are of unicode type.
     We do this to avoid internally dealing with `np.bytes_` arrays loaded from
     H5Parm files.
     """
-    newaxes = {}
     # NOTE: preserving key order is important
-    for key, arr in axes.items():
-        if key in STRING_TYPED_AXIS_NAMES:
-            arr = np.asarray(arr, dtype=np.str_)
-        else:
-            arr = np.asarray(arr)
-        newaxes[key] = arr
-    return newaxes
+    return {
+        key: np.asarray(
+            arr,
+            dtype=np.str_ if key in STRING_TYPED_AXIS_NAMES else np.float64,
+        )
+        for key, arr in axes.items()
+    }
 
 
 def read_bytes_attribute_as_string(obj: h5py.HLObject, attr_name: str) -> str:
