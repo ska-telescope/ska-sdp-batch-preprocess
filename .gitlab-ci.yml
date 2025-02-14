@@ -4,7 +4,6 @@ variables:
   DOCKER_IMAGE_NAME: "$CI_REGISTRY_IMAGE:latest"
   DOCKER_CACHE_IMAGE: "$CI_REGISTRY_IMAGE:cache"
 
-
 stages:
   - lint
   - scan
@@ -58,3 +57,4 @@ python-test:
       fi;
       echo "python-test: Installing with poetry";
       time poetry install --all-extras;
+    - eval `poetry env activate`
