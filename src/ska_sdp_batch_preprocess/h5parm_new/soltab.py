@@ -83,18 +83,11 @@ class Soltab:
     @property
     def axes(self) -> dict[SoltabAxisName, NDArray]:
         """
-        Mapping axis name to data values (read-only); keys are in the same
-        order as the dimension order in the `values` and `weights` arrays.
+        Mapping axis name to data values; keys are in the same order as the
+        dimension order in the `values` and `weights` arrays.
         """
-        def readonly_view(arr: NDArray) -> NDArray:
-            view = arr.view()
-            view.flags.writeable = False
-            return view
-
-        return {
-            key: readonly_view(arr)
-            for key, arr in self.__axes.items()
-        }
+        # Allow mutation of the axis values, but not of the member dict itself
+        return dict(self.__axes)
 
     @property
     def values(self) -> NDArray:
@@ -200,6 +193,8 @@ def write_soltab_to_hdf5_group(soltab: Soltab, group: h5py.Group) -> "Soltab":
     a solset group); underlying file must be open for writing.
     Any pre-existing contents of the group are deleted.
     """
+    # Re-validate because axis values are mutable
+    validate_soltab(soltab)
     group.clear()
     group.attrs["TITLE"] = np.bytes_(soltab.soltype)
 
@@ -216,9 +211,7 @@ def write_soltab_to_hdf5_group(soltab: Soltab, group: h5py.Group) -> "Soltab":
     weight.attrs["AXES"] = axes_attr
 
 
-def prepare_axes_dict(
-    axes: dict[str, ArrayLike]
-) -> dict[str, NDArray]:
+def prepare_axes_dict(axes: dict[str, ArrayLike]) -> dict[str, NDArray]:
     """
     Convert all dict values to numpy arrays.
     Ensure that the axes arrays containing string values are of unicode type.
