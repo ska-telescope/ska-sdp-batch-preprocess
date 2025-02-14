@@ -57,8 +57,6 @@ python-test:
       fi
       poetry env use python3
       echo "sourcing poetry virtualenv"
-      poetry env info
-      ls -la
       source $(poetry env info --path)/bin/activate
     - |
       if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
