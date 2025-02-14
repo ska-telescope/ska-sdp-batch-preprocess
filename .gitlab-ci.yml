@@ -27,7 +27,8 @@ python-test:
     - 'make help | grep python-test'
     - poetry config virtualenvs.in-project true
     - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
-    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
+    - echo "python-test override poetry virtualenv creation config, setting to true"
+    - poetry config virtualenvs.create true
     - |
       if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
         echo "python-test: Updating poetry to $CI_POETRY_VERSION";
