@@ -46,8 +46,6 @@ build-docker:
 python-test:
   image: "$CI_REGISTRY_IMAGE:latest"
   before_script:
-    - echo "Ensuring latest Docker image is available..."
-    - until docker pull "$CI_REGISTRY_IMAGE:latest"; do echo "Retrying..."; sleep 5; done
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
     - poetry config virtualenvs.in-project true
