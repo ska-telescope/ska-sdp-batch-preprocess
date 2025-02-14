@@ -11,7 +11,7 @@ SoltabAxisName = Literal["time", "freq", "ant", "pol", "dir"]
 VALID_AXIS_NAMES = get_args(SoltabAxisName)
 STRING_TYPED_AXIS_NAMES = {"ant", "pol", "dir"}
 
-SoltabType = Literal["amplitude", "phase"]  # TODO: add all others
+SoltabType = Literal["amplitude", "phase", "tec"]
 VALID_SOLTYPES = get_args(SoltabType)
 
 VALID_DATASET_NAMES = {"val", "weight"}
