@@ -48,12 +48,14 @@ python-test:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
     - | 
+      echo "python-test: poetry config virtualenvs.in-project true"
       poetry config virtualenvs.in-project true
       if [ $POETRY_CONFIG_VIRTUALENVS_CREATE = false ]; then
         echo "overriding default CI poetry virtualenv config"
         echo "python-test: poetry config virtualenvs.create true"
         poetry config virtualenvs.create true
       fi
+      poetry env use python3
       echo "sourcing poetry virtualenv"
       poetry env info
       ls -la
