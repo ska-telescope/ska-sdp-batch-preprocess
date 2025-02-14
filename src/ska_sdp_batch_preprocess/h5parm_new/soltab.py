@@ -29,10 +29,10 @@ WEIGHTS_DTYPE = np.float32
 
 class Soltab:
     """
-    Represents the data of an H5Parm solution table with axes, values, and
-    weights.
+    In-memory representation of an H5Parm solution table.
     """
 
+    # pylint:disable=too-many-arguments
     def __init__(
         self,
         soltype: SoltabType,

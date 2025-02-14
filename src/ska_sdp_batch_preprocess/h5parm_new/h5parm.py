@@ -17,7 +17,20 @@ from .soltab import (
 
 
 class H5Parm:
+    """
+    In-memory representation of an H5Parm file with additional restrictions:
+    - Only one solset
+    - Only one or two soltabs; if there are two soltabs, they must be of type
+      "amplitude" and "phase".
+    """
+
     def __init__(self, soltabs: Iterable[Soltab]):
+        """
+        Create a new H5Parm instance.
+
+        Args:
+            soltabs: Iterable containing Soltab instances.
+        """
         self.__soltabs = tuple(soltabs)
         self.__validate()
 
@@ -31,9 +44,15 @@ class H5Parm:
 
     @property
     def soltabs(self) -> tuple[Soltab]:
+        """
+        The soltabs being stored, as a tuple.
+        """
         return self.__soltabs
 
     def save(self, path: str | os.PathLike):
+        """
+        Save to given file path.
+        """
         with h5py.File(path, "w") as file:
             # NOTE: group names for solsets and soltabs should not matter,
             # but let's follow the LOFAR convention
@@ -44,6 +63,9 @@ class H5Parm:
 
     @classmethod
     def load(cls, path: str | os.PathLike) -> "H5Parm":
+        """
+        Load from an existing h5parm file.
+        """
         with h5py.File(path, "r") as file:
             assert_or_invalid_h5parm(
                 len(file.keys()) == 1,
