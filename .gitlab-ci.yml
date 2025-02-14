@@ -20,3 +20,5 @@ include:
 
 python-test:
   image: saliei/dp3:1.2.0
+  before_script:
+    - DP3 --version
