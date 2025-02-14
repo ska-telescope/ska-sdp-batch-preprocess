@@ -37,8 +37,8 @@ class Soltab:
         self,
         soltype: SoltabType,
         axes: dict[SoltabAxisName, ArrayLike],
-        values: ArrayLike,
-        weights: ArrayLike,
+        val: ArrayLike,
+        weight: ArrayLike,
         name: Optional[str] = None,
     ):
         """
@@ -48,20 +48,20 @@ class Soltab:
             soltype: A string that indicates the type of solution table; this
                 maps to the `TITLE` attribute of the Soltab in an H5Parm file.
             axes: Mapping axis name to axis values, which describes the axes
-                of the `values` and `weights` arrays. Key order is important
+                of the `val` and `weight` arrays. Key order is important
                 and must match the dimension order in those arrays.
                 Allowed keys are: `time, freq, ant, pol, dir`.
                 Values should be numpy arrays or array-likes.
-            values: The main data values, as a numpy array or array-like.
-            weights: The data weights associated with the values, as a numpy
-                array or array-like; must have the same shape as `values`.
+            val: The main data values, as a numpy array or array-like.
+            weight: The data weights associated with the values, as a numpy
+                array or array-like; must have the same shape as `val`.
             name: Internal use only, this is the HDF5 group name of the soltab
                 if it has been loaded from an H5Parm file.
         """
         self.__soltype = str(soltype)
         self.__axes = prepare_axes_dict(axes)
-        self.__values = np.asarray(values, dtype=VALUES_DTYPE)
-        self.__weights = np.asarray(weights, dtype=WEIGHTS_DTYPE)
+        self.__val = np.asarray(val, dtype=VALUES_DTYPE)
+        self.__weight = np.asarray(weight, dtype=WEIGHTS_DTYPE)
         self.__name = str(name) if name is not None else None
         validate_soltab(self)
 
@@ -91,18 +91,18 @@ class Soltab:
         return dict(self.__axes)
 
     @property
-    def values(self) -> NDArray:
+    def val(self) -> NDArray:
         """
         Array of values.
         """
-        return self.__values
+        return self.__val
 
     @property
-    def weights(self) -> NDArray:
+    def weight(self) -> NDArray:
         """
         Array of weights associated with the values, with the same shape.
         """
-        return self.__weights
+        return self.__weight
 
     @property
     def dimensions(self) -> dict[SoltabAxisName, int]:
@@ -153,14 +153,14 @@ def validate_soltab(soltab: Soltab):
         )
 
     assert_or_value_error(
-        soltab.values.shape == soltab.weights.shape,
+        soltab.val.shape == soltab.weight.shape,
         "Soltab values and weights have different dimensions",
     )
 
     axes_shape = tuple(soltab.dimensions.values())
     assert_or_value_error(
-        axes_shape == soltab.values.shape,
-        f"Soltab values and weights shape {soltab.values.shape!r} "
+        axes_shape == soltab.val.shape,
+        f"Soltab values and weights shape {soltab.val.shape!r} "
         "is inconsistent with the shape implied by the axes lengths "
         f"{axes_shape!r}",
     )
@@ -205,10 +205,10 @@ def write_soltab_to_hdf5_group(soltab: Soltab, group: h5py.Group) -> "Soltab":
         group.create_dataset(name, data=data)
 
     axes_attr = np.bytes_(",".join(soltab.axes.keys()))
-    val = group.create_dataset("val", data=soltab.values)
+    val = group.create_dataset("val", data=soltab.val)
     val.attrs["AXES"] = axes_attr
 
-    weight = group.create_dataset("weight", data=soltab.weights)
+    weight = group.create_dataset("weight", data=soltab.weight)
     weight.attrs["AXES"] = axes_attr
 
 

@@ -58,8 +58,8 @@ class H5Parm:
     def from_complex_gain_data(
         cls,
         axes: dict[SoltabAxisName, ArrayLike],
-        values: ArrayLike,
-        weights: ArrayLike,
+        val: ArrayLike,
+        weight: ArrayLike,
     ) -> "H5Parm":
         """
         Convenience method to create an H5Parm with an amplitude and phase
@@ -68,16 +68,16 @@ class H5Parm:
         amp = Soltab(
             soltype="amplitude",
             axes=axes,
-            values=np.abs(values),
-            weights=weights,
+            val=np.abs(val),
+            weight=weight,
         )
         # Avoid sharing the same underlying numpy arrays between soltabs,
         # otherwise mutating one will silently mutate the other
         phase = Soltab(
             soltype="phase",
             axes=copy.deepcopy(axes),
-            values=np.angle(values),
-            weights=np.asarray(weights, copy=True, dtype=WEIGHTS_DTYPE),
+            val=np.angle(val),
+            weight=np.asarray(weight, copy=True, dtype=WEIGHTS_DTYPE),
         )
         return cls([amp, phase])
 
