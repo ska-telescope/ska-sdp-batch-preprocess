@@ -114,7 +114,7 @@ class Soltab:
     def __str__(self) -> str:
         clsname = type(self).__name__
         return (
-            f"{clsname}(name={self.name!r}, title={self.soltype!r}, "
+            f"{clsname}(name={self.name!r}, soltype={self.soltype!r}, "
             f"dimensions={self.dimensions!r})"
         )
 
@@ -128,7 +128,7 @@ def validate_soltab(soltab: Soltab):
     """
     assert_or_value_error(
         soltab.soltype in VALID_SOLTYPES,
-        f"Invalid soltab title: {soltab.soltype!r}",
+        f"Invalid solution type: {soltab.soltype!r}",
     )
 
     axis_names = set(soltab.axes.keys())
