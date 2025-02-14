@@ -15,6 +15,8 @@ from .soltab import (
     write_soltab_to_hdf5_group,
 )
 
+RESERVED_SOLSET_KEYS = {"antenna", "source"}
+
 
 class H5Parm:
     """
@@ -73,7 +75,12 @@ class H5Parm:
                 "member (solset)",
             )
             solset: h5py.Group = next(iter(file.values()))
-            soltabs = list(map(read_soltab_from_hdf5_group, solset.values()))
+            soltab_groups = [
+                group
+                for key, group in solset.items()
+                if key not in RESERVED_SOLSET_KEYS
+            ]
+            soltabs = list(map(read_soltab_from_hdf5_group, soltab_groups))
         return cls(soltabs)
 
     @classmethod
