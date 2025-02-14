@@ -40,10 +40,11 @@ include:
 
 .install-casacore: &install-casacore
   - |
+    THREADS=$(( $(nproc) * 1 / 2 ));
     git clone https://github.com/casacore/casacore.git;
     cd casacore && git checkout ${CASACORE_VERSION} && mkdir build && cd build;
     cmake -DBUILD_PYTHON=OFF -DBUILD_TESTING=OFF -DDATA_DIR=/usr/share/casacore/data ..; 
-    make -j `nproc` && make -j `nproc` install;
+    make -j "$THREADS" && make install;
     cd ../.. && rm -rf ./casacore;
 
 .install-aoflagger: &install-aoflagger
@@ -69,9 +70,10 @@ include:
 
 .install-dp3: &install-dp3
   - |
+    THREADS=$(( $(nproc) * 1 / 2 ));
     git clone https://github.com/lofar-astron/DP3.git;
     cd DP3 && git checkout ${DP3_VERSION} &&mkdir build && cd build;
-    cmake .. && make -j `nproc` && make install;
+    cmake .. && make -j "$THREADS" && make install;
     cd ../.. && rm -rf ./DP3;
   - DP3 --version;
 
