@@ -47,9 +47,14 @@ python-test:
   before_script:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
-    - poetry config virtualenvs.in-project true
-    - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
-    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
+    - | 
+      poetry config virtualenvs.in-project true
+      if [ $POETRY_CONFIG_VIRTUALENVS_CREATE = false]; then
+        echo "overriding default CI poetry virtualenv config"
+        echo "python-test: poetry config virtualenvs.create true"
+        poetry config virtualenvs.create true
+      fi
+      eval `poetry env activate`
     - |
       if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
         echo "python-test: Updating poetry to $CI_POETRY_VERSION";
@@ -57,4 +62,3 @@ python-test:
       fi;
       echo "python-test: Installing with poetry";
       time poetry install --all-extras;
-    - eval `poetry env activate`
