@@ -1,11 +1,14 @@
+import copy
 import os
 from typing import Iterable
 
 import h5py
-from numpy.typing import NDArray
+import numpy as np
+from numpy.typing import ArrayLike
 
 from .assertions import assert_or_invalid_h5parm
 from .soltab import (
+    WEIGHTS_DTYPE,
     Soltab,
     SoltabAxisName,
     read_soltab_from_hdf5_group,
@@ -54,15 +57,29 @@ class H5Parm:
     @classmethod
     def from_complex_gain_data(
         cls,
-        axes: dict[SoltabAxisName, NDArray],
-        values: NDArray,
-        weights: NDArray,
+        axes: dict[SoltabAxisName, ArrayLike],
+        values: ArrayLike,
+        weights: ArrayLike,
     ) -> "H5Parm":
         """
         Convenience method to create an H5Parm with an amplitude and phase
-        soltab, given complex-valued gains and associated metadata.
+        soltab, given complex-valued gains and associated weights + metadata.
         """
-        pass
+        amp = Soltab(
+            soltype="amplitude",
+            axes=axes,
+            values=np.abs(values),
+            weights=weights,
+        )
+        # Avoid sharing the same underlying numpy arrays between soltabs,
+        # otherwise mutating one will silently mutate the other
+        phase = Soltab(
+            soltype="phase",
+            axes=copy.deepcopy(axes),
+            values=np.angle(values),
+            weights=np.asarray(weights, copy=True, dtype=WEIGHTS_DTYPE),
+        )
+        return cls([amp, phase])
 
     def __str__(self) -> str:
         clsname = type(self).__name__
