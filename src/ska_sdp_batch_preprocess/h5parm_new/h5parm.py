@@ -73,8 +73,7 @@ class H5Parm:
                 for key, group in solset.items()
                 if key not in RESERVED_SOLSET_KEYS
             ]
-            soltabs = list(map(read_soltab_from_hdf5_group, soltab_groups))
-        return cls(soltabs)
+            return cls(map(read_soltab_from_hdf5_group, soltab_groups))
 
     @classmethod
     def from_complex_gain_data(
