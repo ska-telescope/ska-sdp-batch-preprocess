@@ -40,7 +40,7 @@ class H5Parm:
     @property
     def soltabs(self) -> tuple[Soltab]:
         """
-        The soltabs being stored, as a tuple.
+        Member soltabs, as a tuple.
         """
         return self.__soltabs
 
