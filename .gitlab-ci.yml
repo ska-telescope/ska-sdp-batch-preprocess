@@ -76,6 +76,7 @@ python-test:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
     - echo "configuring poetry venv and sourcing it"
+    - ln -s /usr/bin/python3 /usr/bin/python
     - poetry --version
     - which poetry
     - pipx uninstall poetry && pipx install poetry
