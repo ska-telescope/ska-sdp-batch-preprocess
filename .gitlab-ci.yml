@@ -78,5 +78,5 @@ python-test:
     - poetry config virtualenvs.create true
     - poetry env use python3
     - source $(poetry env info --path)/bin/activate
-    - echo "python-test: Installing with poetry";
-    - time poetry install --all-extras;
+    - echo "python-test: Installing with poetry"
+    - time poetry install --all-extras
