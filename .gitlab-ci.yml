@@ -39,25 +39,25 @@ include:
     echo "python-test: Installing with poetry";
     time poetry install --all-extras;
 
-# build-docker:
-#   stage: docker
-#   image: docker:latest
-#   services:
-#     - docker:dind  # docker-in-docker service
-#   before_script:
-#     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-#   script:
-#     - docker pull "$DOCKER_CACHE_IMAGE" || true  # pull cache if available
-#     - docker build --pull --cache-from "$DOCKER_CACHE_IMAGE" --build-arg BUILDKIT_INLINE_CACHE=1 -t "$DOCKER_IMAGE_NAME" .
-#     - docker tag  "$DOCKER_IMAGE_NAME" "$DOCKER_CACHE_IMAGE"
-#     - docker push "$DOCKER_IMAGE_NAME"
-#     - docker push "$DOCKER_CACHE_IMAGE"
-#   rules:
-#     - changes:
-#       - Dockerfile
-#       - pyproject.toml
-#       - poetry.lock
-#       - src/**
+build-docker:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind  # docker-in-docker service
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  script:
+    - docker pull "$DOCKER_CACHE_IMAGE" || true  # pull cache if available
+    - docker build --pull --cache-from "$DOCKER_CACHE_IMAGE" --build-arg BUILDKIT_INLINE_CACHE=1 -t "$DOCKER_IMAGE_NAME" .
+    - docker tag  "$DOCKER_IMAGE_NAME" "$DOCKER_CACHE_IMAGE"
+    - docker push "$DOCKER_IMAGE_NAME"
+    - docker push "$DOCKER_CACHE_IMAGE"
+  rules:
+    - changes:
+      - Dockerfile
+      - pyproject.toml
+      - poetry.lock
+      - src/**
     # - if: $CI_COMMIT_BRANCH == "main"
 
 python-lint:
@@ -68,9 +68,9 @@ docs-build:
   before_script:
     - *poetry-before-script
 
-# image: "$CI_REGISTRY_IMAGE:latest"
 # - echo "python-test: Installing with poetry"
 python-test:
+  image: "$CI_REGISTRY_IMAGE:latest"
   before_script:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
