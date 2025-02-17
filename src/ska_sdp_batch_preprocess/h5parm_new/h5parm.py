@@ -102,6 +102,12 @@ class H5Parm:
         )
         return cls([amp, phase])
 
+    def __eq__(self, other: "H5Parm") -> bool:
+        def _asdict(parm: H5Parm):
+            return {tab.soltype: tab for tab in parm.soltabs}
+
+        return _asdict(self) == _asdict(other)
+
     def __str__(self) -> str:
         clsname = type(self).__name__
         indent = 4 * " "
