@@ -60,9 +60,9 @@ include:
 #       - src/**
     # - if: $CI_COMMIT_BRANCH == "main"
 
-# python-lint:
-#   before_script:
-#     - *poetry-before-script
+python-lint:
+  before_script:
+    - *poetry-before-script
 #
 # docs-build:
 #   before_script:
