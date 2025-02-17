@@ -70,7 +70,7 @@ docs-build:
 
 # - echo "python-test: Installing with poetry"
 python-test:
-  image: "$CI_REGISTRY_IMAGE:latest"
+  # image: "$CI_REGISTRY_IMAGE:latest"
   before_script:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
