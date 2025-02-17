@@ -44,10 +44,10 @@ build-docker:
   image: docker:latest
   services:
     - docker:dind  # docker-in-docker service
-#   before_script:
-#     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-#   script:
-#     - docker pull "$DOCKER_CACHE_IMAGE" || true  # pull cache if available
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  script:
+    - docker pull "$DOCKER_CACHE_IMAGE" || true  # pull cache if available
 #     - docker build --pull --cache-from "$DOCKER_CACHE_IMAGE" --build-arg BUILDKIT_INLINE_CACHE=1 -t "$DOCKER_IMAGE_NAME" .
 #     - docker tag  "$DOCKER_IMAGE_NAME" "$DOCKER_CACHE_IMAGE"
 #     - docker push "$DOCKER_IMAGE_NAME"
@@ -58,7 +58,7 @@ build-docker:
 #       - pyproject.toml
 #       - poetry.lock
 #       - src/**
-    # - if: $CI_COMMIT_BRANCH == "main"
+# - if: $CI_COMMIT_BRANCH == "main"
 
 python-lint:
   before_script:
