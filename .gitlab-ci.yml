@@ -76,6 +76,8 @@ python-test:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
     - echo "configuring poetry venv and sourcing it"
+    - which python3
+    - which python
     - poetry config virtualenvs.in-project true
     - poetry config virtualenvs.create true
     # - poetry env use python3
