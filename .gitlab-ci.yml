@@ -9,6 +9,7 @@ stages:
   - lint
   - scan
   - build
+  - docker
   - test
   - publish
   - pages
@@ -48,17 +49,17 @@ build-docker:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
     - docker pull "$DOCKER_CACHE_IMAGE" || true  # pull cache if available
-#     - docker build --pull --cache-from "$DOCKER_CACHE_IMAGE" --build-arg BUILDKIT_INLINE_CACHE=1 -t "$DOCKER_IMAGE_NAME" .
-#     - docker tag  "$DOCKER_IMAGE_NAME" "$DOCKER_CACHE_IMAGE"
-#     - docker push "$DOCKER_IMAGE_NAME"
-#     - docker push "$DOCKER_CACHE_IMAGE"
-#   rules:
-#     - changes:
-#       - Dockerfile
-#       - pyproject.toml
-#       - poetry.lock
-#       - src/**
-# - if: $CI_COMMIT_BRANCH == "main"
+    - docker build --pull --cache-from "$DOCKER_CACHE_IMAGE" --build-arg BUILDKIT_INLINE_CACHE=1 -t "$DOCKER_IMAGE_NAME" .
+    - docker tag  "$DOCKER_IMAGE_NAME" "$DOCKER_CACHE_IMAGE"
+    - docker push "$DOCKER_IMAGE_NAME"
+    - docker push "$DOCKER_CACHE_IMAGE"
+  rules:
+    - changes:
+      - Dockerfile
+      - pyproject.toml
+      - poetry.lock
+      - src/**
+  # - if: $CI_COMMIT_BRANCH == "main"
 
 python-lint:
   before_script:
