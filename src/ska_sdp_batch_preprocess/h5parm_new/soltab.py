@@ -112,6 +112,19 @@ class Soltab:
         """
         return {key: len(arr) for key, arr in self.axes.items()}
 
+    def __eq__(self, other: "Soltab") -> bool:
+        # name is deliberately excluded from the comparison
+        return (
+            self.soltype == other.soltype
+            and self.axes.keys() == other.axes.keys()
+            and all(
+                np.array_equal(self.axes[k], other.axes[k])
+                for k in self.axes.keys()
+            )
+            and np.array_equal(self.val, other.val)
+            and np.array_equal(self.weight, other.weight)
+        )
+
     def __str__(self) -> str:
         clsname = type(self).__name__
         return (
