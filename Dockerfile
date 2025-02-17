@@ -69,36 +69,32 @@ RUN mkdir -p /usr/share/casacore/data && \
 
 # Build CasaCore
 RUN git clone https://github.com/casacore/casacore.git casacore && \
-  cd casacore && git checkout ${CASACORE_VERSION} && \
-  mkdir build && cd build && \
-  cmake -DUSE_OPENMP=ON -DBUILD_PYTHON3=ON -DUSE_HDF5=ON -DUSE_THREADS=ON \ 
-		-DBUILD_TESTING=OFF -DDATA_DIR=/usr/share/casacore/data .. && \
-  make -j `nproc` && \
-  make -j `nproc` install && \
-  cd / && rm -rf casacore
+    cd casacore && git checkout ${CASACORE_VERSION} && \
+    mkdir build && cd build && \
+    cmake -DUSE_OPENMP=ON -DBUILD_PYTHON3=ON -DUSE_HDF5=ON -DUSE_THREADS=ON \ 
+		  -DBUILD_TESTING=OFF -DDATA_DIR=/usr/share/casacore/data .. && \
+    make -j `nproc` && make install && \
+    cd / && rm -rf casacore
 
 # Build AOFlagger3
 RUN git clone https://gitlab.com/aroffringa/aoflagger.git aoflagger && \
 	cd aoflagger && git checkout ${AOFLAGGER_VERSION} && \
 	mkdir build && cd build && \
-	cmake -G Ninja .. && \
-	ninja install && \
+	cmake -G Ninja .. && ninja install && \
 	cd / && rm -rf aoflagger
 
 # Build IDG
 RUN git clone https://git.astron.nl/RD/idg.git idg && \
 	cd idg && git checkout ${IDG_VERSION} && \
 	mkdir build && cd build && \
-	cmake -G Ninja -DPORTABLE=ON .. && \
-	ninja install && \
+	cmake -G Ninja -DPORTABLE=ON .. && ninja install && \
 	cd / && rm -rf idg
 
 # Build EveryBeam
 RUN git clone https://git.astron.nl/RD/EveryBeam.git everybeam && \
 	cd everybeam && git checkout ${EVERYBEAM_VERSION} && \
 	mkdir build && cd build && \
-	cmake -G Ninja .. && \
-	ninja install && \
+	cmake -G Ninja .. && ninja install && \
 	cd / && rm -rf everybeam
 
 # Build DP3
@@ -106,8 +102,7 @@ RUN git clone https://github.com/lofar-astron/DP3.git dp3 && \
 	cd dp3 && git checkout ${DP3_VERSION} && \
 	mkdir build && cd build && \
 	cmake -DPORTABLE=ON .. && \
-	make -j `nproc` && \ 
-	make -j install && \
+	make -j `nproc` && make install && \
 	cd / && rm -rf dp3
 
 RUN pipx ensurepath
