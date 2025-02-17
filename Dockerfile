@@ -59,9 +59,6 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get install -y \
 	python3-sphinx-rtd-theme \
 	wcslib-dev
 
-ENV PATH="/root/.local/bin:${PATH}"
-RUN pipx ensurepath && pipx install poetry
-
 # Install WSRT Measures (extra casacore data, for integration tests)
 # Note: The file on the ftp site is updated daily. When warnings regarding leap
 # seconds appear, ignore them or regenerate the docker image.
@@ -112,3 +109,8 @@ RUN git clone https://github.com/lofar-astron/DP3.git dp3 && \
 	make -j `nproc` && \ 
 	make -j install && \
 	cd / && rm -rf dp3
+
+RUN pipx ensurepath
+ENV PATH="/root/.local/bin:${PATH}"
+# Install poetry
+curl -sSL https://install.python-poetry.org | python3 -
