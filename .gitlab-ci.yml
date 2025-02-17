@@ -39,11 +39,11 @@ include:
     echo "python-test: Installing with poetry";
     time poetry install --all-extras;
 
-# build-docker:
-#   stage: docker
-#   image: docker:latest
-#   services:
-#     - docker:dind  # docker-in-docker service
+build-docker:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind  # docker-in-docker service
 #   before_script:
 #     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
 #   script:
