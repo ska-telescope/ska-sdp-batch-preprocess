@@ -68,8 +68,8 @@ docs-build:
   before_script:
     - *poetry-before-script
 
+# image: "$CI_REGISTRY_IMAGE:latest"
 python-test:
-  # image: "$CI_REGISTRY_IMAGE:latest"
   before_script:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
