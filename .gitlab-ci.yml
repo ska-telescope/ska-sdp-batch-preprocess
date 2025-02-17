@@ -63,10 +63,10 @@ include:
 python-lint:
   before_script:
     - *poetry-before-script
-#
-# docs-build:
-#   before_script:
-#     - *poetry-before-script
+
+docs-build:
+  before_script:
+    - *poetry-before-script
 
 # python-test:
   # image: "$CI_REGISTRY_IMAGE:latest"
