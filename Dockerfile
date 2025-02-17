@@ -47,10 +47,12 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get install -y \
 	ninja-build \
 	pkg-config \
 	pybind11-dev \
+    python3 \
 	python3-dev \
 	python3-h5py \
 	python3-numpy \
 	python3-pip \
+    python-is-python3 \
     pipx \
 	python3-pytest \
 	python3-sphinx \
