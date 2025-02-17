@@ -76,5 +76,9 @@ python-test:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - poetry config virtualenvs.in-project true
     - poetry config virtualenvs.create true
+    - which poetry
+    - poetry --version
+    - DP3 --version
+    - python --version 
     - time poetry install --all-extras
     - source $(poetry env info --path)/bin/activate
