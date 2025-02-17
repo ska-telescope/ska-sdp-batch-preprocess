@@ -9,7 +9,6 @@ stages:
   - lint
   - scan
   - build
-  - docker
   - test
   - publish
   - pages
@@ -18,6 +17,7 @@ include:
   - project: "ska-telescope/templates-repository"
     file: 
      - "gitlab-ci/includes/python.gitlab-ci.yml"
+     - "gitlab-ci/includes/oci-image.gitlab-ci.yml"
      - "gitlab-ci/includes/docs.gitlab-ci.yml"
      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
      - "gitlab-ci/includes/release.gitlab-ci.yml"
