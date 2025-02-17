@@ -119,6 +119,7 @@ class Soltab:
             and self.axes.keys() == other.axes.keys()
             and all(
                 np.array_equal(self.axes[k], other.axes[k])
+                # pylint:disable=consider-using-dict-items
                 for k in self.axes.keys()
             )
             and np.array_equal(self.val, other.val)
