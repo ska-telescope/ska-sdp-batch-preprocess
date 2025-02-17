@@ -9,7 +9,6 @@ stages:
   - lint
   - scan
   - build
-  - docker
   - test
   - publish
   - pages
@@ -18,7 +17,6 @@ include:
   - project: "ska-telescope/templates-repository"
     file: 
      - "gitlab-ci/includes/python.gitlab-ci.yml"
-     # - "gitlab-ci/includes/oci-image.gitlab-ci.yml"
      - "gitlab-ci/includes/docs.gitlab-ci.yml"
      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
      - "gitlab-ci/includes/release.gitlab-ci.yml"
@@ -26,7 +24,6 @@ include:
 .poetry-before-script: &poetry-before-script
   - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
   - 'make help | grep python-test'
-  - ln -s /usr/bin/python3 /usr/bin/python
   - | 
     echo "configuring poetry venv and sourcing it"
     poetry config virtualenvs.in-project true
@@ -42,7 +39,7 @@ include:
     time poetry install --all-extras;
 
 build-docker:
-  stage: docker
+  stage: build
   image: docker:latest
   services:
     - docker:dind  # docker-in-docker service
@@ -60,7 +57,6 @@ build-docker:
       - pyproject.toml
       - poetry.lock
       - src/**
-  # - if: $CI_COMMIT_BRANCH == "main"
 
 python-lint:
   before_script:
@@ -73,4 +69,5 @@ docs-build:
 python-test:
   image: "$CI_REGISTRY_IMAGE:latest"
   before_script:
+    - ln -s /usr/bin/python3 /usr/bin/python
     - *poetry-before-script
