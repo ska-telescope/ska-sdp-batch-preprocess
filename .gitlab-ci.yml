@@ -77,7 +77,7 @@ python-test:
     - 'make help | grep python-test'
     - echo "configuring poetry venv and sourcing it"
     - poetry --version
-    - pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
+    - pipx uninstall poetry && pipx install poetry
     - poetry --version
     - poetry env list
     - which python3
