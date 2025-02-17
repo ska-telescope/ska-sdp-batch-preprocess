@@ -78,6 +78,7 @@ python-test:
     - echo "configuring poetry venv and sourcing it"
     - which python3
     - which python
+    - alias python="python3"
     - poetry config virtualenvs.in-project true
     - poetry config virtualenvs.create true
     - poetry env use python3
