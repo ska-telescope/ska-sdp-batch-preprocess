@@ -17,7 +17,7 @@ include:
   - project: "ska-telescope/templates-repository"
     file: 
      - "gitlab-ci/includes/python.gitlab-ci.yml"
-     - "gitlab-ci/includes/oci-image.gitlab-ci.yml"
+     # - "gitlab-ci/includes/oci-image.gitlab-ci.yml"
      - "gitlab-ci/includes/docs.gitlab-ci.yml"
      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
      - "gitlab-ci/includes/release.gitlab-ci.yml"
@@ -68,15 +68,15 @@ docs-build:
   before_script:
     - *poetry-before-script
 
-# python-test:
+python-test:
   # image: "$CI_REGISTRY_IMAGE:latest"
-  # before_script:
-  #   - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
-  #   - 'make help | grep python-test'
-  #   - echo "configuring poetry venv and sourcing it"
-  #   - poetry config virtualenvs.in-project true
-  #   - poetry config virtualenvs.create true
-  #   - poetry env use python3
-  #   - source $(poetry env info --path)/bin/activate
-  #   - echo "python-test: Installing with poetry"
-  #   - time poetry install --all-extras
+  before_script:
+    - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
+    - 'make help | grep python-test'
+    - echo "configuring poetry venv and sourcing it"
+    - poetry config virtualenvs.in-project true
+    - poetry config virtualenvs.create true
+    - poetry env use python3
+    - source $(poetry env info --path)/bin/activate
+    - echo "python-test: Installing with poetry"
+    - time poetry install --all-extras
