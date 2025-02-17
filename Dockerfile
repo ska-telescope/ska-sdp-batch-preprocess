@@ -113,4 +113,4 @@ RUN git clone https://github.com/lofar-astron/DP3.git dp3 && \
 RUN pipx ensurepath
 ENV PATH="/root/.local/bin:${PATH}"
 # Install poetry
-curl -sSL https://install.python-poetry.org | python3 -
+RUN curl -sSL https://install.python-poetry.org | python3 -
