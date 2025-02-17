@@ -51,7 +51,7 @@ python-test:
       echo "configuring poetry venv and sourcing it"
       poetry config virtualenvs.in-project true
       poetry config virtualenvs.create true
-      poetry env use python3
+      # poetry env use python3
       source $(poetry env info --path)/bin/activate
     - |
       if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
