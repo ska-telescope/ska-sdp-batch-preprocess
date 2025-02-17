@@ -79,6 +79,7 @@ python-test:
     - which poetry
     - poetry --version
     - DP3 --version
-    - python --version 
+    - python3 --version 
+    - poetry env use python3
     - time poetry install --all-extras
     - source $(poetry env info --path)/bin/activate
