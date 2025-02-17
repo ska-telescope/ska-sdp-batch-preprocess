@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from ska_sdp_batch_preprocess.h5parm_new import H5Parm, Soltab
+from ska_sdp_batch_preprocess.h5parm_new import H5Parm, InvalidH5Parm, Soltab
 
 
 @pytest.fixture(name="parm")
@@ -31,3 +31,21 @@ def test_save_load_roundtrip_preserves_h5parm_contents(
     parm.save(path)
     reloaded = H5Parm.load(path)
     assert parm == reloaded
+
+
+def test_incomplete_full_jones_raises_invalid_h5parm():
+    """
+    Self-explanatory.
+    """
+    phase = Soltab(
+        "phase",
+        axes={
+            "time": [1, 2, 3],
+            "pol": ["XX", "XY", "YX", "YY"],
+        },
+        val=np.zeros(shape=(3, 4)),
+        weight=np.ones(shape=(3, 4)),
+    )
+
+    with pytest.raises(InvalidH5Parm):
+        H5Parm([phase])
