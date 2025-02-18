@@ -69,5 +69,4 @@ docs-build:
 python-test:
   image: "$CI_REGISTRY_IMAGE:latest"
   before_script:
-    - ln -s /usr/bin/python3 /usr/bin/python
     - *poetry-before-script
