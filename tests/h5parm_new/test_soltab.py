@@ -75,3 +75,16 @@ def test_creating_soltab_with_axes_length_inconsistent_with_array_shapes_raises_
         val = np.zeros(shape=(1, 2, 3, 4))
         weight = np.ones_like(val)
         Soltab("phase", axes={"time": [1]}, val=val, weight=weight)
+
+
+def test_soltab_repr():
+    """
+    Self-explanatory.
+    """
+    tab = create_empty_soltab(
+        "phase", axes={"time": [1, 2, 3], "ant": ["ant0", "ant1"]}
+    )
+    expected_result = (
+        "Soltab(name=None, soltype='phase', dimensions={'time': 3, 'ant': 2})"
+    )
+    assert repr(tab) == expected_result
