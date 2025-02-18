@@ -111,7 +111,7 @@ class H5Parm:
     def __str__(self) -> str:
         clsname = type(self).__name__
         indent = 4 * " "
-        lines = [indent + str(tab) + "," for tab in self.soltabs]
+        lines = [indent + str(tab) for tab in self.soltabs]
         lines = [f"{clsname}(", *lines, ")"]
         return "\n".join(lines)
 

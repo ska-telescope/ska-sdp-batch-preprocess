@@ -49,3 +49,16 @@ def test_incomplete_full_jones_raises_invalid_h5parm():
 
     with pytest.raises(InvalidH5Parm):
         H5Parm([phase])
+
+
+def test_h5parm_repr(parm: H5Parm):
+    """
+    Self-explanatory.
+    """
+    expected_lines = (
+        "H5Parm(",
+        "    Soltab(name=None, soltype='amplitude', dimensions={'time': 10, 'freq': 20, 'ant': 4})",  # noqa: E501
+        "    Soltab(name=None, soltype='phase', dimensions={'time': 10, 'freq': 20, 'ant': 4})",  # noqa: E501
+        ")",
+    )
+    assert repr(parm) == "\n".join(expected_lines)
