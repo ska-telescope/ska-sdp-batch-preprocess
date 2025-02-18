@@ -1,11 +1,9 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DEBIAN_FRONTEND: "noninteractive"
-  CASACORE_VERSION: v3.6.0
-  AOFLAGGER_VERSION: b1256de90b00a5a83477274390decd6671cdcd38 
-  IDG_VERSION: 9ce6fa88b9d746d8d7146c474992aba9b98eb41f 
-  EVERYBEAM_VERSION: 0578473cacf64c69bc2e05e15754cf94dd1051b9 
-  DP3_VERSION: v6.2.1
+  DOCKER_IMAGE_NAME: "$CI_REGISTRY_IMAGE:latest"
+  DOCKER_CACHE_IMAGE: "$CI_REGISTRY_IMAGE:cache"
+  CONTAINER_SCANNING_DISABLED: true
 
 stages:
   - lint
@@ -23,77 +21,52 @@ include:
      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
      - "gitlab-ci/includes/release.gitlab-ci.yml"
 
-.install-packages: &install-packages
+.poetry-before-script: &poetry-before-script
+  - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
+  - 'make help | grep python-test'
   - | 
-    apt-get update -y && apt-get install -y \
-    bison build-essential clang-format-14 cmake doxygen curl \
-    wget flex gcc g++ gcovr gfortran git libarmadillo-dev \
-    libboost-date-time-dev libboost-filesystem-dev \
-    libboost-program-options-dev libboost-python-dev \
-    libboost-system-dev libboost-test-dev libboost-all-dev \
-    libgsl-dev libcfitsio-dev libfftw3-dev libgtkmm-3.0-dev \
-    libhdf5-serial-dev libncurses-dev liblua5.3-dev \
-    liblapack-dev libpng-dev libpython3-dev libreadline-dev \
-    ninja-build pkg-config pybind11-dev python3 python3-dev \
-    python3-h5py python3-numpy python3-pip python3-pytest \
-    python3-sphinx python3-sphinx-rtd-theme pipx wcslib-dev;
-
-.install-casacore: &install-casacore
+    echo "configuring poetry venv and sourcing it"
+    poetry config virtualenvs.in-project true
+    poetry config virtualenvs.create true
+    poetry env use python3
+    source $(poetry env info --path)/bin/activate
   - |
-    THREADS=$(( $(nproc) * 1 / 2 ));
-    git clone https://github.com/casacore/casacore.git;
-    cd casacore && git checkout ${CASACORE_VERSION} && mkdir build && cd build;
-    cmake -DBUILD_PYTHON=OFF -DBUILD_TESTING=OFF -DDATA_DIR=/usr/share/casacore/data ..; 
-    make -j "$THREADS" && make install;
-    cd ../.. && rm -rf ./casacore;
+    if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
+      echo "python-test: Updating poetry to $CI_POETRY_VERSION";
+      pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
+    fi;
+    echo "python-test: Installing with poetry";
+    time poetry install --all-extras;
 
-.install-aoflagger: &install-aoflagger
-  - |
-    git clone https://gitlab.com/aroffringa/aoflagger.git;
-    cd aoflagger && git checkout ${AOFLAGGER_VERSION} && mkdir build && cd build;
-    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr .. && ninja install;
-    cd ../.. && rm -rf aoflagger;
+build-docker:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind  # docker-in-docker service
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  script:
+    - docker pull "$DOCKER_CACHE_IMAGE" || true  # pull cache if available
+    - docker build --pull --cache-from "$DOCKER_CACHE_IMAGE" --build-arg BUILDKIT_INLINE_CACHE=1 -t "$DOCKER_IMAGE_NAME" .
+    - docker tag  "$DOCKER_IMAGE_NAME" "$DOCKER_CACHE_IMAGE"
+    - docker push "$DOCKER_IMAGE_NAME"
+    - docker push "$DOCKER_CACHE_IMAGE"
+  rules:
+    - changes:
+      - Dockerfile
+      - pyproject.toml
+      - poetry.lock
+      - src/**
 
-.install-idg: &install-idg
-  - |
-    git clone https://git.astron.nl/RD/idg.git;
-    cd idg && git checkout ${IDG_VERSION} && mkdir build && cd build;
-    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DPORTABLE=ON .. && ninja install;
-    cd ../../ && rm -rf ./idg;
+python-lint:
+  before_script:
+    - *poetry-before-script
 
-.install-everybeam: &install-everybeam
-  - |
-    git clone https://git.astron.nl/RD/EveryBeam.git;
-    cd EveryBeam && git checkout ${EVERYBEAM_VERSION} && mkdir build && cd build;
-    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DPYTHON_EXECUTABLE=/usr/bin/python3 .. && ninja install;
-    cd ../.. && rm -rf ./EveryBeam;
-
-.install-dp3: &install-dp3
-  - |
-    THREADS=$(( $(nproc) * 1 / 2 ));
-    git clone https://github.com/lofar-astron/DP3.git;
-    cd DP3 && git checkout ${DP3_VERSION} &&mkdir build && cd build;
-    cmake .. && make -j "$THREADS" && make install;
-    cd ../.. && rm -rf ./DP3;
-  - DP3 --version;
+docs-build:
+  before_script:
+    - *poetry-before-script
 
 python-test:
+  image: "$CI_REGISTRY_IMAGE:latest"
   before_script:
-    - *install-packages
-    - *install-casacore
-    - *install-aoflagger
-    - *install-idg
-    - *install-everybeam
-    - *install-dp3
-    - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
-    - 'make help | grep python-test'
-    - poetry config virtualenvs.in-project true
-    - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
-    - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
-    - |
-      if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
-        echo "python-test: Updating poetry to $CI_POETRY_VERSION";
-        pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
-      fi;
-      echo "python-test: Installing with poetry";
-      time poetry install --all-extras;
+    - *poetry-before-script
