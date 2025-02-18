@@ -5,7 +5,7 @@ import h5py
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from .assertions import assert_or_invalid_h5parm, assert_or_value_error
+from .assertions import assert_or_invalid_h5parm
 
 SoltabAxisName = Literal["time", "freq", "ant", "pol", "dir"]
 VALID_AXIS_NAMES = get_args(SoltabAxisName)
@@ -139,40 +139,40 @@ class Soltab:
 
 def validate_soltab(soltab: Soltab):
     """
-    Check that a Soltab instance is valid, raise an ValueError otherwise.
+    Check that a Soltab instance is valid, raise InvalidH5Parm otherwise.
     """
-    assert_or_value_error(
+    assert_or_invalid_h5parm(
         soltab.soltype in VALID_SOLTYPES,
         f"Invalid solution type: {soltab.soltype!r}",
     )
 
     axis_names = set(soltab.axes.keys())
-    assert_or_value_error(
+    assert_or_invalid_h5parm(
         set(soltab.axes.keys()).issubset(VALID_AXIS_NAMES),
         f"Soltab contains invalid axis names: {axis_names!r}",
     )
 
     for key, data in soltab.axes.items():
-        assert_or_value_error(
+        assert_or_invalid_h5parm(
             data.ndim == 1, f"Soltab axis {key!r} is not 1-dimensional"
         )
 
     pols = soltab.axes.get("pol", None)
     if pols is not None:
         pols_str_tuple = tuple(map(str, pols))
-        assert_or_value_error(
+        assert_or_invalid_h5parm(
             pols_str_tuple in VALID_POL_AXIS_DATA,
             f"Soltab pol axis data is invalid: {pols_str_tuple!r}, "
             f"data should be one of {VALID_POL_AXIS_DATA!r}",
         )
 
-    assert_or_value_error(
+    assert_or_invalid_h5parm(
         soltab.val.shape == soltab.weight.shape,
         "Soltab values and weights have different dimensions",
     )
 
     axes_shape = tuple(soltab.dimensions.values())
-    assert_or_value_error(
+    assert_or_invalid_h5parm(
         axes_shape == soltab.val.shape,
         f"Soltab values and weights shape {soltab.val.shape!r} "
         "is inconsistent with the shape implied by the axes lengths "

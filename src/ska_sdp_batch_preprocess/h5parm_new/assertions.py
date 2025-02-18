@@ -11,11 +11,3 @@ def assert_or_invalid_h5parm(condition: bool, error_message: str):
     """
     if not condition:
         raise InvalidH5Parm(error_message)
-
-
-def assert_or_value_error(condition: bool, error_message: str):
-    """
-    Assert `condition` is True, raise `ValueError(error_message)` otherwise.
-    """
-    if not condition:
-        raise ValueError(error_message)
