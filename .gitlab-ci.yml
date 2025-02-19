@@ -42,6 +42,7 @@ build-docker:
 
 .poetry-before-script: &poetry-before-script
   - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile"; exit 1;)'
+  - poetry config --list
   - rm -rf .venv
   - 'make help | grep python-lint'
   - poetry config virtualenvs.in-project true
