@@ -2,7 +2,6 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DEBIAN_FRONTEND: "noninteractive"
   CONTAINER_SCANNING_DISABLED: true
-  POETRY_CONFIG_VIRTUALENVS_CREATE: "true"
 
 stages:
   - lint
@@ -43,9 +42,10 @@ build-docker:
 .poetry-before-script: &poetry-before-script
   - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile"; exit 1;)'
   - poetry config --list
+  - ls .venv/lib/python*/site-packages/
   - rm -rf .venv
+  - poetry enf info
   - 'make help | grep python-lint'
-  - poetry config virtualenvs.in-project true
   - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
   - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
   - |
