@@ -44,7 +44,7 @@ build-docker:
   - poetry config --list
   - ls .venv/lib/python*/site-packages/
   - rm -rf .venv
-  - poetry enf info
+  - poetry env info
   - 'make help | grep python-lint'
   - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
   - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
