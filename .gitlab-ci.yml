@@ -30,7 +30,7 @@ build-docker:
     - |
       if docker pull $CI_REGISTRY_IMAGE:latest > /dev/null 2>&1; then
         echo "Using latest image as build cache"
-        docker build --cache-from $CI_REGISTRY_IMAGE:latest --build-arg BUILDKIT_INLINE_CACHE=1 --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+        docker build --pull --cache-from $CI_REGISTRY_IMAGE:latest --build-arg BUILDKIT_INLINE_CACHE=1 --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
       else
         echo "Building image from scratch"
         docker build --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .        
