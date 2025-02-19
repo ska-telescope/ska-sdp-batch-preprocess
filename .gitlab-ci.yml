@@ -1,8 +1,6 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DEBIAN_FRONTEND: "noninteractive"
-  DOCKER_IMAGE_NAME: "$CI_REGISTRY_IMAGE:latest"
-  DOCKER_CACHE_IMAGE: "$CI_REGISTRY_IMAGE:cache"
   CONTAINER_SCANNING_DISABLED: true
 
 stages:
@@ -27,22 +25,16 @@ build-docker:
   services:
     - docker:dind  # docker-in-docker service
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
   script:
-    - docker pull "$DOCKER_CACHE_IMAGE" || true  # pull cache if available
-    - docker build --pull --cache-from "$DOCKER_CACHE_IMAGE" --build-arg BUILDKIT_INLINE_CACHE=1 -t "$DOCKER_IMAGE_NAME" .
-    - docker tag  "$DOCKER_IMAGE_NAME" "$DOCKER_CACHE_IMAGE"
-    - docker push "$DOCKER_IMAGE_NAME"
-    - docker push "$DOCKER_CACHE_IMAGE"
-  rules:
-    - changes:
-      - Dockerfile
-      - pyproject.toml
-      - poetry.lock
-      - src/**
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    # Also give it "latest" tag because it is excluded from automatic registry cleanup
+    - docker push $CI_REGISTRY_IMAGE:latest
 
 python-test:
-  image: "$CI_REGISTRY_IMAGE:latest"
+  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  needs: ["build-docker"]
   before_script:
     - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
     - 'make help | grep python-test'
