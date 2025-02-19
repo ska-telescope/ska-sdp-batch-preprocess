@@ -1,8 +1,6 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DEBIAN_FRONTEND: "noninteractive"
-  DOCKER_IMAGE_NAME: "$CI_REGISTRY_IMAGE:latest"
-  DOCKER_CACHE_IMAGE: "$CI_REGISTRY_IMAGE:cache"
   CONTAINER_SCANNING_DISABLED: true
 
 stages:
@@ -21,52 +19,36 @@ include:
      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
      - "gitlab-ci/includes/release.gitlab-ci.yml"
 
-.poetry-before-script: &poetry-before-script
-  - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
-  - 'make help | grep python-test'
-  - | 
-    echo "configuring poetry venv and sourcing it"
-    poetry config virtualenvs.in-project true
-    poetry config virtualenvs.create true
-    poetry env use python3
-    source $(poetry env info --path)/bin/activate
-  - |
-    if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
-      echo "python-test: Updating poetry to $CI_POETRY_VERSION";
-      pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
-    fi;
-    echo "python-test: Installing with poetry";
-    time poetry install --all-extras;
+version-docker:
+  stage: build
+  script:
+    - git fetch --unshallow
+    - echo DOCKER_IMAGE = ${CI_REGISTRY_IMAGE}:$(git log -n 1 --pretty=format:%H -- Dockerfile) > versions.env
+
+  artifacts:
+    reports:
+      dotenv: versions.env
 
 build-docker:
   stage: build
+  needs:
+    - job: version-docker
+      artifacts: true
   image: docker:latest
   services:
     - docker:dind  # docker-in-docker service
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
   script:
-    - docker pull "$DOCKER_CACHE_IMAGE" || true  # pull cache if available
-    - docker build --pull --cache-from "$DOCKER_CACHE_IMAGE" --build-arg BUILDKIT_INLINE_CACHE=1 -t "$DOCKER_IMAGE_NAME" .
-    - docker tag  "$DOCKER_IMAGE_NAME" "$DOCKER_CACHE_IMAGE"
-    - docker push "$DOCKER_IMAGE_NAME"
-    - docker push "$DOCKER_CACHE_IMAGE"
-  rules:
-    - changes:
-      - Dockerfile
-      - pyproject.toml
-      - poetry.lock
-      - src/**
-
-python-lint:
-  before_script:
-    - *poetry-before-script
-
-docs-build:
-  before_script:
-    - *poetry-before-script
+    - |
+      if ! docker manifest inspect $DOCKER_IMAGE > /dev/null; then
+        docker build --build-arg BUILDKIT_INLINE_CACHE=1 --tag $DOCKER_IMAGE .
+        docker push $DOCKER_IMAGE
+      fi
 
 python-test:
-  image: "$CI_REGISTRY_IMAGE:latest"
-  before_script:
-    - *poetry-before-script
+  needs:
+    - job: version-docker
+      artifacts: true
+    - job: build-docker
+  image: $DOCKER_IMAGE
