@@ -32,6 +32,14 @@ build-docker:
     # Also give it "latest" tag because it is excluded from automatic registry cleanup
     - docker push $CI_REGISTRY_IMAGE:latest
 
+python-lint:
+  before_script:
+    - rm -rf .venv
+
+docs-build:
+  before_script:
+    - rm -rf .venv
+
 python-test:
   image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   needs: ["build-docker"]
