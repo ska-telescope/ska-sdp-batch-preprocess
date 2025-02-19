@@ -33,6 +33,19 @@ def test_save_load_roundtrip_preserves_h5parm_contents(
     assert parm == reloaded
 
 
+def test_h5parm_repr(parm: H5Parm):
+    """
+    Self-explanatory.
+    """
+    expected_lines = (
+        "H5Parm(",
+        "    Soltab(name=None, soltype='amplitude', dimensions={'time': 10, 'freq': 20, 'ant': 4})",  # noqa: E501
+        "    Soltab(name=None, soltype='phase', dimensions={'time': 10, 'freq': 20, 'ant': 4})",  # noqa: E501
+        ")",
+    )
+    assert repr(parm) == "\n".join(expected_lines)
+
+
 def test_incomplete_full_jones_raises_invalid_h5parm():
     """
     Self-explanatory.
@@ -51,14 +64,26 @@ def test_incomplete_full_jones_raises_invalid_h5parm():
         H5Parm([phase])
 
 
-def test_h5parm_repr(parm: H5Parm):
+def test_h5parm_without_soltabs_raises_invalid_h5parm():
     """
     Self-explanatory.
     """
-    expected_lines = (
-        "H5Parm(",
-        "    Soltab(name=None, soltype='amplitude', dimensions={'time': 10, 'freq': 20, 'ant': 4})",  # noqa: E501
-        "    Soltab(name=None, soltype='phase', dimensions={'time': 10, 'freq': 20, 'ant': 4})",  # noqa: E501
-        ")",
-    )
-    assert repr(parm) == "\n".join(expected_lines)
+    with pytest.raises(
+        InvalidH5Parm, match="Number of soltabs must be 1 or 2"
+    ):
+        H5Parm([])
+
+
+def test_h5parm_with_more_than_two_soltabs_raises_invalid_h5parm():
+    """
+    Self-explanatory.
+    """
+    axes = {"time": np.arange(10)}
+    val = np.zeros(shape=(10,))
+    weight = np.ones_like(val, dtype=float)
+    soltab = Soltab("phase", axes, val, weight)
+
+    with pytest.raises(
+        InvalidH5Parm, match="Number of soltabs must be 1 or 2"
+    ):
+        H5Parm([soltab, soltab, soltab])
