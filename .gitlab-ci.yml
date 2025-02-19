@@ -27,12 +27,17 @@ build-docker:
   before_script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
   script:
-    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE:latest .
+    - |
+      if docker pull $CI_REGISTRY_IMAGE:latest > /dev/null 2>&1; then
+        echo "Using latest image as build cache"
+        docker build --cache-from $CI_REGISTRY_IMAGE:latest --build-arg BUILDKIT_INLINE_CACHE=1 --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+      else
+        echo "Building image from scratch"
+        docker build --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .        
+      fi
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    # Also give it "latest" tag because it is excluded from automatic registry cleanup
     - docker push $CI_REGISTRY_IMAGE:latest
-
-
 
 .poetry-before-script: &poetry-before-script
   - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile"; exit 1;)'
