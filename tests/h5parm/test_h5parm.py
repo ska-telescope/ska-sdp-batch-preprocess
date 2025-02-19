@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from ska_sdp_batch_preprocess.h5parm_new import H5Parm, InvalidH5Parm, Soltab
+from ska_sdp_batch_preprocess.h5parm import H5Parm, InvalidH5Parm, Soltab
 
 
 @pytest.fixture(name="parm")

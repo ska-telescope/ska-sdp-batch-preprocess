@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from ska_sdp_batch_preprocess.h5parm_new import InvalidH5Parm, Soltab
+from ska_sdp_batch_preprocess.h5parm import InvalidH5Parm, Soltab
 
 
 def create_empty_soltab(soltype: str, axes: dict) -> Soltab:
