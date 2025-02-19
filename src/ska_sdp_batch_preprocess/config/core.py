@@ -88,6 +88,16 @@ def _assert_no_more_than_one_step_with_type(steps: Iterable[Step], stype: str):
         raise ValidationError(msg)
 
 
+def is_fulljones(parm: H5Parm) -> bool:
+    """
+    Whether given H5Parm represents a full Jones solution.
+    """
+    soltypes = set(tab.soltype for tab in parm.soltabs)
+    pols = [tuple(tab.axes.get("pol", [])) for tab in parm.soltabs]
+    linear = ("XX", "XY", "YX", "YY")
+    return soltypes == {"amplitude", "phase"} and pols == [linear, linear]
+
+
 def prepare_applycal_step(
     step: Step, solutions_dir: Optional[Path] = None
 ) -> Step:
@@ -100,14 +110,14 @@ def prepare_applycal_step(
         parmdb = solutions_dir / parmdb
 
     try:
-        h5parm = H5Parm.from_file(parmdb)
+        h5parm = H5Parm.load(parmdb)
     except InvalidH5Parm as err:
         # Catch and re-raise to show the H5Parm file path in the error message
         updated_msg = f"{parmdb!r} is invalid, reason: {str(err)}"
         raise InvalidH5Parm(updated_msg) from err
 
-    if h5parm.is_fulljones:
-        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.title)
+    if is_fulljones(h5parm):
+        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.soltype)
         params = step.params | {
             "parmdb": parmdb,
             "correction": "fulljones",
@@ -123,7 +133,7 @@ def prepare_applycal_step(
         return Step(type="applycal", params=params)
 
     if len(h5parm.soltabs) == 2:
-        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.title)
+        amp, phase = sorted(h5parm.soltabs, key=lambda s: s.soltype)
         params = step.params | {
             "parmdb": parmdb,
             "steps": ["amp", "phase"],
