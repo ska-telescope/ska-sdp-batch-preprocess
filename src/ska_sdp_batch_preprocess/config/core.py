@@ -7,7 +7,7 @@ from typing import Any, Iterable, Optional
 import yaml
 from jsonschema import Draft202012Validator, ValidationError
 
-from ska_sdp_batch_preprocess.h5parm import H5Parm, InvalidH5Parm
+from ska_sdp_batch_preprocess.h5parm_reader import H5Parm, InvalidH5Parm
 
 
 def _schemas_dir() -> Path:
