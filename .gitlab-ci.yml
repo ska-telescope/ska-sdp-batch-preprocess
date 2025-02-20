@@ -19,20 +19,6 @@ include:
      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
      - "gitlab-ci/includes/release.gitlab-ci.yml"
 
-# Same as default SKAO cache config, minus .venv
-# - The cached .venv is common to all stages; our python-test creates a .venv directory that
-#   then can get pulled by say, python-lint in the next CI pipeline run
-# - Even when caching is made to work, poetry always complains that .venv is broken
-#   and then recreates it. Thus, caching it is pointless.
-cache:
-  key:
-    files:
-      - poetry.lock
-      - requirements.txt
-    prefix: $CI_COMMIT_REF_SLUG
-  paths:
-    - .cache/pip
-
 build-docker:
   stage: build
   image: docker:latest
@@ -59,4 +45,3 @@ python-test:
   variables:
     POETRY_CONFIG_VIRTUALENVS_CREATE: "true"
     PYTHON_RUNNER: "poetry run"
-
