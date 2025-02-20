@@ -3,11 +3,6 @@ variables:
   DEBIAN_FRONTEND: "noninteractive"
   CONTAINER_SCANNING_DISABLED: true
 
-  POETRY_CONFIG_VIRTUALENVS_CREATE: "true"
-  PYTHON_RUNNER: "poetry run"
-  SPHINXBUILD: "${PYTHON_RUNNER} sphinx-build"
-
-
 stages:
   - lint
   - scan
@@ -44,7 +39,12 @@ build-docker:
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker push $CI_REGISTRY_IMAGE:latest
 
+.custom-variables: &custom-variables
+  POETRY_CONFIG_VIRTUALENVS_CREATE: "true"
+  PYTHON_RUNNER: "poetry run"
+
 python-lint:
+  variables: *custom-variables
   cache: []
 
 docs-build:
@@ -53,4 +53,5 @@ docs-build:
 python-test:
   image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   needs: ["build-docker"]
+  variables: *custom-variables
   cache: []
