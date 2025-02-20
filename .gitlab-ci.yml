@@ -2,6 +2,9 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DEBIAN_FRONTEND: "noninteractive"
   CONTAINER_SCANNING_DISABLED: true
+  PYTHON_RUNNER: "poetry run"
+  SPHINXBUILD: "${PYTHON_RUNNER} sphinx-build"
+
 
 stages:
   - lint
@@ -39,31 +42,6 @@ build-docker:
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker push $CI_REGISTRY_IMAGE:latest
 
-# .poetry-before-script: &poetry-before-script
-#   - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile"; exit 1;)'
-#   - poetry config --list
-#   - ls .venv/lib/python*/site-packages/
-#   - rm -rf .venv
-#   - poetry env info
-#   - 'make help | grep python-lint'
-#   - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
-#   - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
-#   - |
-#     if [[ -f pyproject.toml ]]; then
-#       if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
-#         echo "python-lint: Updating poetry to $CI_POETRY_VERSION";
-#         pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
-#       fi;
-
-#       echo "python-lint: Installing with poetry";
-#       time poetry install --all-extras;
-#     else
-#       if  [[ -f requirements.txt ]]; then
-#         echo "python-lint: Installing with pip";
-#         time pip3 install -r requirements.txt;
-#       fi;
-#     fi;
-
 python-lint:
   cache: []
 
@@ -74,19 +52,3 @@ python-test:
   image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   needs: ["build-docker"]
   cache: []
-  # before_script:
-  #   - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
-  #   - 'make help | grep python-test'
-  #   - | 
-  #     echo "configuring poetry venv and sourcing it"
-  #     poetry config virtualenvs.in-project true
-  #     poetry config virtualenvs.create true
-  #     poetry env use python3
-  #     source $(poetry env info --path)/bin/activate
-  #   - |
-  #     if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
-  #       echo "python-test: Updating poetry to $CI_POETRY_VERSION";
-  #       pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
-  #     fi;
-  #     echo "python-test: Installing with poetry";
-  #     time poetry install --all-extras;
