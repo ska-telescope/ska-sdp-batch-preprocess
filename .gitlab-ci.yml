@@ -39,6 +39,7 @@ build-docker:
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker push $CI_REGISTRY_IMAGE:latest
 
+
 .custom-variables: &custom-variables
   POETRY_CONFIG_VIRTUALENVS_CREATE: "true"
   PYTHON_RUNNER: "poetry run"
