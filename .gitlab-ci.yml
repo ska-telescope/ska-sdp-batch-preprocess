@@ -73,19 +73,20 @@ docs-build:
 python-test:
   image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   needs: ["build-docker"]
-  before_script:
-    - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
-    - 'make help | grep python-test'
-    - | 
-      echo "configuring poetry venv and sourcing it"
-      poetry config virtualenvs.in-project true
-      poetry config virtualenvs.create true
-      poetry env use python3
-      source $(poetry env info --path)/bin/activate
-    - |
-      if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
-        echo "python-test: Updating poetry to $CI_POETRY_VERSION";
-        pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
-      fi;
-      echo "python-test: Installing with poetry";
-      time poetry install --all-extras;
+  cache: []
+  # before_script:
+  #   - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
+  #   - 'make help | grep python-test'
+  #   - | 
+  #     echo "configuring poetry venv and sourcing it"
+  #     poetry config virtualenvs.in-project true
+  #     poetry config virtualenvs.create true
+  #     poetry env use python3
+  #     source $(poetry env info --path)/bin/activate
+  #   - |
+  #     if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
+  #       echo "python-test: Updating poetry to $CI_POETRY_VERSION";
+  #       pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
+  #     fi;
+  #     echo "python-test: Installing with poetry";
+  #     time poetry install --all-extras;
