@@ -59,3 +59,4 @@ python-test:
   variables:
     POETRY_CONFIG_VIRTUALENVS_CREATE: "true"
     PYTHON_RUNNER: "poetry run"
+
