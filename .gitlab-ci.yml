@@ -43,14 +43,18 @@ python-test:
   image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
   needs: ["build-docker"]
   variables:
-    # Poetry installs packages in the root env up without complaint up to
+    # Poetry installs packages in the root env without complaining up to
     # Python 3.10 inclusive; default SKAO CI config relies on this behaviour.
-    # With Python 3.11+, poetry refuses to install packages in the root
-    # environment (see PEP668); our docker image contains Python 3.12, hence
-    # the tweaks below.
+    # With Python 3.11+, poetry refuses to do so (see PEP668), and our docker
+    # image contains Python 3.12, hence the tweaks below
 
-    # Ensure repo is installed in .venv/
+    # Install packages in .venv/
     POETRY_CONFIG_VIRTUALENVS_CREATE: "true"
 
-    # Run Makefile python commands with this prefix, let poetry source the venv automatically
+    # Run Makefile python commands with this prefix, making poetry source
+    # .venv/ automatically
     PYTHON_RUNNER: "poetry run"
+
+  # Don't cache .venv/ directory, otherwise it gets pulled into other
+  # job stages in future CI pipeline runs and breaks them
+  cache: []
