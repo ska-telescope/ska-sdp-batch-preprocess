@@ -42,3 +42,6 @@ build-docker:
   rules:
     - changes:
       - Dockerfile
+
+python-test:
+  image: "$CI_REGISTRY_IMAGE:latest"
