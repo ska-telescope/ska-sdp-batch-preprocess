@@ -2,6 +2,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DEBIAN_FRONTEND: "noninteractive"
   CONTAINER_SCANNING_DISABLED: true
+  POETRY_CONFIG_VIRTUALENVS_CREATE: true
 
 stages:
   - lint
@@ -45,3 +46,4 @@ build-docker:
 
 python-test:
   image: "$CI_REGISTRY_IMAGE:latest"
+
