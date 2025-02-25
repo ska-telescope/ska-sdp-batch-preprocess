@@ -2,7 +2,6 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DEBIAN_FRONTEND: "noninteractive"
   CONTAINER_SCANNING_DISABLED: true
-  POETRY_CONFIG_VIRTUALENVS_CREATE: true
 
 stages:
   - lint
@@ -56,21 +55,3 @@ build-docker:
       - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
       - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
       - docker push $CI_REGISTRY_IMAGE:latest
-
-  rules:
-    - changes:
-      - Dockerfile
-
-python-lint:
-  before_script:
-    - python --version
-    - *poetry-before-script
-
-docs-build:
-  before_script:
-    - *poetry-before-script
-
-python-test:
-  image: "$CI_REGISTRY_IMAGE:latest"
-  before_script:
-    - *poetry-before-script
