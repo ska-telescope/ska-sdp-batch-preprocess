@@ -63,6 +63,7 @@ build-docker:
 
 python-lint:
   before_script:
+    - python --version
     - *poetry-before-script
 
 docs-build:
