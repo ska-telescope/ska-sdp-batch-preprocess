@@ -26,8 +26,7 @@ version-docker:
     - COMMIT_SHAS=($(git log -n 2 --pretty=format:%H -- Dockerfile))
     - echo DOCKERFILE_LATEST_SHA = ${COMMIT_SHAS[0]} > versions.env
     - echo DOCKERFILE_BUILDCACHE_SHA = ${COMMIT_SHAS[1]} >> versions.env
-    - echo LATEST_IMAGE = $CI_REGISTRY_IMAGE:$DOCKERFILE_LATEST_SHA >> versions.env
-    - echo BUILDCACHE_IMAGE = $CI_REGISTRY_IMAGE:$DOCKERFILE_BUILDCACHE_SHA >> versions.env
+    - echo LATEST_IMAGE = $CI_REGISTRY_IMAGE:${COMMIT_SHAS[0]} >> versions.env
     - cat versions.env
 
   artifacts:
