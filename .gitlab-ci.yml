@@ -19,35 +19,66 @@ include:
       - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
       - "gitlab-ci/includes/release.gitlab-ci.yml"
 
-version-docker:
-  stage: build
-  script:
-    - git fetch --unshallow
-    - COMMIT_SHAS=($(git log -n 2 --pretty=format:%H -- Dockerfile))
-    - echo LATEST_SHA = ${COMMIT_SHAS[0]} > versions.env
-    - echo BUILDCACHE_SHA = ${COMMIT_SHAS[1]} >> versions.env
-    - echo LATEST_IMAGE = $CI_REGISTRY_IMAGE:${COMMIT_SHAS[0]} >> versions.env
-    - cat versions.env
-
-  artifacts:
-    reports:
-      dotenv: versions.env
-
 build-docker:
   stage: build
-  needs: ["version-docker"]
   image: docker:latest
   services:
     - docker:dind # docker-in-docker service
   before_script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
   script:
+    # NOTE: ChatGPT recommends this instead, because
+    # "GitLab sometimes clones repositories in detached mode"
+    # "(especially in merge request pipelines), which may cause git log to fail.""
+    # "Fix: Ensure the repository is in the correct branch"
+    # - git fetch --unshallow || git fetch --all
+    # - git checkout $CI_COMMIT_REF_NAME
+
+    # Find commit SHA to build
+    - git fetch --unshallow
+    - TARGET_SHA=$(git log -n 1 --pretty=format:%H -- Dockerfile)
     - |
-      if ! docker manifest inspect $LATEST_IMAGE > /dev/null; then
-        docker build --build-arg BUILDKIT_INLINE_CACHE=1 --tag $LATEST_IMAGE .
-        docker push $LATEST_IMAGE
+      if [[ -z "$TARGET_SHA" ]]; then
+        echo "ERROR: No commit SHA found for Dockerfile"
+        exit 1
+      fi
+    - TARGET_IMAGE=$CI_REGISTRY_IMAGE:$TARGET_SHA
+    - echo "TARGET_IMAGE=$TARGET_IMAGE" > versions.env
+
+    # Skip build if adequate image already in registry
+    - |
+      if docker manifest inspect $TARGET_IMAGE > /dev/null 2>&1; then
+        echo "Up-to-date image already exists for commit $TARGET_SHA"
+        exit 0
       fi
 
+    # Build
+    - |
+      if [[ -f build_cache_image.env ]]; then
+        source build_cache_image.env
+      fi
+    - |
+      if [[ -n $BUILD_CACHE_IMAGE ]]; then
+        echo "Building Dockerfile at commit ${TARGET_SHA} using build cache from: $BUILD_CACHE_IMAGE"
+        docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $TARGET_IMAGE --cache-from $BUILD_CACHE_IMAGE
+      else
+        echo "Building Dockerfile at commit ${TARGET_SHA} without build cache"
+        docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $TARGET_IMAGE
+      fi
+    - docker push $TARGET_IMAGE
+    - echo "BUILD_CACHE_IMAGE=$TARGET_IMAGE" > build_cache_image.env
+
+  # Cache the most recently built and pushed image tag on a per-branch basis
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - build_cache_image.env
+
+  # Make image info available to next job
+  artifacts:
+    reports:
+      dotenv: versions.env
+
 python-test:
-  needs: ["version-docker", "build-docker"]
-  image: $LATEST_IMAGE
+  needs: ["build-docker"]
+  image: $TARGET_IMAGE
