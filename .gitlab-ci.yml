@@ -35,9 +35,7 @@ version-docker:
 
 build-docker:
   stage: build
-  needs:
-    - job: version-docker
-      artifacts: true
+  needs: ["version-docker"]
   image: docker:latest
   services:
     - docker:dind # docker-in-docker service
@@ -51,8 +49,5 @@ build-docker:
       fi
 
 python-test:
-  needs:
-    - job: version-docker
-      artifacts: true
-    - job: build-docker
+  needs: ["version-docker", "build-docker"]
   image: $LATEST_IMAGE
