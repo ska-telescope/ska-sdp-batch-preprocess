@@ -19,8 +19,18 @@ include:
      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
      - "gitlab-ci/includes/release.gitlab-ci.yml"
 
+# version-docker:
+#   script:
+#     - git fetch --unshallow
+#     - echo DOCKER_IMAGE = ${CI_REGISTRY_IMAGE}:$(git log -n 1 --pretty=format:%H -- docker/Dockerfile) > versions.env
+
+#   artifacts:
+#     reports:
+#       dotenv: versions.env
+
 build-docker:
   stage: build
+  # needs: ["version-docker"]
   image: docker:latest
   services:
     - docker:dind  # docker-in-docker service
@@ -39,3 +49,5 @@ build-docker:
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker push $CI_REGISTRY_IMAGE:latest
 
+python-test:
+  image: $CI_REGISTRY_IMAGE:latest
