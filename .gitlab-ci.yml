@@ -23,7 +23,7 @@ version-docker:
   stage: build
   script:
     - git fetch --unshallow
-    - COMMIT_SHAS=$(git log -n 2 --pretty=format:%H -- Dockerfile)
+    - COMMIT_SHAS=($(git log -n 2 --pretty=format:%H -- Dockerfile))
     - echo DOCKER_IMAGE = ${CI_REGISTRY_IMAGE}:${COMMIT_SHAS[0]} > versions.env
     - cat versions.env
 
