@@ -24,7 +24,10 @@ version-docker:
   script:
     - git fetch --unshallow
     - COMMIT_SHAS=($(git log -n 2 --pretty=format:%H -- Dockerfile))
-    - echo DOCKER_IMAGE = ${CI_REGISTRY_IMAGE}:${COMMIT_SHAS[0]} > versions.env
+    - echo DOCKERFILE_LATEST_SHA = ${COMMIT_SHAS[0]} > versions.env
+    - echo DOCKERFILE_BUILDCACHE_SHA = ${COMMIT_SHAS[1]} >> versions.env
+    - echo LATEST_IMAGE = $CI_REGISTRY_IMAGE:$DOCKERFILE_LATEST_SHA >> versions.env
+    - echo BUILDCACHE_IMAGE = $CI_REGISTRY_IMAGE:$DOCKERFILE_BUILDCACHE_SHA >> versions.env
     - cat versions.env
 
   artifacts:
@@ -43,9 +46,9 @@ build-docker:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
   script:
     - |
-      if ! docker manifest inspect $DOCKER_IMAGE > /dev/null; then
-        docker build --build-arg BUILDKIT_INLINE_CACHE=1 --tag $DOCKER_IMAGE .
-        docker push $DOCKER_IMAGE
+      if ! docker manifest inspect $LATEST_IMAGE > /dev/null; then
+        docker build --build-arg BUILDKIT_INLINE_CACHE=1 --tag $LATEST_IMAGE .
+        docker push $LATEST_IMAGE
       fi
 
 python-test:
@@ -53,4 +56,4 @@ python-test:
     - job: version-docker
       artifacts: true
     - job: build-docker
-  image: $DOCKER_IMAGE
+  image: $LATEST_IMAGE
