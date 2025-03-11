@@ -24,6 +24,7 @@ version-docker:
   script:
     - git fetch --unshallow
     - echo DOCKER_IMAGE = ${CI_REGISTRY_IMAGE}:$(git log -n 1 --pretty=format:%H -- Dockerfile) > versions.env
+    - cat versions.env
 
   artifacts:
     reports:
