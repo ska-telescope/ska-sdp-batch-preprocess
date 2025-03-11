@@ -19,18 +19,21 @@ include:
      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
      - "gitlab-ci/includes/release.gitlab-ci.yml"
 
-# version-docker:
-#   script:
-#     - git fetch --unshallow
-#     - echo DOCKER_IMAGE = ${CI_REGISTRY_IMAGE}:$(git log -n 1 --pretty=format:%H -- docker/Dockerfile) > versions.env
+version-docker:
+  stage: build
+  script:
+    - git fetch --unshallow
+    - echo DOCKER_IMAGE = ${CI_REGISTRY_IMAGE}:$(git log -n 1 --pretty=format:%H -- Dockerfile) > versions.env
 
-#   artifacts:
-#     reports:
-#       dotenv: versions.env
+  artifacts:
+    reports:
+      dotenv: versions.env
 
 build-docker:
   stage: build
-  # needs: ["version-docker"]
+  needs:
+    - job: version-docker
+      artifacts: true
   image: docker:latest
   services:
     - docker:dind  # docker-in-docker service
@@ -38,16 +41,14 @@ build-docker:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
   script:
     - |
-      if docker pull $CI_REGISTRY_IMAGE:latest > /dev/null 2>&1; then
-        echo "Using latest image as build cache"
-        docker build --cache-from $CI_REGISTRY_IMAGE:latest --build-arg BUILDKIT_INLINE_CACHE=1 --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
-      else
-        echo "Building image from scratch"
-        docker build --build-arg BUILDKIT_INLINE_CACHE=1 --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .        
+      if ! docker manifest inspect $DOCKER_IMAGE > /dev/null; then
+        docker build --build-arg BUILDKIT_INLINE_CACHE=1 --tag $DOCKER_IMAGE .
+        docker push $DOCKER_IMAGE
       fi
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY_IMAGE:latest
 
 python-test:
-  image: $CI_REGISTRY_IMAGE:latest
+  needs:
+    - job: version-docker
+      artifacts: true
+    - job: build-docker
+  image: $DOCKER_IMAGE
