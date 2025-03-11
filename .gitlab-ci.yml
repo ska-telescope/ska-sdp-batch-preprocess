@@ -13,11 +13,11 @@ stages:
 
 include:
   - project: "ska-telescope/templates-repository"
-    file: 
-     - "gitlab-ci/includes/python.gitlab-ci.yml"
-     - "gitlab-ci/includes/docs.gitlab-ci.yml"
-     - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
-     - "gitlab-ci/includes/release.gitlab-ci.yml"
+    file:
+      - "gitlab-ci/includes/python.gitlab-ci.yml"
+      - "gitlab-ci/includes/docs.gitlab-ci.yml"
+      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
+      - "gitlab-ci/includes/release.gitlab-ci.yml"
 
 version-docker:
   stage: build
@@ -37,7 +37,7 @@ build-docker:
       artifacts: true
   image: docker:latest
   services:
-    - docker:dind  # docker-in-docker service
+    - docker:dind # docker-in-docker service
   before_script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
   script:
