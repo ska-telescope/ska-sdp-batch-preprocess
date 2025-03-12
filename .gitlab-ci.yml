@@ -44,6 +44,7 @@ build-docker:
       fi
     - TARGET_IMAGE=$CI_REGISTRY_IMAGE:$TARGET_SHA
     - echo "TARGET_IMAGE=$TARGET_IMAGE" > versions.env
+    - cat versions.env
 
     # Skip build if adequate image already in registry
     - |
@@ -56,6 +57,7 @@ build-docker:
     - |
       if [[ -f build_cache_image.env ]]; then
         source build_cache_image.env
+        echo "Env variable recovered from cache BUILD_CACHE_IMAGE='$BUILD_CACHE_IMAGE'"
       fi
     - |
       if [[ -n $BUILD_CACHE_IMAGE ]]; then
