@@ -57,7 +57,7 @@ build-docker:
     - |
       if [[ -f build_cache_image.env ]]; then
         source build_cache_image.env
-        echo "Env variable recovered from cache BUILD_CACHE_IMAGE='$BUILD_CACHE_IMAGE'"
+        echo "Recovered cached env variable: BUILD_CACHE_IMAGE=$BUILD_CACHE_IMAGE"
       fi
     - |
       if [[ -z $BUILD_CACHE_IMAGE ]]; then
@@ -76,7 +76,7 @@ build-docker:
     paths:
       - build_cache_image.env
 
-  # Make image info available to next job
+  # Make image info available to dependent jobs
   artifacts:
     reports:
       dotenv: versions.env
