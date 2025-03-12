@@ -27,18 +27,11 @@ build-docker:
   before_script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
   script:
-    # NOTE: ChatGPT recommends this instead, because
-    # "GitLab sometimes clones repositories in detached mode"
-    # "(especially in merge request pipelines), which may cause git log to fail.""
-    # "Fix: Ensure the repository is in the correct branch"
-    # - git fetch --unshallow || git fetch --all
-    # - git checkout $CI_COMMIT_REF_NAME
-
     # Find commit SHA to build
     - git fetch --unshallow
     - TARGET_SHA=$(git log -n 1 --pretty=format:%H -- Dockerfile)
     - |
-      if [[ -z "$TARGET_SHA" ]]; then
+      if [[ -z $TARGET_SHA ]]; then
         echo "ERROR: No commit SHA found for Dockerfile"
         exit 1
       fi
@@ -49,7 +42,7 @@ build-docker:
     # Skip build if adequate image already in registry
     - |
       if docker manifest inspect $TARGET_IMAGE > /dev/null 2>&1; then
-        echo "Up-to-date image already exists for commit $TARGET_SHA"
+        echo "Up-to-date image already in registry for commit $TARGET_SHA"
         echo "BUILD_CACHE_IMAGE=$TARGET_IMAGE" > build_cache_image.env
         exit 0
       fi
@@ -58,7 +51,6 @@ build-docker:
     - |
       if [[ -f build_cache_image.env ]]; then
         source build_cache_image.env
-        echo "Recovered cached env variable: BUILD_CACHE_IMAGE=$BUILD_CACHE_IMAGE"
       fi
     - |
       if [[ -z $BUILD_CACHE_IMAGE ]]; then
@@ -71,18 +63,18 @@ build-docker:
     - docker push $TARGET_IMAGE
     - echo "BUILD_CACHE_IMAGE=$TARGET_IMAGE" > build_cache_image.env
 
-  # Cache the most recently built and pushed image tag on a per-branch basis
+  # Make image name available to dependent jobs
+  artifacts:
+    reports:
+      dotenv: versions.env
+
+  # Cache the most recently built and pushed image name on a per-branch basis
   cache:
     key: $CI_COMMIT_REF_NAME
     fallback_keys:
       - $CI_DEFAULT_BRANCH
     paths:
       - build_cache_image.env
-
-  # Make image info available to dependent jobs
-  artifacts:
-    reports:
-      dotenv: versions.env
 
 python-test:
   needs: ["build-docker"]
