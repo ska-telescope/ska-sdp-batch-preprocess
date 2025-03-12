@@ -60,12 +60,12 @@ build-docker:
         echo "Env variable recovered from cache BUILD_CACHE_IMAGE='$BUILD_CACHE_IMAGE'"
       fi
     - |
-      if [[ -n $BUILD_CACHE_IMAGE ]]; then
-        echo "Building Dockerfile at commit ${TARGET_SHA} using build cache from: $BUILD_CACHE_IMAGE"
-        docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $TARGET_IMAGE --cache-from $BUILD_CACHE_IMAGE
-      else
-        echo "Building Dockerfile at commit ${TARGET_SHA} without build cache"
+      if [[ -z $BUILD_CACHE_IMAGE ]]; then
+        echo "Building Dockerfile at commit $TARGET_SHA without build cache"
         docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $TARGET_IMAGE
+      else
+        echo "Building Dockerfile at commit $TARGET_SHA using build cache from: $BUILD_CACHE_IMAGE"
+        docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $TARGET_IMAGE --cache-from $BUILD_CACHE_IMAGE
       fi
     - docker push $TARGET_IMAGE
     - echo "BUILD_CACHE_IMAGE=$TARGET_IMAGE" > build_cache_image.env
