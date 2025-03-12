@@ -72,7 +72,9 @@ build-docker:
 
   # Cache the most recently built and pushed image tag on a per-branch basis
   cache:
-    key: "$CI_COMMIT_REF_NAME"
+    key: $CI_COMMIT_REF_NAME
+    fallback_keys:
+      - $CI_DEFAULT_BRANCH
     paths:
       - build_cache_image.env
 
