@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
 SHELL ["/bin/bash", "-c"]
 
@@ -9,6 +9,9 @@ ENV	AOFLAGGER_VERSION=b1256de90b00a5a83477274390decd6671cdcd38
 ENV	IDG_VERSION=9ce6fa88b9d746d8d7146c474992aba9b98eb41f 
 ENV	EVERYBEAM_VERSION=0578473cacf64c69bc2e05e15754cf94dd1051b9 
 ENV	DP3_VERSION=v6.2.1
+
+ENV TZ="Etc/UTC"
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get install -y \
 	bison \
