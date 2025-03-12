@@ -29,21 +29,21 @@ build-docker:
   script:
     # Find commit SHA to build
     - git fetch --unshallow
-    - TARGET_SHA=$(git log -n 1 --pretty=format:%H -- Dockerfile)
+    - COMMIT_SHA=$(git log -n 1 --pretty=format:%H -- Dockerfile)
     - |
-      if [[ -z $TARGET_SHA ]]; then
+      if [[ -z $COMMIT_SHA ]]; then
         echo "ERROR: No commit SHA found for Dockerfile"
         exit 1
       fi
-    - TARGET_IMAGE=$CI_REGISTRY_IMAGE:$TARGET_SHA
-    - echo "TARGET_IMAGE=$TARGET_IMAGE" > versions.env
+    - DOCKER_IMAGE=$CI_REGISTRY_IMAGE:$COMMIT_SHA
+    - echo "DOCKER_IMAGE=$DOCKER_IMAGE" > versions.env
     - cat versions.env
 
     # Skip build if adequate image already in registry
     - |
-      if docker manifest inspect $TARGET_IMAGE > /dev/null 2>&1; then
-        echo "Up-to-date image already in registry for commit $TARGET_SHA"
-        echo "BUILD_CACHE_IMAGE=$TARGET_IMAGE" > build_cache_image.env
+      if docker manifest inspect $DOCKER_IMAGE > /dev/null 2>&1; then
+        echo "Up-to-date image already in registry for commit $COMMIT_SHA"
+        echo "BUILD_CACHE_IMAGE=$DOCKER_IMAGE" > build_cache_image.env
         exit 0
       fi
 
@@ -54,21 +54,21 @@ build-docker:
       fi
     - |
       if [[ -z $BUILD_CACHE_IMAGE ]]; then
-        echo "Building Dockerfile at commit $TARGET_SHA without build cache"
-        docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $TARGET_IMAGE
+        echo "Building Dockerfile at commit $COMMIT_SHA without build cache"
+        docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $DOCKER_IMAGE
       else
-        echo "Building Dockerfile at commit $TARGET_SHA using build cache from: $BUILD_CACHE_IMAGE"
-        docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $TARGET_IMAGE --cache-from $BUILD_CACHE_IMAGE
+        echo "Building Dockerfile at commit $COMMIT_SHA using build cache from: $BUILD_CACHE_IMAGE"
+        docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $DOCKER_IMAGE --cache-from $BUILD_CACHE_IMAGE
       fi
-    - docker push $TARGET_IMAGE
-    - echo "BUILD_CACHE_IMAGE=$TARGET_IMAGE" > build_cache_image.env
+    - docker push $DOCKER_IMAGE
+    - echo "BUILD_CACHE_IMAGE=$DOCKER_IMAGE" > build_cache_image.env
 
   # Make image name available to dependent jobs
   artifacts:
     reports:
       dotenv: versions.env
 
-  # Cache the most recently built and pushed image name on a per-branch basis
+  # Cache the most recent image name in registry, on a per-branch basis
   cache:
     key: $CI_COMMIT_REF_NAME
     fallback_keys:
@@ -78,4 +78,4 @@ build-docker:
 
 python-test:
   needs: ["build-docker"]
-  image: $TARGET_IMAGE
+  image: $DOCKER_IMAGE
