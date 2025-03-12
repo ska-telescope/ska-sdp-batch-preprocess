@@ -50,6 +50,7 @@ build-docker:
     - |
       if docker manifest inspect $TARGET_IMAGE > /dev/null 2>&1; then
         echo "Up-to-date image already exists for commit $TARGET_SHA"
+        echo "BUILD_CACHE_IMAGE=$TARGET_IMAGE" > build_cache_image.env
         exit 0
       fi
 
