@@ -11,12 +11,11 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get install -y \
 	bison \
 	build-essential \
 	cmake \
+	curl \
 	doxygen \
 	flex \
 	gfortran \
 	git \
-	curl \
-	wget \
 	libarmadillo-dev \
 	libboost-date-time-dev \
 	libboost-filesystem-dev \
@@ -24,23 +23,24 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get install -y \
 	libboost-python-dev \
 	libboost-system-dev \
 	libboost-test-dev \
-	libgsl-dev \
 	libcfitsio-dev \
 	libfftw3-dev \
+	libgsl-dev \
 	libgtkmm-3.0-dev \
 	libhdf5-serial-dev \
-	liblua5.3-dev \
 	liblapack-dev \
+	liblua5.3-dev \
 	libpng-dev \
 	ninja-build \
+	pipx \
 	pkg-config \
 	pybind11-dev \
+	python-is-python3 \
 	python3-dev \
 	python3-numpy \
 	python3-pip \
-    python-is-python3 \
-    pipx \
-	wcslib-dev
+	wcslib-dev\
+	wget
 
 # Install WSRT Measures (extra casacore data, for integration tests)
 # Note: The file on the ftp site is updated daily. When warnings regarding leap
