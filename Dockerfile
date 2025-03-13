@@ -1,14 +1,11 @@
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
 SHELL ["/bin/bash", "-c"]
 
 WORKDIR /
 
-ENV	CASACORE_VERSION=v3.6.0
-ENV	AOFLAGGER_VERSION=b1256de90b00a5a83477274390decd6671cdcd38 
-ENV	IDG_VERSION=9ce6fa88b9d746d8d7146c474992aba9b98eb41f 
-ENV	EVERYBEAM_VERSION=0578473cacf64c69bc2e05e15754cf94dd1051b9 
-ENV	DP3_VERSION=v6.2.1
+ENV TZ="Etc/UTC"
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get install -y \
 	bison \
@@ -68,6 +65,7 @@ RUN mkdir -p /usr/share/casacore/data && \
 	tar -C /usr/share/casacore/data -xzf -
 
 # Build CasaCore
+ENV	CASACORE_VERSION=v3.6.0
 RUN git clone https://github.com/casacore/casacore.git casacore && \
     cd casacore && git checkout ${CASACORE_VERSION} && \
     mkdir build && cd build && \
@@ -77,6 +75,7 @@ RUN git clone https://github.com/casacore/casacore.git casacore && \
     cd / && rm -rf casacore
 
 # Build AOFlagger3
+ENV	AOFLAGGER_VERSION=b1256de90b00a5a83477274390decd6671cdcd38
 RUN git clone https://gitlab.com/aroffringa/aoflagger.git aoflagger && \
 	cd aoflagger && git checkout ${AOFLAGGER_VERSION} && \
 	mkdir build && cd build && \
@@ -84,6 +83,7 @@ RUN git clone https://gitlab.com/aroffringa/aoflagger.git aoflagger && \
 	cd / && rm -rf aoflagger
 
 # Build IDG
+ENV	IDG_VERSION=9ce6fa88b9d746d8d7146c474992aba9b98eb41f
 RUN git clone https://git.astron.nl/RD/idg.git idg && \
 	cd idg && git checkout ${IDG_VERSION} && \
 	mkdir build && cd build && \
@@ -91,6 +91,7 @@ RUN git clone https://git.astron.nl/RD/idg.git idg && \
 	cd / && rm -rf idg
 
 # Build EveryBeam
+ENV	EVERYBEAM_VERSION=0578473cacf64c69bc2e05e15754cf94dd1051b9
 RUN git clone https://git.astron.nl/RD/EveryBeam.git everybeam && \
 	cd everybeam && git checkout ${EVERYBEAM_VERSION} && \
 	mkdir build && cd build && \
@@ -98,6 +99,7 @@ RUN git clone https://git.astron.nl/RD/EveryBeam.git everybeam && \
 	cd / && rm -rf everybeam
 
 # Build DP3
+ENV	DP3_VERSION=v6.3
 RUN git clone https://github.com/lofar-astron/DP3.git dp3 && \
 	cd dp3 && git checkout ${DP3_VERSION} && \
 	mkdir build && cd build && \

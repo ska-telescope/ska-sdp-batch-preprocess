@@ -1,8 +1,6 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   DEBIAN_FRONTEND: "noninteractive"
-  DOCKER_IMAGE_NAME: "$CI_REGISTRY_IMAGE:latest"
-  DOCKER_CACHE_IMAGE: "$CI_REGISTRY_IMAGE:cache"
   CONTAINER_SCANNING_DISABLED: true
 
 stages:
@@ -15,58 +13,69 @@ stages:
 
 include:
   - project: "ska-telescope/templates-repository"
-    file: 
-     - "gitlab-ci/includes/python.gitlab-ci.yml"
-     - "gitlab-ci/includes/docs.gitlab-ci.yml"
-     - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
-     - "gitlab-ci/includes/release.gitlab-ci.yml"
-
-.poetry-before-script: &poetry-before-script
-  - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile; exit 1")'
-  - 'make help | grep python-test'
-  - | 
-    echo "configuring poetry venv and sourcing it"
-    poetry config virtualenvs.in-project true
-    poetry config virtualenvs.create true
-    poetry env use python3
-    source $(poetry env info --path)/bin/activate
-  - |
-    if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
-      echo "python-test: Updating poetry to $CI_POETRY_VERSION";
-      pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
-    fi;
-    echo "python-test: Installing with poetry";
-    time poetry install --all-extras;
+    file:
+      - "gitlab-ci/includes/python.gitlab-ci.yml"
+      - "gitlab-ci/includes/docs.gitlab-ci.yml"
+      - "gitlab-ci/includes/finaliser.gitlab-ci.yml"
+      - "gitlab-ci/includes/release.gitlab-ci.yml"
 
 build-docker:
   stage: build
   image: docker:latest
   services:
-    - docker:dind  # docker-in-docker service
+    - docker:dind # docker-in-docker service
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
   script:
-    - docker pull "$DOCKER_CACHE_IMAGE" || true  # pull cache if available
-    - docker build --pull --cache-from "$DOCKER_CACHE_IMAGE" --build-arg BUILDKIT_INLINE_CACHE=1 -t "$DOCKER_IMAGE_NAME" .
-    - docker tag  "$DOCKER_IMAGE_NAME" "$DOCKER_CACHE_IMAGE"
-    - docker push "$DOCKER_IMAGE_NAME"
-    - docker push "$DOCKER_CACHE_IMAGE"
-  rules:
-    - changes:
-      - Dockerfile
-      - pyproject.toml
-      - poetry.lock
-      - src/**
+    # Find commit SHA to build
+    - git fetch --unshallow
+    - COMMIT_SHA=$(git log -n 1 --pretty=format:%H -- Dockerfile)
+    - |
+      if [[ -z $COMMIT_SHA ]]; then
+        echo "ERROR: No commit SHA found for Dockerfile"
+        exit 1
+      fi
+    - DOCKER_IMAGE=$CI_REGISTRY_IMAGE:$COMMIT_SHA
+    - echo "DOCKER_IMAGE=$DOCKER_IMAGE" > versions.env
+    - cat versions.env
 
-python-lint:
-  before_script:
-    - *poetry-before-script
+    # Skip build if adequate image already in registry
+    - |
+      if docker manifest inspect $DOCKER_IMAGE > /dev/null 2>&1; then
+        echo "Up-to-date image already in registry for commit $COMMIT_SHA"
+        echo "BUILD_CACHE_IMAGE=$DOCKER_IMAGE" > build_cache_image.env
+        exit 0
+      fi
 
-docs-build:
-  before_script:
-    - *poetry-before-script
+    # Build
+    - |
+      if [[ -f build_cache_image.env ]]; then
+        source build_cache_image.env
+      fi
+    - |
+      if [[ -z $BUILD_CACHE_IMAGE ]]; then
+        echo "Building Dockerfile at commit $COMMIT_SHA without build cache"
+        docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $DOCKER_IMAGE
+      else
+        echo "Building Dockerfile at commit $COMMIT_SHA using build cache from: $BUILD_CACHE_IMAGE"
+        docker build . --build-arg BUILDKIT_INLINE_CACHE=1 --tag $DOCKER_IMAGE --cache-from $BUILD_CACHE_IMAGE
+      fi
+    - docker push $DOCKER_IMAGE
+    - echo "BUILD_CACHE_IMAGE=$DOCKER_IMAGE" > build_cache_image.env
+
+  # Make image name available to dependent jobs
+  artifacts:
+    reports:
+      dotenv: versions.env
+
+  # Cache the most recent image name available in registry, on a per-branch basis
+  cache:
+    key: $CI_COMMIT_REF_NAME
+    fallback_keys:
+      - $CI_DEFAULT_BRANCH
+    paths:
+      - build_cache_image.env
 
 python-test:
-  image: "$CI_REGISTRY_IMAGE:latest"
-  before_script:
-    - *poetry-before-script
+  needs: ["build-docker"]
+  image: $DOCKER_IMAGE
