@@ -10,18 +10,13 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get install -y \
 	bison \
 	build-essential \
-	clang-format-14 \
 	cmake \
 	doxygen \
 	flex \
-	g++ \
-	gcovr \
 	gfortran \
 	git \
 	curl \
 	wget \
-	zip \
-	unzip \
 	libarmadillo-dev \
 	libboost-date-time-dev \
 	libboost-filesystem-dev \
@@ -29,31 +24,22 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get install -y \
 	libboost-python-dev \
 	libboost-system-dev \
 	libboost-test-dev \
-	libboost-all-dev \
 	libgsl-dev \
 	libcfitsio-dev \
 	libfftw3-dev \
 	libgtkmm-3.0-dev \
 	libhdf5-serial-dev \
-	libncurses-dev \
 	liblua5.3-dev \
 	liblapack-dev \
 	libpng-dev \
-	libpython3-dev \
-	libreadline-dev \
 	ninja-build \
 	pkg-config \
 	pybind11-dev \
-    python3 \
 	python3-dev \
-	python3-h5py \
 	python3-numpy \
 	python3-pip \
     python-is-python3 \
     pipx \
-	python3-pytest \
-	python3-sphinx \
-	python3-sphinx-rtd-theme \
 	wcslib-dev
 
 # Install WSRT Measures (extra casacore data, for integration tests)
