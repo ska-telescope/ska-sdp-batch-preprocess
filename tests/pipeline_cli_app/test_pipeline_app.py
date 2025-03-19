@@ -28,7 +28,7 @@ def test_pipeline_cli_app_produces_output_ms_without_errors_in_sequential_mode(
     Test the pipeline CLI app on a small Measurement Set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
-    solutions_dir = diagonal_identity_h5parm.parent
+    extra_inputs_dir = diagonal_identity_h5parm.parent
 
     cli_args = [
         "--config",
@@ -36,7 +36,7 @@ def test_pipeline_cli_app_produces_output_ms_without_errors_in_sequential_mode(
         "--output-dir",
         str(output_dir),
         "--solutions-dir",
-        str(solutions_dir),
+        str(extra_inputs_dir),
         str(input_ms),
     ]
 
@@ -82,13 +82,13 @@ def test_pipeline_cli_app_produces_output_mses_without_errors_in_distributed_mod
     test measurement set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
-    solutions_dir = diagonal_identity_h5parm.parent
+    extra_inputs_dir = diagonal_identity_h5parm.parent
 
     cli_args = [
         "--config",
         str(yaml_config),
         "--solutions-dir",
-        str(solutions_dir),
+        str(extra_inputs_dir),
         "--output-dir",
         str(output_dir),
         "--dask-scheduler",

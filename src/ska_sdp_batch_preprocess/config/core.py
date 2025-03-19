@@ -99,15 +99,15 @@ def is_fulljones(parm: H5Parm) -> bool:
 
 
 def prepare_applycal_step(
-    step: Step, solutions_dir: Optional[Path] = None
+    step: Step, extra_inputs_dir: Optional[Path] = None
 ) -> Step:
     """
     Prepare applycal step parameters based on the contents of the associated
     H5Parm.
     """
     parmdb = Path(step.params["parmdb"])
-    if not parmdb.is_absolute() and solutions_dir is not None:
-        parmdb = solutions_dir / parmdb
+    if not parmdb.is_absolute() and extra_inputs_dir is not None:
+        parmdb = extra_inputs_dir / parmdb
 
     try:
         h5parm = H5Parm.load(parmdb)
@@ -150,31 +150,35 @@ def prepare_applycal_step(
 
 def prepare_steps(
     steps: Iterable[Step],
-    solutions_dir: Optional[str | os.PathLike] = None,
+    extra_inputs_dir: Optional[str | os.PathLike] = None,
 ) -> list[Step]:
     """
     Second pass of parsing. Create Steps with parameters ready to be passed to
     DP3. This includes setting ApplyCal parameters based on the associated
     H5Parm contents.
     """
-    solutions_dir = Path(solutions_dir) if solutions_dir is not None else None
+    extra_inputs_dir = (
+        Path(extra_inputs_dir) if extra_inputs_dir is not None else None
+    )
     prepared_steps = []
     for step in steps:
         if step.type == "applycal":
-            prepared_steps.append(prepare_applycal_step(step, solutions_dir))
+            prepared_steps.append(
+                prepare_applycal_step(step, extra_inputs_dir)
+            )
         else:
             prepared_steps.append(step)
     return prepared_steps
 
 
 def parse_config(
-    conf: dict, solutions_dir: Optional[str | os.PathLike] = None
+    conf: dict, extra_inputs_dir: Optional[str | os.PathLike] = None
 ) -> list[Step]:
     """
-    Parse config dictionary into a list of Steps. `solutions_dir` is an
-    optional directory path where the solution tables for ApplyCal steps are
-    expected to be stored; any solution table path in the config that is not
-    absolute will be prepended with `solutions_dir`.
+    Parse config dictionary into a list of Steps. `extra_inputs_dir` is an
+    optional directory path where additional input files mentioned in the
+    config are expected to be stored. Any path to e.g. a solution table in the
+    config that is not absolute will be prepended with `extra_inputs_dir`.
 
     Raise jsonschema.ValidationError if the config is invalid.
     """
@@ -182,15 +186,16 @@ def parse_config(
     steps = list(map(parse_step_dictionary, conf["steps"]))
     _assert_no_more_than_one_step_with_type(steps, "msin")
     _assert_no_more_than_one_step_with_type(steps, "msout")
-    return prepare_steps(steps, solutions_dir)
+    return prepare_steps(steps, extra_inputs_dir)
 
 
 def parse_config_file(
-    path: str | os.PathLike, solutions_dir: Optional[str | os.PathLike] = None
+    path: str | os.PathLike,
+    extra_inputs_dir: Optional[str | os.PathLike] = None,
 ) -> list[Step]:
     """
     Same as parse_config, except that the first argument is a config file path
     instead of a config dict.
     """
     with open(path, "r", encoding="utf-8") as file:
-        return parse_config(yaml.safe_load(file), solutions_dir)
+        return parse_config(yaml.safe_load(file), extra_inputs_dir)

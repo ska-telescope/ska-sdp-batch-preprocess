@@ -23,7 +23,7 @@ class Application:
         config_file: Path,
         output_dir: Path,
         *,
-        solutions_dir: Optional[Path] = None,
+        extra_inputs_dir: Optional[Path] = None,
     ):
         """
         Create a new Application.
@@ -31,8 +31,10 @@ class Application:
         # All paths must be made absolute before being sent to dask workers,
         # because they may operate from a different working directory.
         self._output_dir = output_dir.resolve()
-        solutions_dir = solutions_dir.resolve() if solutions_dir else None
-        self._pipeline = Pipeline.create(config_file, solutions_dir)
+        extra_inputs_dir = (
+            extra_inputs_dir.resolve() if extra_inputs_dir else None
+        )
+        self._pipeline = Pipeline.create(config_file, extra_inputs_dir)
 
     def process(
         self,

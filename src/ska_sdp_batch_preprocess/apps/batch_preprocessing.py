@@ -91,7 +91,7 @@ def run_program(cli_args: list[str]):
     app = Application(
         args.config,
         args.output_dir,
-        solutions_dir=args.solutions_dir,
+        extra_inputs_dir=args.solutions_dir,
     )
     app.process(args.input_ms, args.dask_scheduler)
 
