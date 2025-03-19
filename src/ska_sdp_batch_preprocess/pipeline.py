@@ -49,10 +49,10 @@ class Pipeline:
     def create(
         cls,
         config_path: str | os.PathLike,
-        solutions_dir: Optional[str | os.PathLike] = None,
+        extra_inputs_dir: Optional[str | os.PathLike] = None,
     ) -> "Pipeline":
         """
         Create a Pipeline, given a YAML config file path and an optional
         directory where the solution tables are stored.
         """
-        return cls(parse_config_file(config_path, solutions_dir))
+        return cls(parse_config_file(config_path, extra_inputs_dir))

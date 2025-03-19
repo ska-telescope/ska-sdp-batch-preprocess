@@ -40,22 +40,22 @@ def test_applycal_steps_with_identity_gain_tables_preserve_visibilities(
     trigger all associated code paths.
     """
     antenna_names = load_antenna_names_from_msv2(input_ms)
-    solutions_dir = tmp_path_factory.mktemp("applycal_solutions_dir")
+    extra_inputs_dir = tmp_path_factory.mktemp("applycal_extra_inputs_dir")
     create_scalarphase_identity_h5parm(
-        solutions_dir / "scalarphase.h5", antenna_names
+        extra_inputs_dir / "scalarphase.h5", antenna_names
     )
     create_diagonal_complex_identity_h5parm(
-        solutions_dir / "diagonal.h5", antenna_names
+        extra_inputs_dir / "diagonal.h5", antenna_names
     )
     create_fulljones_identity_h5parm(
-        solutions_dir / "fulljones.h5", antenna_names
+        extra_inputs_dir / "fulljones.h5", antenna_names
     )
     config = make_config(["scalarphase.h5", "diagonal.h5", "fulljones.h5"])
 
     output_dir = tmp_path_factory.mktemp("applycal_outdir")
     output_ms = output_dir / input_ms.name
 
-    steps = parse_config(config, solutions_dir)
+    steps = parse_config(config, extra_inputs_dir)
     pipeline = Pipeline(steps)
     pipeline.run(input_ms, output_ms)
 

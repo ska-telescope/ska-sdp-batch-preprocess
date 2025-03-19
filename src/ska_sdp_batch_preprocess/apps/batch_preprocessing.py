@@ -45,14 +45,13 @@ def make_parser() -> ArgumentParser:
 
     optional = parser.add_argument_group("optional arguments")
     optional.add_argument(
-        "-s",
-        "--solutions-dir",
+        "-e",
+        "--extra-inputs-dir",
         type=existing_directory,
         help=(
-            "Directory containing solution tables (in H5Parm format). "
-            "Any solution table paths in the config file ApplyCal "
-            "steps that are not absolute will be preprended with this "
-            "directory."
+            "Directory containing additional input files, such as solution "
+            "tables and sky models. Any file path in the config file that is "
+            "not absolute will be preprended with this directory."
         ),
     )
     optional.add_argument(
@@ -91,7 +90,7 @@ def run_program(cli_args: list[str]):
     app = Application(
         args.config,
         args.output_dir,
-        solutions_dir=args.solutions_dir,
+        extra_inputs_dir=args.extra_inputs_dir,
     )
     app.process(args.input_ms, args.dask_scheduler)
 

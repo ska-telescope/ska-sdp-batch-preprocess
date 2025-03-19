@@ -33,9 +33,9 @@ def diagonal_identity_h5parm(
     Complex diagonal identity H5Parm file. Its name must match what is in the
     config file's applycal step.
     """
-    solutions_dir = tmp_path_factory.mktemp("solutions_dir")
+    extra_inputs_dir = tmp_path_factory.mktemp("extra_inputs_dir")
     antenna_names = load_antenna_names_from_msv2(input_ms)
-    path = solutions_dir / "diagonal.h5"
+    path = extra_inputs_dir / "diagonal.h5"
     create_diagonal_complex_identity_h5parm(path, antenna_names)
     return path
 
