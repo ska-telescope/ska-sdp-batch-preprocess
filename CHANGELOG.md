@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.3.0 - 2025-03-19
+
+CLI interface change in preparation of adding Demixing.
+
+### Changed
+
+- Renamed CLI argument `--solutions-dir` to `--extra-inputs-dir`
+
+
 ## 2.2.0 - 2025-02-04
 
 Added option to use dask distribution.
