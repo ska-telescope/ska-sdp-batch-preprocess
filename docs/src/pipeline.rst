@@ -14,7 +14,7 @@ The pipeline is a CLI app; a typical usage might be:
     ska-sdp-batch-preprocess
         --config myConfig.yaml
         --output-dir /path/to/base_output_dir
-        --solutions-dir /path/to/solution_tables_dir
+        --extra-inputs-dir /path/to/extra_inputs_dir
         --dask-scheduler localhost:8786
         input1.ms
         input2.ms
@@ -39,11 +39,12 @@ For each input ``<BASE_INPUT_NAME>.ms``, the associated output MSv2 path is
 
 **Optional keyword arguments:**
 
-- ``--solutions-dir``: Optional path to a directory where the calibration solution tables to apply
-  are stored. This argument exists so that the user can avoid writing a new configuration file
-  for each pipeline run, as the path to the solution tables may change on a per-dataset basis.
-  Any solution table paths that appear in the config file and that are not absolute paths will be
-  preprended with this directory.
+- ``--extra-inputs-dir``: Optional path to a directory where additional input files are stored,
+  such as calibration solution tables. This argument exists so that the user can
+  avoid writing a new configuration file for each pipeline run; for example, the full path to the
+  solution tables may change on a per-dataset basis but their names can be standardised.
+  Any file paths that appear in the config file and that are not absolute will be preprended
+  with this directory.
 - ``--dask-scheduler``: Optional network address of a dask scheduler. If provided, the associated
   dask workers are used for parallel processing.
 
@@ -147,7 +148,7 @@ configuration parameter. Here are two valid examples:
 
     steps:
       - ApplyCal:
-        # Relative paths get preprended by the --solutions-dir CLI argument
+        # Relative paths get preprended by the --extra-inputs-dir CLI argument
         parmdb: somefile.h5
 
 **This ease of use, however, comes at the following price:**

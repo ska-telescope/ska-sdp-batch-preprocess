@@ -13,7 +13,7 @@ steps:
       memorymax: 8.0 # GB
   - ApplyCal:
       # If the path to the H5Parm file is not absolute, it will be preprended
-      # by the --solutions-dir argument passed via the command line
+      # by the --extra-inputs-dir argument passed via the command line
       parmdb: bandpass.h5
   - ApplyCal:
       parmdb: polarisation.h5

@@ -35,7 +35,7 @@ def test_pipeline_cli_app_produces_output_ms_without_errors_in_sequential_mode(
         str(yaml_config),
         "--output-dir",
         str(output_dir),
-        "--solutions-dir",
+        "--extra-inputs-dir",
         str(extra_inputs_dir),
         str(input_ms),
     ]
@@ -87,7 +87,7 @@ def test_pipeline_cli_app_produces_output_mses_without_errors_in_distributed_mod
     cli_args = [
         "--config",
         str(yaml_config),
-        "--solutions-dir",
+        "--extra-inputs-dir",
         str(extra_inputs_dir),
         "--output-dir",
         str(output_dir),
