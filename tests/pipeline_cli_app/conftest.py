@@ -26,18 +26,21 @@ def yaml_config_trivial() -> Path:
 
 
 @pytest.fixture
-def diagonal_identity_h5parm(
-    tmp_path_factory: pytest.TempPathFactory, input_ms: Path
+def extra_inputs_dir(
+    tmp_path_factory: pytest.TempPathFactory,
+    input_ms: Path,
+    sky_model: Path,
 ) -> Path:
     """
-    Complex diagonal identity H5Parm file. Its name must match what is in the
-    config file's applycal step.
+    Extra inputs directory with all necessary files required to run the
+    pipeline with the end-to-end test config.
     """
-    extra_inputs_dir = tmp_path_factory.mktemp("extra_inputs_dir")
+    tempdir = tmp_path_factory.mktemp("extra_inputs_dir")
     antenna_names = load_msv2_antenna_names(input_ms)
-    path = extra_inputs_dir / "diagonal.h5"
+    path = tempdir / "diagonal.h5"
     create_diagonal_complex_identity_h5parm(path, antenna_names)
-    return path
+    shutil.copy(sky_model, tempdir / sky_model.name)
+    return tempdir
 
 
 @pytest.fixture
