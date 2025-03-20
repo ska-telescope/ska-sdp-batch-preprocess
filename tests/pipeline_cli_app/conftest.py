@@ -5,7 +5,7 @@ import pytest
 from dask.distributed import LocalCluster
 
 from ..h5parm_generation import create_diagonal_complex_identity_h5parm
-from ..ms_reading import load_antenna_names_from_msv2
+from ..ms_reading import load_msv2_antenna_names
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def diagonal_identity_h5parm(
     config file's applycal step.
     """
     extra_inputs_dir = tmp_path_factory.mktemp("extra_inputs_dir")
-    antenna_names = load_antenna_names_from_msv2(input_ms)
+    antenna_names = load_msv2_antenna_names(input_ms)
     path = extra_inputs_dir / "diagonal.h5"
     create_diagonal_complex_identity_h5parm(path, antenna_names)
     return path

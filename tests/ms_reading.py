@@ -16,7 +16,7 @@ def getcol(path: str | os.PathLike, table_name: str, col_name: str):
         return tbl.getcol(col_name)
 
 
-def load_visibilities_from_msv2(
+def load_msv2_visibilities(
     path: str | os.PathLike, data_column: str = "DATA"
 ) -> NDArray:
     """
@@ -29,7 +29,14 @@ def load_visibilities_from_msv2(
     return vis.reshape(len(unique_timestamps), -1, nchan, npol)
 
 
-def load_antenna_names_from_msv2(path: str | os.PathLike) -> list[str]:
+def load_msv2_flags(path: str | os.PathLike) -> NDArray:
+    """
+    Load the FLAG column from an MSv2.
+    """
+    return getcol(path, "MAIN", "FLAG")
+
+
+def load_msv2_antenna_names(path: str | os.PathLike) -> list[str]:
     """
     Load the list of antenna names from an MSv2.
     """
