@@ -1,0 +1,7 @@
+FORMAT = Name, Type, Patch, Ra, Dec, I, SpectralIndex, LogarithmicSI, ReferenceFrequency, MajorAxis, MinorAxis, Orientation
+ 
+, , bright_a, 52.052625deg, -28.5875deg
+, , bright_b, 53.052625deg, -27.5875deg
+ 
+point_0000, POINT, bright_a, 52.052625deg, -28.5875deg, 1.0, [0.0], true, 959969726.5625, 0.0, 0.0, 0.0
+point_0001, POINT, bright_b, 53.052625deg, -27.5875deg, 1.0, [0.0], true, 959969726.5625, 0.0, 0.0, 0.0
