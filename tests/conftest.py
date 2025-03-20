@@ -10,9 +10,9 @@ from ska_sdp_batch_preprocess.pipeline import Pipeline
 @pytest.fixture(name="sky_model", scope="session")
 def fixture_sky_model() -> Path:
     """
-    Path to the sky model file used for the demixing test.
+    Path to the sky model file used to generate the test MS.
     """
-    path = Path(__file__).parent / "data" / "sky_model_demixing.txt"
+    path = Path(__file__).parent / "data" / "sky_model.txt"
     return path.resolve()
 
 
@@ -22,7 +22,7 @@ def fixture_template_ms(
 ) -> Path:
     """
     A very small MeerKAT dataset observed at L-Band which serves at a
-    template to generate other MSes where we control which sources we inject.
+    template to generate another MS where we control which sources we inject.
     The dataset has 38 time samples, 4 freq channels and the 4 linear
     polarisation channels.
     """
