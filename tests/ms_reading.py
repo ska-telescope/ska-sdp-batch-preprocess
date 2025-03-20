@@ -21,12 +21,9 @@ def load_msv2_visibilities(
 ) -> NDArray:
     """
     Loads visibilites from MSv2, assuming it contains rectangular data.
-    Returns complex data with shape (time, baseline, freq, pol).
+    Returns complex data with shape (nrows, nchan, npol).
     """
-    vis: NDArray = getcol(path, "MAIN", data_column)
-    unique_timestamps = set(getcol(path, "MAIN", "TIME"))
-    __, nchan, npol = vis.shape
-    return vis.reshape(len(unique_timestamps), -1, nchan, npol)
+    return getcol(path, "MAIN", data_column)
 
 
 def load_msv2_flags(path: str | os.PathLike) -> NDArray:
