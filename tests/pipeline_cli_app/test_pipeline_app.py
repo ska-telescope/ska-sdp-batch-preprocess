@@ -21,15 +21,13 @@ def test_pipeline_cli_app_entry_point_exists():
 def test_pipeline_cli_app_produces_output_ms_without_errors_in_sequential_mode(
     tmp_path_factory: pytest.TempPathFactory,
     yaml_config: Path,
-    diagonal_identity_h5parm: Path,
+    extra_inputs_dir: Path,
     input_ms: Path,
 ):
     """
     Test the pipeline CLI app on a small Measurement Set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
-    extra_inputs_dir = diagonal_identity_h5parm.parent
-
     cli_args = [
         "--config",
         str(yaml_config),
@@ -73,7 +71,7 @@ def test_pipeline_cli_app_raises_value_error_if_duplicate_input_ms_names(
 def test_pipeline_cli_app_produces_output_mses_without_errors_in_distributed_mode(  # noqa: E501
     tmp_path_factory: pytest.TempPathFactory,
     yaml_config: Path,
-    diagonal_identity_h5parm: Path,
+    extra_inputs_dir: Path,
     dask_cluster: LocalCluster,
     input_ms_list: list[Path],
 ):
@@ -82,7 +80,6 @@ def test_pipeline_cli_app_produces_output_mses_without_errors_in_distributed_mod
     test measurement set.
     """
     output_dir = tmp_path_factory.mktemp("output_dir")
-    extra_inputs_dir = diagonal_identity_h5parm.parent
 
     cli_args = [
         "--config",
