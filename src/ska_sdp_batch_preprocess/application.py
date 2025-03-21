@@ -46,7 +46,7 @@ class Application:
         cluster if the network address of its scheduler is given via
         the `dask_scheduler` argument.
         """
-        assert_no_duplicate_input_names(measurement_sets)
+        assert_no_duplicate_input_stems(measurement_sets)
         measurement_sets = map(Path.resolve, measurement_sets)
 
         if dask_scheduler:
@@ -91,29 +91,29 @@ def process_ms_on_dask_worker(
     pipeline.run(mset, output_dir / mset.name, numthreads=numthreads)
 
 
-def assert_no_duplicate_input_names(paths: Iterable[Path]):
+def assert_no_duplicate_input_stems(paths: Iterable[Path]):
     """
-    Given input paths, raise ValueError if any two paths have the same name,
-    i.e. the same last component.
+    Given input paths, raise ValueError if any two paths have the same stem,
+    where the stem is the final path component minus the suffix.
 
     We have to run this check on input MS paths, because two input MSes with
     different paths but identical names would correspond to the same output
     path.
     """
-    name_to_full_path_mapping: dict[str, list[str]] = defaultdict(list)
+    stem_to_full_path_mapping: dict[str, list[str]] = defaultdict(list)
     for path in paths:
-        name_to_full_path_mapping[path.name].append(str(path.resolve()))
+        stem_to_full_path_mapping[path.stem].append(str(path.resolve()))
 
     duplicate_paths = list(
         itertools.chain.from_iterable(
             path_list
-            for path_list in name_to_full_path_mapping.values()
+            for path_list in stem_to_full_path_mapping.values()
             if len(path_list) > 1
         )
     )
 
     if duplicate_paths:
         lines = [
-            "There are duplicate input MS names. Offending paths: "
+            "There are duplicate input MS path stems. Offending paths: "
         ] + duplicate_paths
         raise ValueError("\n".join(lines))
