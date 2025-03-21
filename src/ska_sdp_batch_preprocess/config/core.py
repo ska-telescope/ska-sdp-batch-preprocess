@@ -69,7 +69,7 @@ def parse_step_dictionary(step_dict: dict[str, Any]) -> Step:
         )
         raise ValidationError(msg)
 
-    stype, params = next(iter(step_dict.items()))
+    [(stype, params)] = step_dict.items()
     params = {} if params is None else params
 
     validators = _step_validators()
