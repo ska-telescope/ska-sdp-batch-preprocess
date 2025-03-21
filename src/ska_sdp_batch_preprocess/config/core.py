@@ -88,6 +88,37 @@ def _assert_no_more_than_one_step_with_type(steps: Iterable[Step], stype: str):
         raise ValidationError(msg)
 
 
+def prepend_extra_inputs_dir_to_parameters_that_require_it(
+    steps: Iterable[Step], extra_inputs_dir: Path
+) -> list[Step]:
+    """
+    Self-explanatory. Any parameter that represents an input path needs to be
+    prepended with `extra_inputs_dir`, unless it is already absolute.
+    """
+    target_parameters = {
+        "applycal": ["parmdb"],
+        "demixer": ["skymodel"],
+    }
+
+    def _prepended_path(path: str | os.PathLike) -> Path:
+        path = Path(path)
+        return path if path.is_absolute() else extra_inputs_dir / path
+
+    def _updated_step(step: Step) -> Step:
+        if step.type not in target_parameters:
+            return step
+
+        param_names = target_parameters[step.type]
+        updated_params = {
+            name: _prepended_path(step.params[name])
+            for name in param_names
+            if name in step.params
+        }
+        return Step(type=step.type, params=step.params | updated_params)
+
+    return list(map(_updated_step, steps))
+
+
 def is_fulljones(parm: H5Parm) -> bool:
     """
     Whether given H5Parm represents a full Jones solution.
@@ -98,16 +129,12 @@ def is_fulljones(parm: H5Parm) -> bool:
     return soltypes == {"amplitude", "phase"} and pols == [linear, linear]
 
 
-def prepare_applycal_step(
-    step: Step, extra_inputs_dir: Optional[Path] = None
-) -> Step:
+def prepare_applycal_step(step: Step) -> Step:
     """
     Prepare applycal step parameters based on the contents of the associated
     H5Parm.
     """
     parmdb = Path(step.params["parmdb"])
-    if not parmdb.is_absolute() and extra_inputs_dir is not None:
-        parmdb = extra_inputs_dir / parmdb
 
     try:
         h5parm = H5Parm.load(parmdb)
@@ -148,43 +175,16 @@ def prepare_applycal_step(
     )
 
 
-def prepare_demixer_step(
-    step: Step, extra_inputs_dir: Optional[Path] = None
-) -> Step:
+def prepare_applycal_steps(steps: Iterable[Step]) -> list[Step]:
     """
-    Prepare demixer step parameters, mainly preprending `extra_inputs_dir`.
+    Apply `prepare_applycal_step` to applycal steps, leave the others
+    unchanged.
     """
-    skymodel = Path(step.params["skymodel"])
-    if not skymodel.is_absolute() and extra_inputs_dir is not None:
-        skymodel = extra_inputs_dir / skymodel
 
-    params = step.params | {"skymodel": skymodel}
-    return Step(type="demixer", params=params)
+    def _prepare(step: Step) -> Step:
+        return prepare_applycal_step(step) if step.type == "applycal" else step
 
-
-def prepare_steps(
-    steps: Iterable[Step],
-    extra_inputs_dir: Optional[str | os.PathLike] = None,
-) -> list[Step]:
-    """
-    Second pass of parsing. Create Steps with parameters ready to be passed to
-    DP3. This includes setting ApplyCal parameters based on the associated
-    H5Parm contents.
-    """
-    extra_inputs_dir = (
-        Path(extra_inputs_dir) if extra_inputs_dir is not None else None
-    )
-    prepared_steps = []
-    for step in steps:
-        if step.type == "applycal":
-            prepared_steps.append(
-                prepare_applycal_step(step, extra_inputs_dir)
-            )
-        elif step.type == "demixer":
-            prepared_steps.append(prepare_demixer_step(step, extra_inputs_dir))
-        else:
-            prepared_steps.append(step)
-    return prepared_steps
+    return list(map(_prepare, steps))
 
 
 def parse_config(
@@ -203,7 +203,11 @@ def parse_config(
     _assert_no_more_than_one_step_with_type(steps, "msin")
     _assert_no_more_than_one_step_with_type(steps, "msout")
     _assert_no_more_than_one_step_with_type(steps, "demixer")
-    return prepare_steps(steps, extra_inputs_dir)
+    if extra_inputs_dir is not None:
+        steps = prepend_extra_inputs_dir_to_parameters_that_require_it(
+            steps, extra_inputs_dir
+        )
+    return prepare_applycal_steps(steps)
 
 
 def parse_config_file(
