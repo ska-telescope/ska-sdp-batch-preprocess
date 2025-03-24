@@ -109,7 +109,7 @@ The config file layout rules are:
 - Step types are *not* case-sensitive.
 - Steps are executed in the order they are specified.
 - The following DP3 step types are allowed:
-  ``msin``, ``msout``, ``preflagger``, ``aoflagger``, ``applycal``, ``averager``.
+  ``msin``, ``msout``, ``preflagger``, ``aoflagger``, ``demixer``, ``applycal``, ``averager``.
 - Any step parameter recognized by DP3 is accepted. Note that some parameters are managed by the
   pipeline and will be overriden, input and output file paths for example. For a list of parameters
   names, see the `DP3 steps documentation <https://dp3.readthedocs.io/en/latest/>`_.
@@ -177,6 +177,48 @@ on the H5Parm files it accepts for its ApplyCal steps:
 - If there is only 1 soltab, it can only represent the phase or amplitude part
   of a scalar or diagonal solution table.
 
+
+Notes on Demixing
+=================
+
+Bright source subtraction can be performed using the Demixer step, which requires a sky model
+in `SourceDB format <https://www.astron.nl/lofarwiki/doku.php?id=public:user_software:documentation:makesourcedb>`_.
+SourceDB contains two types of entries:
+
+- Sky components, which are either points or gaussians, with various parameters such as
+  position, flux, spectral index, but also the "patch" it belongs to.
+- So-called "patches", which are special entries that are effectively associated with one
+  group of sky components and one calibration direction / gain table.
+
+Below is a basic example of SourceDB sky model to use for bright source subtraction:
+
+.. literalinclude:: ../../tests/data/sky_model.txt
+  :language: text
+
+
+.. note::
+
+  We are planning to implement a more user-friendly data schema for bright source
+  sky models in the future.
+
+Here is what a ``Demixer`` step configuration may look like. Only ``skymodel``
+is technically required:
+
+  .. code-block:: yaml
+
+    steps:
+      - Demixer:
+        # Path to skymodel file in SourceDB format
+        # A relative path gets preprended by the --extra-inputs-dir CLI argument
+        skymodel: bright_sources.txt
+        # List of sources to subtract, must all refer to existing "patches" in the skymodel
+        subtractsources: ["bright_a", "bright_b"]
+        # Internal data averaging factors when fitting bright source gains
+        demixtimestep: 4
+        demixfreqstep: 8
+
+Please refer to the full `Demixer step documentation <https://dp3.readthedocs.io/en/latest/steps/Demixer.html>`_
+for details and advanced usage.
 
 .. _dask:
 
