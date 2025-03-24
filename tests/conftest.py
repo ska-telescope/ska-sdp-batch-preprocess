@@ -39,12 +39,13 @@ def fixture_input_ms(
     sky_model: Path,
 ) -> Path:
     """
-    A small MeerKAT dataset whose visibilities have been replaced by model
-    visibilities predicted by DP3, and all flags set to False (perfect data).
+    Generates a small MeerKAT dataset from the sky model using DP3.
     This serves as the input to most of our tests.
 
-    The dataset has 38 time samples, 4 freq channels and the 4 linear
-    polarisation channels.
+    Notes:
+      - All flags set to False (perfect data).
+      - The dataset has 38 time samples, 4 freq channels and the 4 linear
+        polarisation channels.
     """
     steps = [
         Step("preflagger", params={"mode": "clear", "chan": "[0..nchan]"}),
