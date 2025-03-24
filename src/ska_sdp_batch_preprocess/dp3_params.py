@@ -37,21 +37,35 @@ def make_instrumentmodel_unique_in_demixer_steps(
     running, but this is incompatible with the single config, multiple data
     model.
 
-    Solution: treat "instrumentmodel" as a prefix, and write the gains to
-    `<MSOUT_PARENT_DIR>/<PREFIX>_<MSOUT_STEM>`. If "instrumentmodel" is not
-    provided in the demixer step config, a default prefix is chosen.
+    Solution: treat "instrumentmodel" as a path prefix, and write the gains to
+    `<instrumentmodel>_<MSOUT_STEM>`. instrumentmodel can be:
+    - an absolute path, e.g. "/abspath/to/gains"
+    - a relative path, e.g. "path/to/gains" or just "gains"
+
+    If "instrumentmodel" is a relative path, it will be prepended by the parent
+    directory of `msout`.
+
+    If "instrumentmodel" is not provided in the demixer step config, it is set
+    to a default value of "demixer_gains".
     """
     msout = Path(msout).resolve()
-    default_prefix = "demixer_gains"
 
     def adjust(step: Step) -> Step:
         if not step.type == "demixer":
             return step
 
-        prefix = step.params.get("instrumentmodel", default_prefix)
-        value = msout.parent / f"{prefix}_{msout.stem}"
-        adjustment_dict = {"instrumentmodel": value}
-        return Step(step.type, params=step.params | adjustment_dict)
+        prefix = Path(step.params.get("instrumentmodel", "demixer_gains"))
+        if not prefix.is_absolute():
+            prefix = msout.parent / prefix
+
+        # DP3 wants the parent directory tree for the gain table to exist
+        prefix.parent.mkdir(parents=True, exist_ok=True)
+
+        instrumentmodel = prefix.with_name(f"{prefix.name}_{msout.stem}")
+        return Step(
+            step.type,
+            params=step.params | {"instrumentmodel": instrumentmodel},
+        )
 
     return list(map(adjust, steps))
 
