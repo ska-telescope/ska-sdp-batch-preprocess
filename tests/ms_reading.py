@@ -16,20 +16,24 @@ def getcol(path: str | os.PathLike, table_name: str, col_name: str):
         return tbl.getcol(col_name)
 
 
-def load_visibilities_from_msv2(
+def load_msv2_visibilities(
     path: str | os.PathLike, data_column: str = "DATA"
 ) -> NDArray:
     """
     Loads visibilites from MSv2, assuming it contains rectangular data.
-    Returns complex data with shape (time, baseline, freq, pol).
+    Returns complex data with shape (nrows, nchan, npol).
     """
-    vis: NDArray = getcol(path, "MAIN", data_column)
-    unique_timestamps = set(getcol(path, "MAIN", "TIME"))
-    __, nchan, npol = vis.shape
-    return vis.reshape(len(unique_timestamps), -1, nchan, npol)
+    return getcol(path, "MAIN", data_column)
 
 
-def load_antenna_names_from_msv2(path: str | os.PathLike) -> list[str]:
+def load_msv2_flags(path: str | os.PathLike) -> NDArray:
+    """
+    Load the FLAG column from an MSv2.
+    """
+    return getcol(path, "MAIN", "FLAG")
+
+
+def load_msv2_antenna_names(path: str | os.PathLike) -> list[str]:
     """
     Load the list of antenna names from an MSv2.
     """

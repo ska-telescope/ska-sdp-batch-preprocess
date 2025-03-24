@@ -13,10 +13,7 @@ from .h5parm_generation import (
     create_fulljones_identity_h5parm,
     create_scalarphase_identity_h5parm,
 )
-from .ms_reading import (
-    load_antenna_names_from_msv2,
-    load_visibilities_from_msv2,
-)
+from .ms_reading import load_msv2_antenna_names, load_msv2_visibilities
 
 
 def make_config(h5parm_filenames: Iterable[str]) -> dict[str, Any]:
@@ -39,7 +36,7 @@ def test_applycal_steps_with_identity_gain_tables_preserve_visibilities(
     differently when generating the parameters for the DP3 call; that way, we
     trigger all associated code paths.
     """
-    antenna_names = load_antenna_names_from_msv2(input_ms)
+    antenna_names = load_msv2_antenna_names(input_ms)
     extra_inputs_dir = tmp_path_factory.mktemp("applycal_extra_inputs_dir")
     create_scalarphase_identity_h5parm(
         extra_inputs_dir / "scalarphase.h5", antenna_names
@@ -61,7 +58,7 @@ def test_applycal_steps_with_identity_gain_tables_preserve_visibilities(
 
     assert output_ms.is_dir()
 
-    vis_in = load_visibilities_from_msv2(input_ms)
-    vis_out = load_visibilities_from_msv2(output_ms)
+    vis_in = load_msv2_visibilities(input_ms)
+    vis_out = load_msv2_visibilities(output_ms)
 
     assert np.allclose(vis_in, vis_out)
