@@ -202,6 +202,7 @@ def parse_config(
     steps = list(map(parse_step_dictionary, conf["steps"]))
     _assert_no_more_than_one_step_with_type(steps, "msin")
     _assert_no_more_than_one_step_with_type(steps, "msout")
+    _assert_no_more_than_one_step_with_type(steps, "demixer")
     return prepare_steps(steps, extra_inputs_dir)
 
 
