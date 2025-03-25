@@ -6,8 +6,6 @@ from dask.distributed import LocalCluster
 
 from ska_sdp_batch_preprocess.apps.batch_preprocessing import run_program
 
-from ..dp3_availability import skip_unless_dp3_available
-
 
 def test_pipeline_cli_app_entry_point_exists():
     """
@@ -17,7 +15,6 @@ def test_pipeline_cli_app_entry_point_exists():
     assert exit_code == 0
 
 
-@skip_unless_dp3_available
 def test_pipeline_cli_app_produces_output_ms_without_errors_in_sequential_mode(
     tmp_path_factory: pytest.TempPathFactory,
     yaml_config: Path,
@@ -68,7 +65,6 @@ def test_pipeline_cli_app_raises_value_error_if_duplicate_input_ms_names(
         run_program(cli_args)
 
 
-@skip_unless_dp3_available
 # pylint:disable=line-too-long
 def test_pipeline_cli_app_produces_output_mses_without_errors_in_distributed_mode(  # noqa: E501
     tmp_path_factory: pytest.TempPathFactory,

@@ -7,7 +7,6 @@ import pytest
 from ska_sdp_batch_preprocess.config import parse_config
 from ska_sdp_batch_preprocess.pipeline import Pipeline
 
-from .dp3_availability import skip_unless_dp3_available
 from .h5parm_generation import (
     create_diagonal_complex_identity_h5parm,
     create_fulljones_identity_h5parm,
@@ -25,7 +24,6 @@ def make_config(h5parm_filenames: Iterable[str]) -> dict[str, Any]:
     return {"steps": steps}
 
 
-@skip_unless_dp3_available
 def test_applycal_steps_with_identity_gain_tables_preserve_visibilities(
     tmp_path_factory: pytest.TempPathFactory, input_ms: Path
 ):
