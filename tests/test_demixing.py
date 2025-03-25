@@ -6,7 +6,6 @@ import pytest
 from ska_sdp_batch_preprocess.config import Step
 from ska_sdp_batch_preprocess.pipeline import Pipeline
 
-from .dp3_availability import skip_unless_dp3_available
 from .ms_reading import load_msv2_flags, load_msv2_visibilities
 
 
@@ -22,7 +21,6 @@ def compute_msv2_visibility_rms_power(mset: Path) -> float:
     return float(rms_power)
 
 
-@skip_unless_dp3_available
 # pylint:disable=line-too-long
 def test_demixing_predicted_visibilities_with_same_sky_model_yields_zero_visibilities(  # noqa: E501
     tmp_path_factory: pytest.TempPathFactory,
