@@ -23,9 +23,7 @@ def fixture_complex_h5parm() -> H5Parm:
 def test_save_load_roundtrip_preserves_h5parm_contents(
     tmp_path_factory: pytest.TempPathFactory, parm: H5Parm
 ):
-    """
-    Self-explanatory.
-    """
+
     tmpdir = tmp_path_factory.mktemp("h5parm")
     path = tmpdir / "complex.h5parm"
     parm.save(path)
@@ -34,9 +32,7 @@ def test_save_load_roundtrip_preserves_h5parm_contents(
 
 
 def test_h5parm_repr(parm: H5Parm):
-    """
-    Self-explanatory.
-    """
+
     expected_lines = (
         "H5Parm(",
         "    Soltab(name=None, soltype='amplitude', dimensions={'time': 10, 'freq': 20, 'ant': 4})",  # noqa: E501
@@ -47,9 +43,7 @@ def test_h5parm_repr(parm: H5Parm):
 
 
 def test_incomplete_full_jones_raises_invalid_h5parm():
-    """
-    Self-explanatory.
-    """
+
     phase = Soltab(
         "phase",
         axes={
@@ -65,9 +59,7 @@ def test_incomplete_full_jones_raises_invalid_h5parm():
 
 
 def test_h5parm_without_soltabs_raises_invalid_h5parm():
-    """
-    Self-explanatory.
-    """
+
     with pytest.raises(
         InvalidH5Parm, match="Number of soltabs must be 1 or 2"
     ):
@@ -75,9 +67,7 @@ def test_h5parm_without_soltabs_raises_invalid_h5parm():
 
 
 def test_h5parm_with_more_than_two_soltabs_raises_invalid_h5parm():
-    """
-    Self-explanatory.
-    """
+
     axes = {"time": np.arange(10)}
     val = np.zeros(shape=(10,))
     weight = np.ones_like(val, dtype=float)
