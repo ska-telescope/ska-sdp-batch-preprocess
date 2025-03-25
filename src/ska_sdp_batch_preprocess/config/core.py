@@ -148,6 +148,20 @@ def prepare_applycal_step(
     )
 
 
+def prepare_demixer_step(
+    step: Step, extra_inputs_dir: Optional[Path] = None
+) -> Step:
+    """
+    Prepare demixer step parameters, mainly preprending `extra_inputs_dir`.
+    """
+    skymodel = Path(step.params["skymodel"])
+    if not skymodel.is_absolute() and extra_inputs_dir is not None:
+        skymodel = extra_inputs_dir / skymodel
+
+    params = step.params | {"skymodel": skymodel}
+    return Step(type="demixer", params=params)
+
+
 def prepare_steps(
     steps: Iterable[Step],
     extra_inputs_dir: Optional[str | os.PathLike] = None,
@@ -166,6 +180,8 @@ def prepare_steps(
             prepared_steps.append(
                 prepare_applycal_step(step, extra_inputs_dir)
             )
+        elif step.type == "demixer":
+            prepared_steps.append(prepare_demixer_step(step, extra_inputs_dir))
         else:
             prepared_steps.append(step)
     return prepared_steps
@@ -186,6 +202,7 @@ def parse_config(
     steps = list(map(parse_step_dictionary, conf["steps"]))
     _assert_no_more_than_one_step_with_type(steps, "msin")
     _assert_no_more_than_one_step_with_type(steps, "msout")
+    _assert_no_more_than_one_step_with_type(steps, "demixer")
     return prepare_steps(steps, extra_inputs_dir)
 
 

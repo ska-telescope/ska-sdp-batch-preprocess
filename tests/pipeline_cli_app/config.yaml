@@ -1,6 +1,9 @@
 steps:
   - MsIn:
   - PreFlagger:
+  - Demixer:
+      skymodel: sky_model.txt
+      subtractsources: ["bright_a", "bright_b"]
   - AOFlagger:
       memorymax: 8.0
   - ApplyCal:

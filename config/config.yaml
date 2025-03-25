@@ -11,6 +11,13 @@ steps:
   - PreFlagger:
   - AOFlagger:
       memorymax: 8.0 # GB
+  - Demixer:
+    # If the path to the sky model file is not absolute, it will be preprended
+    # by the --extra-inputs-dir argument passed via the command line
+    skymodel: bright_sources.txt
+    subtractsources: ["bright_a", "bright_b"]
+    demixtimestep: 4  # internal averaging factor in time when fitting bright source gains
+    demixfreqstep: 8  # same, in frequency
   - ApplyCal:
       # If the path to the H5Parm file is not absolute, it will be preprended
       # by the --extra-inputs-dir argument passed via the command line

@@ -27,6 +27,49 @@ class UniqueNamer:
         return f"{step.type}_{index:02d}"
 
 
+def make_instrumentmodel_unique_in_demixer_steps(
+    steps: Iterable[Step], msout: str | os.PathLike
+) -> list[Step]:
+    """
+    As the name says. The Demixer step always writes the bright source gains
+    to disk, under a path specified in the "instrumentmodel" parameter which
+    defaults to "instrument". This path must be unique among all DP3 instances
+    running, but this is incompatible with the single config, multiple data
+    model.
+
+    Solution: treat "instrumentmodel" as a path prefix, and write the gains to
+    `<instrumentmodel>_<MSOUT_STEM>`. instrumentmodel can be:
+    - an absolute path, e.g. "/abspath/to/gains"
+    - a relative path, e.g. "path/to/gains" or just "gains"
+
+    If "instrumentmodel" is a relative path, it will be prepended by the parent
+    directory of `msout`.
+
+    If "instrumentmodel" is not provided in the demixer step config, it is set
+    to a default value of "demixer_gains".
+    """
+    msout = Path(msout).resolve()
+
+    def adjust(step: Step) -> Step:
+        if not step.type == "demixer":
+            return step
+
+        prefix = Path(step.params.get("instrumentmodel", "demixer_gains"))
+        if not prefix.is_absolute():
+            prefix = msout.parent / prefix
+
+        # DP3 wants the parent directory tree for the gain table to exist
+        prefix.parent.mkdir(parents=True, exist_ok=True)
+
+        instrumentmodel = prefix.with_name(f"{prefix.name}_{msout.stem}")
+        return Step(
+            step.type,
+            params=step.params | {"instrumentmodel": instrumentmodel},
+        )
+
+    return list(map(adjust, steps))
+
+
 class DP3Params(Mapping[str, Any]):
     """
     Parameters for DP3, as a dict-like object. Parameters are stored in
@@ -58,6 +101,8 @@ class DP3Params(Mapping[str, Any]):
         single DP3 execution. If not specified, `numthreads` defaults to the
         total number of threads allocated to the current process.
         """
+        steps = make_instrumentmodel_unique_in_demixer_steps(steps, msout)
+
         step_names: list[str] = []
         conf = {
             "checkparset": 1,

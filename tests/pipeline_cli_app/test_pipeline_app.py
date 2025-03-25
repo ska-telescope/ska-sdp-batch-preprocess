@@ -62,7 +62,9 @@ def test_pipeline_cli_app_raises_value_error_if_duplicate_input_ms_names(
         str(input_ms),
     ]
 
-    with pytest.raises(ValueError, match="There are duplicate input MS names"):
+    with pytest.raises(
+        ValueError, match="There are duplicate input MS path stems"
+    ):
         run_program(cli_args)
 
 

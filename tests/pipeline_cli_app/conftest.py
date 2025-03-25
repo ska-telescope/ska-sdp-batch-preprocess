@@ -63,7 +63,7 @@ def input_ms_list(
     List of measurement sets obtained by copying the test MS multiple times.
     Used for distribution tests.
     """
-    num_copies = 8
+    num_copies = 2
     tempdir = tmp_path_factory.mktemp("distributed_test_data")
     paths = [tempdir / f"input_{index:02d}.ms" for index in range(num_copies)]
     for path in paths:

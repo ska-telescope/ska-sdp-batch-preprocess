@@ -38,7 +38,6 @@ def test_demixing_predicted_visibilities_with_same_sky_model_yields_zero_visibil
         params={
             "skymodel": sky_model,
             "subtractsources": ["bright_a", "bright_b"],
-            "instrumentmodel": tmpdir / "instrument",
         },
     )
     output_ms = tmpdir / "demixed.ms"
