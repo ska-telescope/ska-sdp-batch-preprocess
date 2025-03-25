@@ -27,9 +27,7 @@ def test_demixing_predicted_visibilities_with_same_sky_model_yields_zero_visibil
     input_ms: Path,
     sky_model: Path,
 ):
-    """
-    Self-explanatory.
-    """
+
     tmpdir = tmp_path_factory.mktemp("demixing_test")
     demixer_step = Step(
         "demixer",
