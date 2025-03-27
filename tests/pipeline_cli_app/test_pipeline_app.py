@@ -46,9 +46,6 @@ def test_pipeline_cli_app_raises_value_error_if_duplicate_input_ms_names(
     yaml_config_trivial: Path,
     input_ms: Path,
 ):
-    """
-    Self-explanatory.
-    """
     output_dir = tmp_path_factory.mktemp("output_dir")
     cli_args = [
         "--config",
