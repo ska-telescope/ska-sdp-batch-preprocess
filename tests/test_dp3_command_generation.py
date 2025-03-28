@@ -3,8 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from ska_sdp_batch_preprocess.dp3_params import DP3Params
-from ska_sdp_batch_preprocess.step_preparation import PreparedStep
+from ska_sdp_batch_preprocess.pipeline import DP3Params, PreparedStep
 
 
 @pytest.fixture(name="steps")

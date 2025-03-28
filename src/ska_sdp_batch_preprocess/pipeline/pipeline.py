@@ -3,9 +3,9 @@ import shlex
 import subprocess
 from typing import Iterable, Optional
 
-from .config import Step, parse_config_file
+from ..config import Step, parse_config_file
+from ..logging_setup import LOGGER
 from .dp3_params import DP3Params
-from .logging_setup import LOGGER
 from .step_preparation import prepare_steps
 
 
