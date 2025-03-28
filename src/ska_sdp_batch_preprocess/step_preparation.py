@@ -108,26 +108,6 @@ def prepare_applycal_steps(steps: Iterable[Step]) -> list[Step]:
     return list(map(_prepare, steps))
 
 
-# pylint:disable=too-few-public-methods
-class UniqueNamer:
-    """
-    Makes unique names for DP3 steps.
-    """
-
-    def __init__(self):
-        self._counter: dict[str, int] = defaultdict(int)
-
-    def make_name(self, step: Step) -> str:
-        """
-        Make name for given Step, such as 'applycal_02'.
-        """
-        if step.type in {"msin", "msout"}:
-            return step.type
-        self._counter[step.type] += 1
-        index = self._counter[step.type]
-        return f"{step.type}_{index:02d}"
-
-
 @dataclass
 class PreparedStep:
     """
@@ -146,6 +126,7 @@ class PreparedStep:
     name: str
     """
     Name for the step, presumed to be unique, e.g. 'preflagger_01'.
+    NOTE: `name` is ignored for steps `msin` and `msout`.
     """
 
     params: dict[str, Any]
@@ -159,10 +140,17 @@ def uniquely_named_steps(steps: Iterable[Step]) -> list[PreparedStep]:
     Final step of parsing where Steps are given a unique name and converted
     to PreparedSteps.
     """
-    unique_namer = UniqueNamer()
+    counter = defaultdict(int)
+
+    def make_name(step: Step) -> str:
+        if step.type in {"msin", "msout"}:
+            return step.type
+        counter[step.type] += 1
+        index = counter[step.type]
+        return f"{step.type}_{index:02d}"
+
     return [
-        PreparedStep(step.type, unique_namer.make_name(step), step.params)
-        for step in steps
+        PreparedStep(step.type, make_name(step), step.params) for step in steps
     ]
 
 
