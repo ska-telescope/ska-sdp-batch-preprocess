@@ -66,34 +66,34 @@ def prepare_applycal_step(step: Step) -> Step:
 
     if is_fulljones(h5parm):
         amp, phase = sorted(h5parm.soltabs, key=lambda s: s.soltype)
-        params = step.params | {
+        update = {
             "parmdb": parmdb,
             "correction": "fulljones",
             "soltab": [amp.name, phase.name],
         }
-        return Step(type="applycal", params=params)
 
-    if len(h5parm.soltabs) == 1:
-        params = step.params | {
+    elif len(h5parm.soltabs) == 1:
+        update = {
             "parmdb": parmdb,
             "correction": h5parm.soltabs[0].name,
         }
-        return Step(type="applycal", params=params)
 
-    if len(h5parm.soltabs) == 2:
+    elif len(h5parm.soltabs) == 2:
         amp, phase = sorted(h5parm.soltabs, key=lambda s: s.soltype)
-        params = step.params | {
+        update = {
             "parmdb": parmdb,
             "steps": ["amp", "phase"],
             "amp.correction": amp.name,
             "phase.correction": phase.name,
         }
-        return Step(type="applycal", params=params)
 
-    raise InvalidH5Parm(
-        f"Failed to prepare applycal step: H5Parm {parmdb!r} "
-        "has unexpected schema"
-    )
+    else:
+        raise InvalidH5Parm(
+            f"Failed to prepare applycal step: H5Parm {parmdb!r} "
+            "has unexpected schema"
+        )
+
+    return Step(type="applycal", params=step.params | update)
 
 
 def prepare_applycal_steps(steps: Iterable[Step]) -> list[Step]:
