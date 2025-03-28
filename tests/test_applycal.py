@@ -50,8 +50,8 @@ def test_applycal_steps_with_identity_gain_tables_preserve_visibilities(
     output_dir = tmp_path_factory.mktemp("applycal_outdir")
     output_ms = output_dir / input_ms.name
 
-    steps = parse_config(config, extra_inputs_dir)
-    pipeline = Pipeline(steps)
+    steps = parse_config(config)
+    pipeline = Pipeline(steps, extra_inputs_dir)
     pipeline.run(input_ms, output_ms)
 
     assert output_ms.is_dir()
