@@ -3,26 +3,34 @@ from pathlib import Path
 
 import pytest
 
-from ska_sdp_batch_preprocess.config import Step
 from ska_sdp_batch_preprocess.dp3_params import DP3Params
+from ska_sdp_batch_preprocess.step_preparation import PreparedStep
 
 
 @pytest.fixture(name="steps")
-def fixture_steps() -> list[Step]:
+def fixture_steps() -> list[PreparedStep]:
     """
     List of pipeline steps for which we want to generate a DP3 call.
     """
 
     return [
-        Step(type="preflagger", params={}),
-        Step(type="aoflagger", params={"memorymax": 8.0}),
-        Step(type="averager", params={"timestep": 4, "freqstep": 4}),
-        Step(type="aoflagger", params={"memorymax": 16.0}),
-        Step(type="msout", params={"overwrite": True}),
+        PreparedStep(type="preflagger", name="preflagger_01", params={}),
+        PreparedStep(
+            type="aoflagger", name="aoflagger_01", params={"memorymax": 8.0}
+        ),
+        PreparedStep(
+            type="averager",
+            name="averager_01",
+            params={"timestep": 4, "freqstep": 4},
+        ),
+        PreparedStep(
+            type="aoflagger", name="aoflagger_02", params={"memorymax": 16.0}
+        ),
+        PreparedStep(type="msout", name="msout", params={"overwrite": True}),
     ]
 
 
-def test_generated_dp3_command_is_correct(steps: list[Step]):
+def test_generated_dp3_command_is_correct(steps: list[PreparedStep]):
     """
     Generate a DP3 command based on the given pipeline steps, check that
     it is as expected.
