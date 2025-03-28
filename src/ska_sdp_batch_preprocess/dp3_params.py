@@ -1,35 +1,14 @@
 import os
-from collections import defaultdict
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Iterable, Iterator, Optional
 
-from ska_sdp_batch_preprocess.config import Step
-
-
-# pylint:disable=too-few-public-methods
-class UniqueNamer:
-    """
-    Makes unique names for DP3 steps.
-    """
-
-    def __init__(self):
-        self._counter: dict[str, int] = defaultdict(int)
-
-    def make_name(self, step: Step) -> str:
-        """
-        Make name for given Step, such as 'applycal_02'.
-        """
-        if step.type in {"msin", "msout"}:
-            return step.type
-        self._counter[step.type] += 1
-        index = self._counter[step.type]
-        return f"{step.type}_{index:02d}"
+from .step_preparation import PreparedStep
 
 
 def make_instrumentmodel_unique_in_demixer_steps(
-    steps: Iterable[Step], msout: str | os.PathLike
-) -> list[Step]:
+    steps: Iterable[PreparedStep], msout: str | os.PathLike
+) -> list[PreparedStep]:
     """
     As the name says. The Demixer step always writes the bright source gains
     to disk, under a path specified in the "instrumentmodel" parameter which
@@ -50,7 +29,7 @@ def make_instrumentmodel_unique_in_demixer_steps(
     """
     msout = Path(msout).resolve()
 
-    def adjust(step: Step) -> Step:
+    def adjust(step: PreparedStep) -> PreparedStep:
         if not step.type == "demixer":
             return step
 
@@ -62,8 +41,9 @@ def make_instrumentmodel_unique_in_demixer_steps(
         prefix.parent.mkdir(parents=True, exist_ok=True)
 
         instrumentmodel = prefix.with_name(f"{prefix.name}_{msout.stem}")
-        return Step(
+        return PreparedStep(
             step.type,
+            step.name,
             params=step.params | {"instrumentmodel": instrumentmodel},
         )
 
@@ -91,7 +71,7 @@ class DP3Params(Mapping[str, Any]):
     @classmethod
     def create(
         cls,
-        steps: Iterable[Step],
+        steps: Iterable[PreparedStep],
         msin: str | os.PathLike,
         msout: str | os.PathLike,
         numthreads: Optional[int] = None,
@@ -103,10 +83,13 @@ class DP3Params(Mapping[str, Any]):
         """
         steps = make_instrumentmodel_unique_in_demixer_steps(steps, msout)
 
-        step_names: list[str] = []
         conf = {
             "checkparset": 1,
-            "steps": step_names,
+            "steps": [
+                step.name
+                for step in steps
+                if step.type not in {"msin", "msout"}
+            ],
             "msin.name": Path(msin),
             "msout.name": Path(msout),
         }
@@ -118,17 +101,12 @@ class DP3Params(Mapping[str, Any]):
             numthreads = len(os.sched_getaffinity(0))
         conf["numthreads"] = numthreads
 
-        unique_namer = UniqueNamer()
-
         for step in steps:
-            step_name = unique_namer.make_name(step)
-
             if step.type not in {"msin", "msout"}:
-                step_names.append(step_name)
-                conf[f"{step_name}.type"] = step.type
+                conf[f"{step.name}.type"] = step.type
 
             for key, val in step.params.items():
-                conf[f"{step_name}.{key}"] = val
+                conf[f"{step.name}.{key}"] = val
 
         return cls(conf)
 
