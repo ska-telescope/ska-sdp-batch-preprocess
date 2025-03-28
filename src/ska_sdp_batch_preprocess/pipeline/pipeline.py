@@ -5,7 +5,11 @@ from typing import Iterable, Optional
 
 from ..config import Step, parse_config_file
 from ..logging_setup import LOGGER
-from .dp3_params import DP3Params
+from .dp3_parametrisation import (
+    format_dp3_parameters,
+    make_dp3_command_line,
+    make_dp3_parameters,
+)
 from .step_preparation import prepare_steps
 
 
@@ -42,10 +46,12 @@ class Pipeline:
         current process.
         """
         LOGGER.info(f"Processing: {msin!s}")
-        params = DP3Params.create(
+
+        params = make_dp3_parameters(
             self._prepared_steps, msin, msout, numthreads=numthreads
         )
-        command_line = params.to_command_line()
+        formatted_params = format_dp3_parameters(params)
+        command_line = make_dp3_command_line(formatted_params)
         LOGGER.info(shlex.join(command_line))
 
         subprocess.check_call(
