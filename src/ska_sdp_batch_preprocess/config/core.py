@@ -102,9 +102,10 @@ def prepend_extra_inputs_dir_to_parameters_that_require_it(
         "demixer": ["skymodel"],
     }
 
-    def _prepended_path(path: str | os.PathLike) -> Path:
-        path = Path(path)
-        return path if path.is_absolute() else extra_inputs_dir / path
+    def _prepended_path(path_str: str) -> str:
+        path = Path(path_str)
+        result = path if path.is_absolute() else extra_inputs_dir / path
+        return str(result)
 
     def _updated_step(step: Step) -> Step:
         if step.type not in target_parameters:
@@ -136,7 +137,7 @@ def prepare_applycal_step(step: Step) -> Step:
     Prepare applycal step parameters based on the contents of the associated
     H5Parm.
     """
-    parmdb = Path(step.params["parmdb"])
+    parmdb = step.params["parmdb"]
 
     try:
         h5parm = H5Parm.load(parmdb)
@@ -172,7 +173,7 @@ def prepare_applycal_step(step: Step) -> Step:
         return Step(type="applycal", params=params)
 
     raise InvalidH5Parm(
-        f"Failed to prepare applycal step: H5Parm {str(parmdb)!r} "
+        f"Failed to prepare applycal step: H5Parm {parmdb!r} "
         "has unexpected schema"
     )
 
