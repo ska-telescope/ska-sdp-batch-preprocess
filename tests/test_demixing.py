@@ -31,7 +31,7 @@ def test_demixing_predicted_visibilities_with_same_sky_model_yields_zero_visibil
     demixer_step = Step(
         "demixer",
         params={
-            "skymodel": sky_model,
+            "skymodel": str(sky_model),
             "subtractsources": ["bright_a", "bright_b"],
         },
     )

@@ -49,7 +49,7 @@ def fixture_input_ms(
     """
     steps = [
         Step("preflagger", params={"mode": "clear", "chan": "[0..nchan]"}),
-        Step("predict", params={"sourcedb": sky_model}),
+        Step("predict", params={"sourcedb": str(sky_model)}),
     ]
     pipeline = Pipeline(steps)
     predicted_ms = template_ms.parent / "predicted.ms"
