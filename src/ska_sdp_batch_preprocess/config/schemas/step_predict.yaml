@@ -1,0 +1,6 @@
+type: object
+required:
+  - sourcedb
+properties:
+  sourcedb:
+    type: string
