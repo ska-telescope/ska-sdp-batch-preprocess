@@ -16,22 +16,25 @@ class Pipeline:
     Sequence of operations to be run on Measurement Sets.
     """
 
-    def __init__(self, steps: Iterable[Step]):
+    def __init__(
+        self,
+        steps: Iterable[Step],
+        extra_inputs_dir: Optional[str | os.PathLike] = None,
+    ):
         """
-        Initialise Pipeline given a sequence of Steps.
+        Initialise Pipeline given a sequence of Steps. `extra_inputs_dir` is an
+        optional directory path where additional input files mentioned in the
+        config are expected to be stored. Any path to e.g. a solution table in
+        the config that is not absolute will be prepended with
+        `extra_inputs_dir`.
         """
+        if extra_inputs_dir is not None:
+            steps = prepend_extra_inputs_dir_to_parameters_that_require_it(
+                steps, extra_inputs_dir
+            )
+        steps = prepare_applycal_steps(steps)
+
         self._steps = tuple(steps)
-
-        # if extra_inputs_dir is not None:
-        #     steps = prepend_extra_inputs_dir_to_parameters_that_require_it(
-        #         steps, extra_inputs_dir
-        #     )
-        # return prepare_applycal_steps(steps)
-
-        # `extra_inputs_dir` is an
-        # optional directory path where additional input files mentioned in the
-        # config are expected to be stored. Any path to e.g. a solution table in the
-        # config that is not absolute will be prepended with `extra_inputs_dir`.
 
     def run(
         self,
@@ -68,7 +71,7 @@ class Pipeline:
         Create a Pipeline, given a YAML config file path and an optional
         directory where the solution tables are stored.
         """
-        return cls(parse_config_file(config_path, extra_inputs_dir))
+        return cls(parse_config_file(config_path), extra_inputs_dir)
 
 
 def prepend_extra_inputs_dir_to_parameters_that_require_it(
