@@ -30,11 +30,9 @@ def fixture_steps() -> list[Step]:
     ]
 
 
-def test_generated_dp3_command_is_correct(steps: list[Step]):
-    """
-    Generate a DP3 command based on the given pipeline steps, check that
-    it is as expected.
-    """
+def test_dp3_command_generated_from_a_list_of_steps_is_correct(
+    steps: list[Step],
+):
     msin = Path("/path/to/input.ms")
     msout = Path("/path/to/output.ms")
 
