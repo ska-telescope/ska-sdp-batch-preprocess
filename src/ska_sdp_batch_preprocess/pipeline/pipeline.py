@@ -10,7 +10,7 @@ from .dp3_parametrisation import (
     make_dp3_command_line,
     make_dp3_parameters,
 )
-from .step_preparation import prepare_steps
+from .step_preparation import PreparedStep, prepare_steps
 
 
 class Pipeline:
@@ -30,7 +30,14 @@ class Pipeline:
         the config that is not absolute will be prepended with
         `extra_inputs_dir`.
         """
-        self._prepared_steps = tuple(prepare_steps(steps, extra_inputs_dir))
+        self._steps = tuple(prepare_steps(steps, extra_inputs_dir))
+
+    @property
+    def steps(self) -> tuple[PreparedStep]:
+        """
+        Steps to be run, as a tuple of PreparedStep objects.
+        """
+        return tuple(self._steps)
 
     def run(
         self,
@@ -48,7 +55,7 @@ class Pipeline:
         LOGGER.info(f"Processing: {msin!s}")
 
         params = make_dp3_parameters(
-            self._prepared_steps, msin, msout, numthreads=numthreads
+            self.steps, msin, msout, numthreads=numthreads
         )
         formatted_params = format_dp3_parameters(params)
         command_line = make_dp3_command_line(formatted_params)
