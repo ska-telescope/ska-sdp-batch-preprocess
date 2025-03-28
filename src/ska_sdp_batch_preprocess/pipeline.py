@@ -26,7 +26,7 @@ class Pipeline:
         the config that is not absolute will be prepended with
         `extra_inputs_dir`.
         """
-        self._steps = tuple(prepare_steps(steps, extra_inputs_dir))
+        self._prepared_steps = tuple(prepare_steps(steps, extra_inputs_dir))
 
     def run(
         self,
@@ -43,7 +43,7 @@ class Pipeline:
         """
         LOGGER.info(f"Processing: {msin!s}")
         params = DP3Params.create(
-            self._steps, msin, msout, numthreads=numthreads
+            self._prepared_steps, msin, msout, numthreads=numthreads
         )
         command_line = params.to_command_line()
         LOGGER.info(shlex.join(command_line))

@@ -1,6 +1,8 @@
 import os
+from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Any, Iterable, Optional
 
 from ska_sdp_batch_preprocess.config import Step
 from ska_sdp_batch_preprocess.h5parm import H5Parm, InvalidH5Parm
@@ -106,15 +108,74 @@ def prepare_applycal_steps(steps: Iterable[Step]) -> list[Step]:
     return list(map(_prepare, steps))
 
 
+# pylint:disable=too-few-public-methods
+class UniqueNamer:
+    """
+    Makes unique names for DP3 steps.
+    """
+
+    def __init__(self):
+        self._counter: dict[str, int] = defaultdict(int)
+
+    def make_name(self, step: Step) -> str:
+        """
+        Make name for given Step, such as 'applycal_02'.
+        """
+        if step.type in {"msin", "msout"}:
+            return step.type
+        self._counter[step.type] += 1
+        index = self._counter[step.type]
+        return f"{step.type}_{index:02d}"
+
+
+@dataclass
+class PreparedStep:
+    """
+    Same as Step class, but carries an extra 'name' attribute which is a
+    unique name for the DP3 step.
+
+    NOTE: PreparedStep objects are meant to be created only via initialising a
+    Pipeline object, and are NOT validated.
+    """
+
+    type: str
+    """
+    Step type as a lowercase string, e.g. 'preflagger'.
+    """
+
+    name: str
+    """
+    Name for the step, presumed to be unique, e.g. 'preflagger_01'.
+    """
+
+    params: dict[str, Any]
+    """
+    Dictionary of parameters with values in their natural type.
+    """
+
+
+def uniquely_named_steps(steps: Iterable[Step]) -> list[PreparedStep]:
+    """
+    Final step of parsing where Steps are given a unique name and converted
+    to PreparedSteps.
+    """
+    unique_namer = UniqueNamer()
+    return [
+        PreparedStep(step.type, unique_namer.make_name(step), step.params)
+        for step in steps
+    ]
+
+
 def prepare_steps(
     steps: Iterable[Step], extra_inputs_dir: Optional[str | os.PathLike] = None
-) -> list[Step]:
+) -> list[PreparedStep]:
     """
-    Modify as necessary the parameters of the Steps parsed from the config.
-    Returns a new list of modified Steps.
+    Modify as necessary the parameters of the Steps parsed from the config,
+    and give them a unique name. Returns a list of PreparedSteps.
     """
     if extra_inputs_dir is not None:
         steps = prepend_extra_inputs_dir_to_parameters_that_require_it(
             steps, extra_inputs_dir
         )
-    return prepare_applycal_steps(steps)
+    steps = prepare_applycal_steps(steps)
+    return uniquely_named_steps(steps)
