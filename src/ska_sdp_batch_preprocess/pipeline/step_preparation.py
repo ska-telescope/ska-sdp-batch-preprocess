@@ -158,8 +158,11 @@ def prepare_steps(
     steps: Iterable[Step], extra_inputs_dir: Optional[str | os.PathLike] = None
 ) -> list[PreparedStep]:
     """
-    Modify as necessary the parameters of the Steps parsed from the config,
-    and give them a unique name. Returns a list of PreparedSteps.
+    Prepare the Steps read from a configuration dictionary so that their
+    parameters map 1-1 to what DP3 expects. Also takes care of preprending
+    `extra_inputs_dir` where necessary and giving each step a unique name.
+
+    Returns a list of PreparedSteps.
     """
     if extra_inputs_dir is not None:
         steps = prepend_extra_inputs_dir_to_parameters_that_require_it(
