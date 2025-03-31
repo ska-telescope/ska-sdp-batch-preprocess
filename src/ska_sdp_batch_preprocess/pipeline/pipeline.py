@@ -37,7 +37,7 @@ class Pipeline:
         """
         Steps to be run, as a tuple of PreparedStep objects.
         """
-        return tuple(self._steps)
+        return self._steps
 
     def run(
         self,
