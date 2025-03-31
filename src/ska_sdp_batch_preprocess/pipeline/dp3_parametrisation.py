@@ -72,8 +72,8 @@ def make_dp3_parameters(
         "steps": [
             step.name for step in steps if step.type not in {"msin", "msout"}
         ],
-        "msin.name": Path(msin),
-        "msout.name": Path(msout),
+        "msin.name": msin,
+        "msout.name": msout,
     }
 
     # If 'numthreads' is not given, DP3 uses the total number of cores on
