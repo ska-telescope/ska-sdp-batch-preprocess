@@ -26,9 +26,9 @@ class Pipeline:
         """
         Initialise Pipeline given a sequence of Steps. `extra_inputs_dir` is an
         optional directory path where additional input files mentioned in the
-        config are expected to be stored. Any path to e.g. a solution table in
-        the config that is not absolute will be prepended with
-        `extra_inputs_dir`.
+        config are expected to be stored. Any value that represents an input
+        path in the config will be prepended with `extra_inputs_dir` unless
+        it is already absolute.
         """
         self._steps = tuple(prepare_steps(steps, extra_inputs_dir))
 
