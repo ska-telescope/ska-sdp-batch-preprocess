@@ -79,9 +79,13 @@ build-docker:
 .custom_before_script: &custom_before_script
   - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile"; exit 1;)'
   - "make help | grep python-lint"
+
+  # Create and activate a venv that uses Python 3.11
   - pipx install uv
   - uv python install 3.11
   - uv venv .venv/ -p 3.11
+  - source .venv/bin/activate
+
   - poetry config virtualenvs.in-project true
   - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
   - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
@@ -100,9 +104,6 @@ build-docker:
         time pip3 install -r requirements.txt;
       fi;
     fi;
-  - python --version
-  - source .venv/bin/activate
-  - python --version
 
 python-lint:
   before_script: *custom_before_script
