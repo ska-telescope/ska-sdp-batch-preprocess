@@ -76,6 +76,54 @@ build-docker:
     paths:
       - build_cache_image.env
 
+.lint_test_before_script: &lint_test_before_script
+  - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile"; exit 1;)'
+  - "make help | grep python-lint"
+
+  # Create and activate a venv that uses Python 3.11
+  - pipx install uv
+  - uv python install 3.11
+  - uv venv .venv/ -p 3.11
+  - source .venv/bin/activate
+
+  - poetry config virtualenvs.in-project true
+  - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
+  - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
+  - |
+    if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
+      echo "Updating poetry to $CI_POETRY_VERSION";
+      pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
+    fi;
+    echo "Installing with poetry";
+    time poetry install --all-extras;
+
+python-lint:
+  before_script: *lint_test_before_script
+
 python-test:
   needs: ["build-docker"]
   image: $DOCKER_IMAGE
+  before_script: *lint_test_before_script
+
+docs-build:
+  before_script:
+    - '[ -f .make/docs.mk ] || (echo "File docs.mk not included in Makefile; exit 1")'
+    - "make help | grep docs-build"
+
+    # Create and activate a venv that uses Python 3.11
+    - pipx install uv
+    - uv python install 3.11
+    - uv venv .venv/ -p 3.11
+    - source .venv/bin/activate
+
+    - |
+      if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
+        echo "docs-build: Updating poetry to $CI_POETRY_VERSION";
+        pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
+      fi;
+
+      poetry config virtualenvs.in-project true
+      echo "docs-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
+      poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
+      echo "docs-build: Installing with poetry $POETRY_DOCS_INSTALL_GROUPS dependency group";
+      time poetry install --no-root --only $POETRY_DOCS_INSTALL_GROUPS;
