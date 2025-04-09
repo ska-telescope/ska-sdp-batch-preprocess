@@ -76,20 +76,35 @@ build-docker:
     paths:
       - build_cache_image.env
 
+.custom_before_script: &custom_before_script
+  - '[ -f .make/python.mk ] || (echo "File python.mk not included in Makefile"; exit 1;)'
+  - "make help | grep python-lint"
+  - pipx install uv
+  - uv python install 3.11
+  - uv venv .venv/ -p 3.11
+  - poetry config virtualenvs.in-project true
+  - echo "python-build Setting.. poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE"
+  - poetry config virtualenvs.create $POETRY_CONFIG_VIRTUALENVS_CREATE
+  - |
+    if [[ -f pyproject.toml ]]; then
+      if [[ -n $CI_POETRY_VERSION ]] && [[ $(poetry --version) != *$CI_POETRY_VERSION* ]]; then
+        echo "python-lint: Updating poetry to $CI_POETRY_VERSION";
+        pipx uninstall poetry && pipx install poetry==$CI_POETRY_VERSION;
+      fi;
+
+      echo "python-lint: Installing with poetry";
+      time poetry install --all-extras;
+    else
+      if  [[ -f requirements.txt ]]; then
+        echo "python-lint: Installing with pip";
+        time pip3 install -r requirements.txt;
+      fi;
+    fi;
+
 python-lint:
-  # NOTE: override "script" rather than "before_script" because the default
-  # SKAO template for "script" is much shorter
-  script: |
-    pipx install uv
-    uv python install 3.11
-    uv venv .venv/ -p 3.11
-    make python-test
+  before_script: *custom_before_script
 
 python-test:
   needs: ["build-docker"]
   image: $DOCKER_IMAGE
-  script: |
-    pipx install uv
-    uv python install 3.11
-    uv venv .venv/ -p 3.11
-    make python-test
+  before_script: *custom_before_script
