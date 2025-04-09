@@ -76,12 +76,18 @@ build-docker:
     paths:
       - build_cache_image.env
 
+python-lint:
+  # NOTE: override "script" rather than "before_script" because the default
+  # SKAO template for "script" is much shorter
+  script: |
+    pipx install uv
+    uv python install 3.11
+    uv venv .venv/ -p 3.11
+    make python-test
+
 python-test:
   needs: ["build-docker"]
   image: $DOCKER_IMAGE
-
-  # NOTE: override "script" rather than "before_script" because the default
-  # SKAO template for "script" is much shorter
   script: |
     pipx install uv
     uv python install 3.11
