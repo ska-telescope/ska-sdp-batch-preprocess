@@ -34,9 +34,6 @@ jsonschema = "^4.4.0"
 numpy = "^2.0.0"
 pyyaml = "^6.0.1"
 
-# NOTE: For now, pin to a specific xradio version
-xradio = "0.0.50"
-
 [tool.poetry.group.dev.dependencies]
 black = "^22.3.0" 
 bokeh = "^3.1.0" # dask dashboard
@@ -49,6 +46,10 @@ pylint-junit = "^0.3.2"
 pytest = "^8.3.2" 
 pytest-cov = "^2.10.1" 
 python-casacore = "^3.5.2" 
+
+# NOTE: For now, pin xradio to a specific xradio version.
+# We should only need it for the test suite.
+xradio = "0.0.50"
 
 # Install with `poetry install --with docs`
 [tool.poetry.group.docs.dependencies]
