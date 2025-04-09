@@ -23,7 +23,7 @@ url = "https://artefact.skao.int/repository/pypi-internal/simple"
 ska-sdp-batch-preprocess = "ska_sdp_batch_preprocess.apps.batch_preprocessing:main"
 
 [tool.poetry.dependencies]
-python = ">=3.10, <3.13"
+python = ">=3.11, <3.13"
 # NOTE: Make sure the minimum versions specified here are available on the
 # spack package index: https://packages.spack.io/
 dask = "^2024.7.1"
