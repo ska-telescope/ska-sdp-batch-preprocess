@@ -49,55 +49,6 @@ def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
     msv4: Root node of one MSv4
     """
 
-    # Read from MKT nano MS:
-    # [
-    #     "ANTENNA1",
-    #     "ANTENNA2",
-    #     "ARRAY_ID",
-    #     "DATA",
-    #     "DATA_DESC_ID",
-    #     "EXPOSURE",
-    #     "FEED1",
-    #     "FEED2",
-    #     "FIELD_ID",
-    #     "FLAG",
-    #     "FLAG_CATEGORY",
-    #     "FLAG_ROW",
-    #     "INTERVAL",
-    #     "OBSERVATION_ID",
-    #     "PROCESSOR_ID",
-    #     "SCAN_NUMBER",
-    #     "SIGMA",
-    #     "STATE_ID",
-    #     "TIME",
-    #     "TIME_CENTROID",
-    #     "UVW",
-    #     "WEIGHT",
-    #     "WEIGHT_SPECTRUM",
-    # ]
-
-    # What DP3 MSWriter wants to see:
-    #
-    # [
-    #     "ARRAY_ID",
-    #     "DATA_DESC_ID",
-    #     "EXPOSURE",
-    #     "FEED1",
-    #     "FEED2",
-    #     "FIELD_ID",
-    #     "FLAG_CATEGORY",
-    #     "FLAG_ROW",
-    #     "INTERVAL",
-    #     "OBSERVATION_ID",
-    #     "PROCESSOR_ID",
-    #     "SCAN_NUMBER",
-    #     "SIGMA",
-    #     "STATE_ID",
-    #     "TIME",
-    #     "TIME_CENTROID",
-    #     "WEIGHT",
-    # ]
-
     scalar_column_definitions = {
         "ANTENNA1": int,
         "ANTENNA2": int,
@@ -122,12 +73,30 @@ def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
         for name, valuetype in scalar_column_definitions.items()
     ]
 
+    nchan: int = msv4["frequency"].size
+    npol = 4
+
     array_column_definitions = {
+        "DATA": (complex, (nchan, npol)),
+        "FLAG": (bool, (nchan, npol)),
+        "FLAG_CATEGORY": (bool, (1, nchan, npol)),  # enforcing one category
+        "SIGMA": (float, (nchan,)),
         "UVW": (float, (3,)),
+        "WEIGHT": (float, (npol,)),
+        "WEIGHT_SPECTRUM": (float, (nchan, npol)),
     }
 
+    def data_manager_group(colname: str) -> str:
+        return "Tiled" + "".join(map(str.capitalize, colname.split("_")))
+
     array_column_descriptors = [
-        makearrcoldesc(name, valuetype(), shape=shape, valuetype="double")
+        makearrcoldesc(
+            name,
+            valuetype(),
+            shape=shape,
+            datamanagertype="TiledColumnStMan",
+            datamanagergroup=data_manager_group(name),
+        )
         for name, (valuetype, shape) in array_column_definitions.items()
     ]
     tdesc = maketabdesc(scalar_column_descriptors + array_column_descriptors)
