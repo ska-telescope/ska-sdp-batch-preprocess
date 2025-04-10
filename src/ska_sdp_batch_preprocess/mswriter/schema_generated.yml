@@ -311,9 +311,6 @@ MAIN:
       - s
     kind: scalar
     type: float
-  MODEL_DATA:
-    kind: scalar
-    type: complex
   OBSERVATION_ID:
     kind: scalar
     type: int
