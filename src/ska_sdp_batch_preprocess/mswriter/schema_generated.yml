@@ -299,8 +299,13 @@ MAIN:
     type: bool
   FLAG_CATEGORY:
     keywords:
-      CATEGORY: []
-    kind: scalar
+      # NOTE: This is an array of strings
+      CATEGORY: [""]
+    kind: array
+    shape:
+    - 1
+    - nchan
+    - npol
     type: bool
   FLAG_ROW:
     kind: scalar
