@@ -1,0 +1,704 @@
+ANTENNA:
+  DISH_DIAMETER:
+    keywords:
+      QuantumUnits:
+      - m
+    kind: scalar
+    type: float
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+  MOUNT:
+    kind: scalar
+    type: str
+  NAME:
+    kind: scalar
+    type: str
+  OFFSET:
+    keywords:
+      MEASINFO:
+        Ref: ITRF
+        type: position
+      QuantumUnits:
+      - m
+      - m
+      - m
+    kind: array
+    shape:
+    - 3
+    type: float
+  POSITION:
+    keywords:
+      MEASINFO:
+        Ref: ITRF
+        type: position
+      QuantumUnits:
+      - m
+      - m
+      - m
+    kind: array
+    shape:
+    - 3
+    type: float
+  STATION:
+    kind: scalar
+    type: str
+  TYPE:
+    kind: scalar
+    type: str
+
+
+DATA_DESCRIPTION:
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+  POLARIZATION_ID:
+    kind: scalar
+    type: int
+  SPECTRAL_WINDOW_ID:
+    kind: scalar
+    type: int
+FEED:
+  ANTENNA_ID:
+    kind: scalar
+    type: int
+  BEAM_ID:
+    kind: scalar
+    type: int
+  BEAM_OFFSET:
+    keywords:
+      MEASINFO:
+        Ref: J2000
+        type: direction
+      QuantumUnits:
+      - rad
+      - rad
+    kind: scalar
+    type: float
+  FEED_ID:
+    kind: scalar
+    type: int
+  INTERVAL:
+    keywords:
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  NUM_RECEPTORS:
+    kind: scalar
+    type: int
+  POLARIZATION_TYPE:
+    kind: scalar
+    type: str
+  POL_RESPONSE:
+    kind: scalar
+    type: complex
+  POSITION:
+    keywords:
+      MEASINFO:
+        Ref: ITRF
+        type: position
+      QuantumUnits:
+      - m
+      - m
+      - m
+    kind: array
+    shape:
+    - 3
+    type: float
+  RECEPTOR_ANGLE:
+    keywords:
+      QuantumUnits:
+      - rad
+    kind: scalar
+    type: float
+  SPECTRAL_WINDOW_ID:
+    kind: scalar
+    type: int
+  TIME:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+
+
+FIELD:
+  CODE:
+    kind: scalar
+    type: str
+  DELAY_DIR:
+    keywords:
+      MEASINFO:
+        Ref: J2000
+        type: direction
+      QuantumUnits:
+      - rad
+      - rad
+    kind: scalar
+    type: float
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+  NAME:
+    kind: scalar
+    type: str
+  NUM_POLY:
+    kind: scalar
+    type: int
+  PHASE_DIR:
+    keywords:
+      MEASINFO:
+        Ref: J2000
+        type: direction
+      QuantumUnits:
+      - rad
+      - rad
+    kind: scalar
+    type: float
+  REFERENCE_DIR:
+    keywords:
+      MEASINFO:
+        Ref: J2000
+        type: direction
+      QuantumUnits:
+      - rad
+      - rad
+    kind: scalar
+    type: float
+  SOURCE_ID:
+    kind: scalar
+    type: int
+  TIME:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+
+
+FLAG_CMD:
+  APPLIED:
+    kind: scalar
+    type: bool
+  COMMAND:
+    kind: scalar
+    type: str
+  INTERVAL:
+    keywords:
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  LEVEL:
+    kind: scalar
+    type: int
+  REASON:
+    kind: scalar
+    type: str
+  SEVERITY:
+    kind: scalar
+    type: int
+  TIME:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  TYPE:
+    kind: scalar
+    type: str
+
+
+HISTORY:
+  APPLICATION:
+    kind: scalar
+    type: str
+  APP_PARAMS:
+    kind: scalar
+    type: str
+  CLI_COMMAND:
+    kind: scalar
+    type: str
+  MESSAGE:
+    kind: scalar
+    type: str
+  OBJECT_ID:
+    kind: scalar
+    type: int
+  OBSERVATION_ID:
+    kind: scalar
+    type: int
+  ORIGIN:
+    kind: scalar
+    type: str
+  PRIORITY:
+    kind: scalar
+    type: str
+  TIME:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+
+
+MAIN:
+  ANTENNA1:
+    kind: scalar
+    type: int
+  ANTENNA2:
+    kind: scalar
+    type: int
+  ARRAY_ID:
+    kind: scalar
+    type: int
+  DATA:
+    keywords:
+      UNIT: Jy
+    kind: array
+    shape:
+    - nchan
+    - npol
+    type: complex
+  DATA_DESC_ID:
+    kind: scalar
+    type: int
+  EXPOSURE:
+    keywords:
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  FEED1:
+    kind: scalar
+    type: int
+  FEED2:
+    kind: scalar
+    type: int
+  FIELD_ID:
+    kind: scalar
+    type: int
+  FLAG:
+    kind: array
+    shape:
+    - nchan
+    - npol
+    type: bool
+  FLAG_CATEGORY:
+    keywords:
+      CATEGORY: []
+    kind: scalar
+    type: bool
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+  INTERVAL:
+    keywords:
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  MODEL_DATA:
+    kind: scalar
+    type: complex
+  OBSERVATION_ID:
+    kind: scalar
+    type: int
+  PROCESSOR_ID:
+    kind: scalar
+    type: int
+  SCAN_NUMBER:
+    kind: scalar
+    type: int
+  SIGMA:
+    kind: array
+    shape:
+    - npol
+    type: float
+  STATE_ID:
+    kind: scalar
+    type: int
+  TIME:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  TIME_CENTROID:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  UVW:
+    keywords:
+      MEASINFO:
+        Ref: ITRF
+        type: uvw
+      QuantumUnits:
+      - m
+      - m
+      - m
+    kind: array
+    shape:
+    - 3
+    type: float
+  WEIGHT:
+    kind: array
+    shape:
+    - npol
+    type: float
+  WEIGHT_SPECTRUM:
+    kind: array
+    shape:
+    - nchan
+    - npol
+    type: float
+
+
+OBSERVATION:
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+  LOG:
+    kind: scalar
+    type: str
+  OBSERVER:
+    kind: scalar
+    type: str
+  PROJECT:
+    kind: scalar
+    type: str
+  RELEASE_DATE:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  SCHEDULE:
+    kind: scalar
+    type: str
+  SCHEDULE_TYPE:
+    kind: scalar
+    type: str
+  TELESCOPE_NAME:
+    kind: scalar
+    type: str
+  TIME_RANGE:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: array
+    shape:
+    - 2
+    type: float
+
+
+POINTING:
+  ANTENNA_ID:
+    kind: scalar
+    type: int
+  DIRECTION:
+    keywords:
+      MEASINFO:
+        Ref: J2000
+        type: direction
+      QuantumUnits:
+      - rad
+      - rad
+    kind: scalar
+    type: float
+  INTERVAL:
+    keywords:
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  NAME:
+    kind: scalar
+    type: str
+  NUM_POLY:
+    kind: scalar
+    type: int
+  TARGET:
+    keywords:
+      MEASINFO:
+        Ref: J2000
+        type: direction
+      QuantumUnits:
+      - rad
+      - rad
+    kind: scalar
+    type: float
+  TIME:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  TIME_ORIGIN:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  TRACKING:
+    kind: scalar
+    type: bool
+
+
+POLARIZATION:
+  CORR_PRODUCT:
+    kind: scalar
+    type: int
+  CORR_TYPE:
+    kind: scalar
+    type: int
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+  NUM_CORR:
+    kind: scalar
+    type: int
+PROCESSOR:
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+  MODE_ID:
+    kind: scalar
+    type: int
+  SUB_TYPE:
+    kind: scalar
+    type: str
+  TYPE:
+    kind: scalar
+    type: str
+  TYPE_ID:
+    kind: scalar
+    type: int
+
+
+SOURCE:
+  CALIBRATION_GROUP:
+    kind: scalar
+    type: int
+  CODE:
+    kind: scalar
+    type: str
+  DIRECTION:
+    keywords:
+      MEASINFO:
+        Ref: J2000
+        type: direction
+      QuantumUnits:
+      - rad
+      - rad
+    kind: array
+    shape:
+    - 2
+    type: float
+  INTERVAL:
+    keywords:
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+  NAME:
+    kind: scalar
+    type: str
+  NUM_LINES:
+    kind: scalar
+    type: int
+  PROPER_MOTION:
+    keywords:
+      QuantumUnits:
+      - rad/s
+    kind: array
+    shape:
+    - 2
+    type: float
+  REST_FREQUENCY:
+    keywords:
+      MEASINFO:
+        Ref: LSRK
+        type: frequency
+      QuantumUnits: Hz
+    kind: scalar
+    type: float
+  SOURCE_ID:
+    kind: scalar
+    type: int
+  SPECTRAL_WINDOW_ID:
+    kind: scalar
+    type: int
+  TIME:
+    keywords:
+      MEASINFO:
+        Ref: UTC
+        type: epoch
+      QuantumUnits:
+      - s
+    kind: scalar
+    type: float
+
+
+SPECTRAL_WINDOW:
+  CHAN_FREQ:
+    keywords:
+      MEASINFO:
+        TabRefCodes: TODO
+        TabRefTypes:
+        - REST
+        - LSRK
+        - LSRD
+        - BARY
+        - GEO
+        - TOPO
+        - GALACTO
+        - LGROUP
+        - CMB
+        - Undefined
+        VarRefCol: MEAS_FREQ_REF
+        type: frequency
+      QuantumUnits:
+      - Hz
+    kind: array
+    shape:
+    - nchan
+    type: float
+  CHAN_WIDTH:
+    keywords:
+      QuantumUnits:
+      - Hz
+    kind: array
+    shape:
+    - nchan
+    type: float
+  EFFECTIVE_BW:
+    keywords:
+      QuantumUnits:
+      - Hz
+    kind: array
+    shape:
+    - nchan
+    type: float
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+  FREQ_GROUP:
+    kind: scalar
+    type: int
+  FREQ_GROUP_NAME:
+    kind: scalar
+    type: str
+  IF_CONV_CHAIN:
+    kind: scalar
+    type: int
+  MEAS_FREQ_REF:
+    kind: scalar
+    type: int
+  NAME:
+    kind: scalar
+    type: str
+  NET_SIDEBAND:
+    kind: scalar
+    type: int
+  NUM_CHAN:
+    kind: scalar
+    type: int
+  REF_FREQUENCY:
+    keywords:
+      MEASINFO:
+        TabRefCodes: TODO
+        TabRefTypes:
+        - REST
+        - LSRK
+        - LSRD
+        - BARY
+        - GEO
+        - TOPO
+        - GALACTO
+        - LGROUP
+        - CMB
+        - Undefined
+        VarRefCol: MEAS_FREQ_REF
+        type: frequency
+      QuantumUnits:
+      - Hz
+    kind: scalar
+    type: float
+  RESOLUTION:
+    keywords:
+      QuantumUnits:
+      - Hz
+    kind: array
+    shape:
+    - nchan
+    type: float
+  TOTAL_BANDWIDTH:
+    keywords:
+      QuantumUnits:
+      - Hz
+    kind: scalar
+    type: float
+
+
+STATE:
+  CAL:
+    keywords:
+      QuantumUnits:
+      - K
+    kind: scalar
+    type: float
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+  LOAD:
+    keywords:
+      QuantumUnits:
+      - K
+    kind: scalar
+    type: float
+  OBS_MODE:
+    kind: scalar
+    type: str
+  REF:
+    kind: scalar
+    type: bool
+  SIG:
+    kind: scalar
+    type: bool
+  SUB_SCAN:
+    kind: scalar
+    type: int
