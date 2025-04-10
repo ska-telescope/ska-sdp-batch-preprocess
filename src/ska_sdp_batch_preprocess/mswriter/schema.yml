@@ -1,0 +1,81 @@
+MAIN:
+  # Scalar columns
+  ANTENNA1:
+    kind: scalar
+    type: int
+  ANTENNA2:
+    kind: scalar
+    type: int
+  ARRAY_ID:
+    kind: scalar
+    type: int
+  DATA_DESC_ID:
+    kind: scalar
+    type: int
+  EXPOSURE:
+    kind: scalar
+    type: float
+    keywords:
+      QuantumUnits: [s]
+  FEED1:
+    kind: scalar
+    type: int
+  FEED2:
+    kind: scalar
+    type: int
+  FIELD_ID:
+    kind: scalar
+    type: int
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+  INTERVAL:
+    kind: scalar
+    type: float
+    keywords:
+      QuantumUnits: [s]
+  OBSERVATION_ID:
+    kind: scalar
+    type: int
+  PROCESSOR_ID:
+    kind: scalar
+    type: int
+  SCAN_NUMBER:
+    kind: scalar
+    type: int
+  STATE_ID:
+    kind: scalar
+    type: int
+  TIME:
+    kind: scalar
+    type: float
+    keywords:
+      QuantumUnits: [s]
+      MEASINFO:
+        type: epoch
+        Ref: UTC
+  TIME_CENTROID:
+    kind: scalar
+    type: float
+    keywords:
+      QuantumUnits: [s]
+      MEASINFO:
+        type: epoch
+        Ref: UTC
+
+  # Array Columns
+  DATA:
+    kind: array
+    type: complex
+    shape: [nchan, npol]
+    keywords:
+      UNIT: Jy
+  UVW:
+    kind: array
+    type: float
+    shape: [3]
+    keywords:
+      QuantumUnits: [m, m, m]
+      MEASINFO:
+        type: uvw
+        Ref: ITRF
