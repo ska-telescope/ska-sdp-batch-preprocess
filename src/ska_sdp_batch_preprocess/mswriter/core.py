@@ -49,7 +49,10 @@ def write_msv2_template_matching_xradio_msv4(
 
     msv4: Root node of one MSv4
     """
-    for table_name in SCHEMA:
+    # NOTE: MAIN table must be written first, otherwise casacore complains
+    ordered_names = ["MAIN"] + sorted(set(SCHEMA.keys()) - {"MAIN"})
+
+    for table_name in ordered_names:
         write_empty_table_template(msv4, table_name, output_path)
 
     add_subtable_and_version_keywords(output_path)
