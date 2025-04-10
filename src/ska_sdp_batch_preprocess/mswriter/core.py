@@ -111,6 +111,7 @@ def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
     # TODO: Edit keywords
     tdesc = maketabdesc(column_descriptors_by_name.values())
     ms_table = table(output_path, tdesc, nrow=0)
+    ms_table.putkeyword("MS_VERSION", 2.0)
     ms_table.close()
 
 
