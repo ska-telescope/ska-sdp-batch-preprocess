@@ -8,7 +8,6 @@ from typing import Any, Type
 
 from casacore.tables import table, maketabdesc, makescacoldesc, makearrcoldesc
 
-
 """
 Preconditions:
 - Only one MSv4 in the processing set
@@ -52,6 +51,14 @@ def write_msv2_template_matching_xradio_msv4(
     """
     for table_name in SCHEMA:
         write_table_template(msv4, table_name, output_path)
+
+    # Add keyword entries in MAIN table that specify the presence of sub-tables
+    # Maybe I should use `default_ms_subtable()`
+    tbl = table(output_path, readonly=False)
+    subtable_names = set(SCHEMA.keys()) - {"MAIN"}
+    for subtable_name in subtable_names:
+        subtable_path_str = str(Path(output_path).absolute() / subtable_name)
+        tbl.putkeyword(subtable_name, f"Table: {subtable_path_str}")
 
 
 def make_column_description(
@@ -116,7 +123,7 @@ def write_table_template(
     # TODO: Edit keywords
     tdesc = maketabdesc(column_descriptors_by_name.values())
 
-    output_path = Path(output_path)
+    output_path = Path(output_path).absolute()
     table_path = output_path if table_name == "MAIN" else output_path / table_name
     ms_table = table(str(table_path), tdesc, nrow=0)
     ms_table.putkeyword("MS_VERSION", 2.0)
