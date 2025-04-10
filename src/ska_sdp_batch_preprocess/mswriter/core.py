@@ -58,7 +58,8 @@ def make_column_description(
     table_name: str, column_name: str, shape_dict: dict[str, int]
 ) -> dict[str, Any]:
     """
-    TODO
+    Make a column description dictionary with default keywords. Make sure to
+    edit keywords as necessary.
     """
     schema = SCHEMA[table_name][column_name]
     kind = schema["kind"]
@@ -102,12 +103,13 @@ def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
         "npol": 4,
     }
 
-    column_descriptors = [
-        make_column_description("MAIN", column_name, shape_dict=shape_dict)
+    column_descriptors_by_name = {
+        column_name: make_column_description("MAIN", column_name, shape_dict)
         for column_name in SCHEMA["MAIN"]
-    ]
+    }
 
-    tdesc = maketabdesc(column_descriptors)
+    # TODO: Edit keywords
+    tdesc = maketabdesc(column_descriptors_by_name.values())
     ms_table = table(output_path, tdesc, nrow=0)
     ms_table.close()
 
