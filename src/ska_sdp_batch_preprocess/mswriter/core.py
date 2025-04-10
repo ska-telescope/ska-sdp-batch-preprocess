@@ -52,13 +52,15 @@ def write_msv2_template_matching_xradio_msv4(
     for table_name in SCHEMA:
         write_empty_table_template(msv4, table_name, output_path)
 
-    add_subtable_keywords(output_path)
+    add_subtable_and_version_keywords(output_path)
 
 
-def add_subtable_keywords(output_path: str | os.PathLike):
+def add_subtable_and_version_keywords(output_path: str | os.PathLike):
     # Add keyword entries in MAIN table that specify the presence of sub-tables
     # Maybe I should use `default_ms_subtable()`
     tbl = table(output_path, readonly=False)
+    tbl.putkeyword("MS_VERSION", 2.0)
+
     subtable_names = set(SCHEMA.keys()) - {"MAIN"}
     for subtable_name in subtable_names:
         subtable_path_str = str(Path(output_path).absolute() / subtable_name)
@@ -124,11 +126,8 @@ def write_empty_table_template(
         for column_name in SCHEMA[table_name]
     }
 
-    # TODO: Edit keywords
     tdesc = maketabdesc(column_descriptors_by_name.values())
-
     output_path = Path(output_path).absolute()
     table_path = output_path if table_name == "MAIN" else output_path / table_name
     ms_table = table(str(table_path), tdesc, nrow=0)
-    ms_table.putkeyword("MS_VERSION", 2.0)
     ms_table.close()

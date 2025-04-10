@@ -105,3 +105,39 @@ MAIN:
     kind: array
     type: float
     shape: [nchan, npol]
+
+ANTENNA:
+  DISH_DIAMETER:
+    kind: scalar
+    type: float
+    keywords:
+      QuantumUnits: [m]
+
+  FLAG_ROW:
+    kind: scalar
+    type: bool
+
+  MOUNT:
+    kind: scalar
+    type: str
+
+# FLAG_ROW
+# {'valueType': 'boolean', 'dataManagerType': 'StandardStMan', 'dataManagerGroup': 'StandardStMan', 'option': 0, 'maxlen': 0, 'comment': 'Flag for this row', 'keywords': {}}
+
+# MOUNT
+# {'valueType': 'string', 'dataManagerType': 'StandardStMan', 'dataManagerGroup': 'StandardStMan', 'option': 0, 'maxlen': 0, 'comment': 'Mount type e.g. alt-az, equatorial, etc.', 'keywords': {}}
+
+# NAME
+# {'valueType': 'string', 'dataManagerType': 'StandardStMan', 'dataManagerGroup': 'StandardStMan', 'option': 0, 'maxlen': 0, 'comment': 'Antenna name, e.g. VLA22, CA03', 'keywords': {}}
+
+# OFFSET
+# {'valueType': 'double', 'dataManagerType': 'StandardStMan', 'dataManagerGroup': 'StandardStMan', 'option': 5, 'maxlen': 0, 'comment': 'Axes offset of mount to FEED REFERENCE point', 'ndim': 1, 'shape': array([3]), '_c_order': True, 'keywords': {'QuantumUnits': ['m', 'm', 'm'], 'MEASINFO': {'type': 'position', 'Ref': 'ITRF'}}}
+
+# POSITION
+# {'valueType': 'double', 'dataManagerType': 'StandardStMan', 'dataManagerGroup': 'StandardStMan', 'option': 5, 'maxlen': 0, 'comment': 'Antenna X,Y,Z phase reference position', 'ndim': 1, 'shape': array([3]), '_c_order': True, 'keywords': {'QuantumUnits': ['m', 'm', 'm'], 'MEASINFO': {'type': 'position', 'Ref': 'ITRF'}}}
+
+# STATION
+# {'valueType': 'string', 'dataManagerType': 'StandardStMan', 'dataManagerGroup': 'StandardStMan', 'option': 0, 'maxlen': 0, 'comment': 'Station (antenna pad) name', 'keywords': {}}
+
+# TYPE
+# {'valueType': 'string', 'dataManagerType': 'StandardStMan', 'dataManagerGroup': 'StandardStMan', 'option': 0, 'maxlen': 0, 'comment': 'Antenna type (e.g. SPACE-BASED)', 'keywords': {}}
