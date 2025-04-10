@@ -50,8 +50,8 @@ def write_msv2_template_matching_xradio_msv4(
 
     msv4: Root node of one MSv4
     """
-    write_main_table_template(msv4, output_path)
-    write_antenna_table(msv4, output_path)
+    for table_name in SCHEMA:
+        write_table_template(msv4, table_name, output_path)
 
 
 def make_column_description(
@@ -91,34 +91,33 @@ def make_column_description(
         raise ValueError(f"Invalid column kind {kind!r}")
 
 
-def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
+def write_table_template(
+    msv4: DataTree, table_name: str, output_path: str | os.PathLike
+):
     """
     TODO
 
     msv4: Root node of one MSv4
+    table_name: Name of the MSv2 table, e.g. "MAIN" or "ANTENNA"
     output_path: Path to base directory of the output MS
     """
+    print(f"Writing table: {table_name}")
+
     shape_dict = {
         "nchan": msv4["frequency"].size,
         "npol": 4,
     }
 
     column_descriptors_by_name = {
-        column_name: make_column_description("MAIN", column_name, shape_dict)
-        for column_name in SCHEMA["MAIN"]
+        column_name: make_column_description(table_name, column_name, shape_dict)
+        for column_name in SCHEMA[table_name]
     }
 
     # TODO: Edit keywords
     tdesc = maketabdesc(column_descriptors_by_name.values())
-    ms_table = table(output_path, tdesc, nrow=0)
+
+    output_path = Path(output_path)
+    table_path = output_path if table_name == "MAIN" else output_path / table_name
+    ms_table = table(str(table_path), tdesc, nrow=0)
     ms_table.putkeyword("MS_VERSION", 2.0)
     ms_table.close()
-
-
-def write_antenna_table(msv4: DataTree, output_path: str | os.PathLike):
-    """
-    TODO
-
-    msv4: Root node of one MSv4
-    output_path: Path to base directory of the output MS
-    """
