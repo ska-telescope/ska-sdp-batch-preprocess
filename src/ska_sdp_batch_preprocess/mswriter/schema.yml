@@ -1,3 +1,7 @@
+#
+# Schema for the column descriptions of a MeasurementSet v2
+#
+
 MAIN:
   # Scalar columns
   ANTENNA1:
@@ -70,6 +74,18 @@ MAIN:
     shape: [nchan, npol]
     keywords:
       UNIT: Jy
+  FLAG:
+    kind: array
+    type: bool
+    shape: [nchan, npol]
+  FLAG_CATEGORY:
+    kind: array
+    type: bool
+    shape: [1, nchan, npol]
+  SIGMA:
+    kind: array
+    type: float
+    shape: [npol]
   UVW:
     kind: array
     type: float
@@ -79,3 +95,11 @@ MAIN:
       MEASINFO:
         type: uvw
         Ref: ITRF
+  WEIGHT:
+    kind: array
+    type: float
+    shape: [npol]
+  WEIGHT_SPECTRUM:
+    kind: array
+    type: float
+    shape: [nchan, npol]
