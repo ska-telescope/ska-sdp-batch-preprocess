@@ -32,20 +32,20 @@ dp3 = "^6.3.0"
 h5py = "^3.7.0"
 jsonschema = "^4.4.0"
 numpy = "^2.0.0"
+python-casacore = "^3.5.2"
 pyyaml = "^6.0.1"
 
 [tool.poetry.group.dev.dependencies]
-black = "^22.3.0"
+black = "^22.3.0" 
 bokeh = "^3.1.0" # dask dashboard
-build = "^0.10.0"
-coverage = "^6.1.1"
-flake8 = "^3.9.2"
-isort = "^5.6.4"
-pylint = "^2.8.2"
-pylint-junit = "^0.3.2"
-pytest = "^8.3.2"
-pytest-cov = "^2.10.1"
-python-casacore = "^3.5.2"
+build = "^0.10.0" 
+coverage = "^6.1.1" 
+flake8 = "^3.9.2" 
+isort = "^5.6.4" 
+pylint = "^2.8.2" 
+pylint-junit = "^0.3.2" 
+pytest = "^8.3.2" 
+pytest-cov = "^2.10.1" 
 
 # NOTE: For now, pin xradio to a specific xradio version.
 # We should only need it for the test suite.
