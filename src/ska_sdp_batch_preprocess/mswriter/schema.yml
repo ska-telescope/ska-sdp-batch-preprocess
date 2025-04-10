@@ -82,6 +82,8 @@ MAIN:
     kind: array
     type: bool
     shape: [1, nchan, npol]
+    keywords:
+      CATEGORY: []
   SIGMA:
     kind: array
     type: float
