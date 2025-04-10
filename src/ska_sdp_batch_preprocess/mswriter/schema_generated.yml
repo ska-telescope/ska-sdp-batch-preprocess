@@ -577,7 +577,7 @@ SPECTRAL_WINDOW:
   CHAN_FREQ:
     keywords:
       MEASINFO:
-        TabRefCodes: TODO
+        TabRefCodes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 64]
         TabRefTypes:
         - REST
         - LSRK
@@ -640,7 +640,7 @@ SPECTRAL_WINDOW:
   REF_FREQUENCY:
     keywords:
       MEASINFO:
-        TabRefCodes: TODO
+        TabRefCodes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 64]
         TabRefTypes:
         - REST
         - LSRK
