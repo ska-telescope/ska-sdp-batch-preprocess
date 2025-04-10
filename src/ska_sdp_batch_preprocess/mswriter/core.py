@@ -127,12 +127,9 @@ def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
     }
 
     array_column_descriptors = [
-        makearrcoldesc(name, valuetype(), shape, valuetype="double")
+        makearrcoldesc(name, valuetype(), shape=shape, valuetype="double")
         for name, (valuetype, shape) in array_column_definitions.items()
     ]
-
-    #makearrcoldesc("UVW", 0.0, shape=(3,), valuetype="double"),
-
     tdesc = maketabdesc(scalar_column_descriptors + array_column_descriptors)
     ms_table = table(output_path, tdesc, nrow=0)
     ms_table.close()
