@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from xarray import DataTree
+import yaml
 
 from casacore.tables import table, maketabdesc, makescacoldesc, makearrcoldesc
 
@@ -13,6 +14,14 @@ Preconditions:
 """
 
 
+def _load_schema_file() -> dict:
+    path = Path(__file__).with_name("schema.yml")
+    return yaml.safe_load(path.read_text())
+
+
+SCHEMA: dict[str, dict] = _load_schema_file()
+
+
 def write_msv2_template_matching_xradio_processing_set(
     root: DataTree, output_path: str | os.PathLike
 ):
@@ -21,6 +30,8 @@ def write_msv2_template_matching_xradio_processing_set(
 
     root: Root node of the xradio processing set
     """
+    # TODO: Figure out what to do if there are data groups, e.g.
+    # CORRECTED_DATA and the like
     if not len(root.children) == 1:
         raise ValueError("Processing set contains more than one MSv4")
 
@@ -37,9 +48,7 @@ def write_msv2_template_matching_xradio_msv4(
     msv4: Root node of one MSv4
     """
     write_main_table_template(msv4, output_path)
-
-    # Create subtables
-    # TODO
+    write_antenna_table(msv4, output_path)
 
 
 def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
@@ -47,8 +56,8 @@ def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
     TODO
 
     msv4: Root node of one MSv4
+    output_path: Path to base directory of the output MS
     """
-
     scalar_column_definitions = {
         "ANTENNA1": int,
         "ANTENNA2": int,
@@ -69,7 +78,7 @@ def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
     }
 
     scalar_column_descriptors = [
-        makescacoldesc(name, valuetype())
+        makescacoldesc(name, valuetype(), datamanagergroup=name)
         for name, valuetype in scalar_column_definitions.items()
     ]
 
@@ -86,9 +95,55 @@ def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
         "WEIGHT_SPECTRUM": (float, (nchan, npol)),
     }
 
+    ### MeerKAT nano
+    # DATA
+    # {'UNIT': 'Jy'}
+
+    # EXPOSURE
+    # {'QuantumUnits': ['s']}
+
+    # FLAG_CATEGORY
+    # {'CATEGORY': []}
+
+    # INTERVAL
+    # {'QuantumUnits': ['s']}
+
+    # TIME
+    # {'QuantumUnits': ['s'], 'MEASINFO': {'type': 'epoch', 'Ref': 'UTC'}}
+
+    # TIME_CENTROID
+    # {'QuantumUnits': ['s'], 'MEASINFO': {'type': 'epoch', 'Ref': 'UTC'}}
+
+    # UVW
+    # {'QuantumUnits': ['m', 'm', 'm'], 'MEASINFO': {'type': 'uvw', 'Ref': 'ITRF'}}
+
+    ### Simulated AA2 Mid datset
+    # DATA
+    # {'UNIT': 'Jy'}
+
+    # EXPOSURE
+    # {'QuantumUnits': ['s']}
+
+    # FLAG_CATEGORY
+    # {'CATEGORY': []}
+
+    # INTERVAL
+    # {'QuantumUnits': ['s']}
+
+    # TIME
+    # {'QuantumUnits': ['s'], 'MEASINFO': {'type': 'epoch', 'Ref': 'UTC'}}
+
+    # TIME_CENTROID
+    # {'QuantumUnits': ['s'], 'MEASINFO': {'type': 'epoch', 'Ref': 'UTC'}}
+
+    # UVW
+    # {'QuantumUnits': ['m', 'm', 'm'], 'MEASINFO': {'type': 'uvw', 'Ref': 'ITRF'}}
+
     def data_manager_group(colname: str) -> str:
         return "Tiled" + "".join(map(str.capitalize, colname.split("_")))
 
+    # TODO: Add keywords 'QuantumUnits' and 'MEASINFO' for columns:
+    # DATA, EXPOSURE, FLAG_CATEGORY, INTERVAL, TIME, TIME_CENTROID
     array_column_descriptors = [
         makearrcoldesc(
             name,
@@ -102,3 +157,12 @@ def write_main_table_template(msv4: DataTree, output_path: str | os.PathLike):
     tdesc = maketabdesc(scalar_column_descriptors + array_column_descriptors)
     ms_table = table(output_path, tdesc, nrow=0)
     ms_table.close()
+
+
+def write_antenna_table(msv4: DataTree, output_path: str | os.PathLike):
+    """
+    TODO
+
+    msv4: Root node of one MSv4
+    output_path: Path to base directory of the output MS
+    """
