@@ -50,8 +50,12 @@ def write_msv2_template_matching_xradio_msv4(
     msv4: Root node of one MSv4
     """
     for table_name in SCHEMA:
-        write_table_template(msv4, table_name, output_path)
+        write_empty_table_template(msv4, table_name, output_path)
 
+    add_subtable_keywords(output_path)
+
+
+def add_subtable_keywords(output_path: str | os.PathLike):
     # Add keyword entries in MAIN table that specify the presence of sub-tables
     # Maybe I should use `default_ms_subtable()`
     tbl = table(output_path, readonly=False)
@@ -98,7 +102,7 @@ def make_column_description(
         raise ValueError(f"Invalid column kind {kind!r}")
 
 
-def write_table_template(
+def write_empty_table_template(
     msv4: DataTree, table_name: str, output_path: str | os.PathLike
 ):
     """
