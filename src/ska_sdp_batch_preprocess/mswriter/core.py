@@ -92,7 +92,6 @@ def make_column_description(
         keywords=schema.get("keywords", {}),
     )
 
-    # NOTE: MUST PASS THE CORRECT "valuetype"
     if kind == "scalar":
         return makescacoldesc(**coldesc_arguments)
     elif kind == "array":
