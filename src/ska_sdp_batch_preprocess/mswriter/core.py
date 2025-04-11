@@ -59,7 +59,8 @@ def write_msv2_template_matching_xradio_msv4(
     msv4: Root node of one MSv4
     """
     # NOTE: MAIN table must be written first, otherwise casacore complains
-    ordered_names = ["MAIN"] + sorted(set(SCHEMA.keys()) - {"MAIN"})
+    subtable_names = sorted(set(SCHEMA.keys()) - {"MAIN"})
+    ordered_names = ["MAIN"] + subtable_names
 
     # TODO: We are missing the PHASED_ARRAY table
     # TODO: Some tables, like PHASED_ARRAY, should only be written under
@@ -67,23 +68,11 @@ def write_msv2_template_matching_xradio_msv4(
     for table_name in ordered_names:
         write_empty_table_template(msv4, table_name, output_path)
 
-    add_version_keyword(output_path)
-    add_subtable_keywords(output_path)
-
-
-def add_version_keyword(output_path: Path):
-    tbl = table(output_path, readonly=False)
-    tbl.putkeyword("MS_VERSION", 2.0)
-    tbl.close()
-
-
-def add_subtable_keywords(output_path: str | os.PathLike):
-    tbl = table(output_path, readonly=False)
-    subtable_names = set(SCHEMA.keys()) - {"MAIN"}
-    for subtable_name in subtable_names:
-        subtable_path_str = str(Path(output_path).absolute() / subtable_name)
-        tbl.putkeyword(subtable_name, f"Table: {subtable_path_str}")
-    tbl.close()
+    with table(output_path, readonly=False) as tbl:
+        tbl.putkeyword("MS_VERSION", 2.0)
+        for subtable_name in subtable_names:
+            subtable_path_str = str(Path(output_path).absolute() / subtable_name)
+            tbl.putkeyword(subtable_name, f"Table: {subtable_path_str}")
 
 
 def make_column_description(
@@ -147,5 +136,4 @@ def write_empty_table_template(
     tdesc = maketabdesc(column_descriptors_by_name.values())
     output_path = Path(output_path).absolute()
     table_path = output_path if table_name == "MAIN" else output_path / table_name
-    ms_table = table(str(table_path), tdesc, nrow=0)
-    ms_table.close()
+    table(str(table_path), tdesc, nrow=0).close()
