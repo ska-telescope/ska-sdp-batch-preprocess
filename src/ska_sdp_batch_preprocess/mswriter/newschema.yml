@@ -485,8 +485,8 @@ MAIN:
     ndim: 2
     option: 4
     shape:
-    - 4
-    - 4
+    - nchan
+    - npol
     valuetype: complex
   DATA_DESC_ID:
     comment: The data description table index
@@ -534,8 +534,8 @@ MAIN:
     ndim: 2
     option: 4
     shape:
-    - 4
-    - 4
+    - nchan
+    - npol
     valuetype: boolean
   FLAG_CATEGORY:
     comment: The flag category, NUM_CAT flags for each datum
@@ -593,7 +593,7 @@ MAIN:
     ndim: 1
     option: 5
     shape:
-    - 4
+    - npol
     valuetype: float
   STATE_ID:
     comment: ID for this observing state
@@ -654,7 +654,7 @@ MAIN:
     ndim: 1
     option: 5
     shape:
-    - 4
+    - npol
     valuetype: float
   WEIGHT_SPECTRUM:
     comment: weight per corr/chan
@@ -664,8 +664,8 @@ MAIN:
     ndim: 2
     option: 4
     shape:
-    - 4
-    - 4
+    - nchan
+    - npol
     valuetype: float
 OBSERVATION:
   FLAG_ROW:
@@ -1056,7 +1056,7 @@ SPECTRAL_WINDOW:
     ndim: 1
     option: 4
     shape:
-    - 4
+    - nchan
     valuetype: double
   CHAN_WIDTH:
     comment: Channel width for each channel
@@ -1069,7 +1069,7 @@ SPECTRAL_WINDOW:
     ndim: 1
     option: 4
     shape:
-    - 4
+    - nchan
     valuetype: double
   EFFECTIVE_BW:
     comment: Effective noise bandwidth of each channel
@@ -1082,7 +1082,7 @@ SPECTRAL_WINDOW:
     ndim: 1
     option: 4
     shape:
-    - 4
+    - nchan
     valuetype: double
   FLAG_ROW:
     comment: Row flag
@@ -1186,7 +1186,7 @@ SPECTRAL_WINDOW:
     ndim: 1
     option: 4
     shape:
-    - 4
+    - nchan
     valuetype: double
   TOTAL_BANDWIDTH:
     comment: The total bandwidth for this window
