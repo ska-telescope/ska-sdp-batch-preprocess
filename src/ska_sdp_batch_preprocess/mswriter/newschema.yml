@@ -543,9 +543,13 @@ MAIN:
     dataManagerType: TiledShapeStMan
     keywords:
       CATEGORY: []
-    kind: scalar
+    kind: array
     ndim: 3
     option: 0
+    shape:
+    - 1
+    - nchan
+    - npol
     valuetype: boolean
   FLAG_ROW:
     comment: Row flag - flag all data in this row if True
