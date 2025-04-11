@@ -9,7 +9,7 @@ from xarray import DataTree
 
 def _load_schema_file() -> dict:
     path = Path(__file__).with_name("schema.yml")
-    return yaml.safe_load(path.read_text())
+    return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
 SCHEMA: dict[str, dict] = _load_schema_file()
@@ -84,23 +84,21 @@ def make_column_description(
             x if isinstance(x, int) else shape_dict[x] for x in shape_spec
         )
 
-    coldesc_arguments = dict(
-        columnname=column_name,
-        value=python_type(),
-        datamanagertype=schema["dataManagerType"],
-        datamanagergroup=schema["dataManagerGroup"],
-        valuetype=schema["valuetype"],
-        keywords=schema.get("keywords", {}),
-    )
+    coldesc_arguments = {
+        "columnname": column_name,
+        "value": python_type(),
+        "datamanagertype": schema["dataManagerType"],
+        "datamanagergroup": schema["dataManagerGroup"],
+        "valuetype": schema["valuetype"],
+        "keywords": schema.get("keywords", {}),
+    }
 
     if kind == "scalar":
         return makescacoldesc(**coldesc_arguments)
-    elif kind == "array":
-        shape = make_shape(schema["shape"])
-        kwargs = coldesc_arguments | dict(shape=shape)
-        return makearrcoldesc(**kwargs)
-    else:
-        raise ValueError(f"Invalid column kind {kind!r}")
+
+    shape = make_shape(schema["shape"])
+    kwargs = coldesc_arguments | {"shape": shape}
+    return makearrcoldesc(**kwargs)
 
 
 def write_empty_table_template(
