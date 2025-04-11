@@ -111,8 +111,6 @@ def write_empty_table_template(
     table_name: Name of the MSv2 table, e.g. "MAIN" or "ANTENNA"
     output_path: Path to base directory of the output MS
     """
-    print(f"Writing table: {table_name}")
-
     shape_dict = {
         "nchan": msv4["frequency"].size,
         "npol": 4,
