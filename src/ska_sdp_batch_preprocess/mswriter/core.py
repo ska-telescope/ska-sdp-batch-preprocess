@@ -86,7 +86,7 @@ def make_column_description(
         value=python_type(),
         datamanagertype=schema["dataManagerType"],
         datamanagergroup=schema["dataManagerGroup"],
-        options=schema.get("options", 0),
+        options=schema.get("option", 0),
         comment=schema["comment"],
         valuetype=schema["valuetype"],
         keywords=schema.get("keywords", {}),
