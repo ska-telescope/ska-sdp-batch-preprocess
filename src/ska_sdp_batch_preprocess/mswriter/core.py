@@ -55,34 +55,23 @@ def write_msv2_template_matching_xradio_msv4(
     for table_name in ordered_names:
         write_empty_table_template(msv4, table_name, output_path)
 
-    add_subtable_and_version_keywords(output_path)
+    add_version_keyword(output_path)
+    add_subtable_keywords(output_path)
 
-    # Fix data type of TabRefCodes
-    # TODO: it's most likely NOT necessary
-    path = Path(output_path) / "SPECTRAL_WINDOW"
-    tbl = table(str(path), readonly=False)
 
-    kw = tbl.getcolkeyword("CHAN_FREQ", "MEASINFO")
-    kw["TabRefCodes"] = np.asarray(kw["TabRefCodes"], dtype="uint32")
-    tbl.putcolkeyword("CHAN_FREQ", "MEASINFO", kw)
-
-    kw = tbl.getcolkeyword("REF_FREQUENCY", "MEASINFO")
-    kw["TabRefCodes"] = np.asarray(kw["TabRefCodes"], dtype="uint32")
-    tbl.putcolkeyword("REF_FREQUENCY", "MEASINFO", kw)
-
+def add_version_keyword(output_path: Path):
+    tbl = table(output_path, readonly=False)
+    tbl.putkeyword("MS_VERSION", 2.0)
     tbl.close()
 
 
-def add_subtable_and_version_keywords(output_path: str | os.PathLike):
-    # Add keyword entries in MAIN table that specify the presence of sub-tables
-    # Maybe I should use `default_ms_subtable()`
+def add_subtable_keywords(output_path: str | os.PathLike):
     tbl = table(output_path, readonly=False)
-    tbl.putkeyword("MS_VERSION", 2.0)
-
     subtable_names = set(SCHEMA.keys()) - {"MAIN"}
     for subtable_name in subtable_names:
         subtable_path_str = str(Path(output_path).absolute() / subtable_name)
         tbl.putkeyword(subtable_name, f"Table: {subtable_path_str}")
+    tbl.close()
 
 
 def make_column_description(
