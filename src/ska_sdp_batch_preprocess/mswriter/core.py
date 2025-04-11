@@ -17,11 +17,20 @@ Preconditions:
 
 
 def _load_schema_file() -> dict:
-    path = Path(__file__).with_name("schema_generated.yml")
+    path = Path(__file__).with_name("newschema.yml")
     return yaml.safe_load(path.read_text())
 
 
 SCHEMA: dict[str, dict] = _load_schema_file()
+
+TYPE_MAPPING = {
+    "boolean": bool,
+    "double": float,
+    "float": float,
+    "int": int,
+    "string": str,
+    "complex": complex,
+}
 
 
 def write_msv2_template_matching_xradio_processing_set(
@@ -107,31 +116,33 @@ def make_column_description(
     """
     schema = SCHEMA[table_name][column_name]
     kind = schema["kind"]
-    vtype: Type = eval(schema["type"])
+    python_type: Type = TYPE_MAPPING[schema["valuetype"]]
 
     def make_shape(shape_spec: list[str | int]) -> tuple[int]:
         return tuple(x if isinstance(x, int) else shape_dict[x] for x in shape_spec)
 
-    def tiled_data_manager_group_name(colname: str) -> str:
-        return "Tiled" + "".join(map(str.capitalize, colname.split("_")))
-
-    # TODO: MUST PASS THE CORRECT "valuetype"
-    # e.g. vtype() won't be enough, e.g. the WEIGHT column wants single
-    # precision "float" and not "double"
+    # NOTE: MUST PASS THE CORRECT "valuetype"
     if kind == "scalar":
         return makescacoldesc(
             column_name,
-            vtype(),
-            datamanagergroup=column_name,
+            python_type(),
+            datamanagertype=schema["dataManagerType"],
+            datamanagergroup=schema["dataManagerGroup"],
+            options=schema["options"],
+            comment=schema["comment"],
+            valuetype=schema["valuetype"],
             keywords=schema.get("keywords", {}),
         )
     elif kind == "array":
         return makearrcoldesc(
             column_name,
-            vtype(),
+            python_type(),
             shape=make_shape(schema["shape"]),
-            datamanagertype="TiledColumnStMan",
-            datamanagergroup=tiled_data_manager_group_name(column_name),
+            datamanagertype=schema["dataManagerType"],
+            datamanagergroup=schema["dataManagerGroup"],
+            options=schema["options"],
+            comment=schema["comment"],
+            valuetype=schema["valuetype"],
             keywords=schema.get("keywords", {}),
         )
     else:
