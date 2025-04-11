@@ -61,6 +61,9 @@ def write_msv2_template_matching_xradio_msv4(
     # NOTE: MAIN table must be written first, otherwise casacore complains
     ordered_names = ["MAIN"] + sorted(set(SCHEMA.keys()) - {"MAIN"})
 
+    # TODO: We are missing the PHASED_ARRAY table
+    # TODO: Some tables, like PHASED_ARRAY, should only be written under
+    # certain conditions, we are currently writing everything in the schema
     for table_name in ordered_names:
         write_empty_table_template(msv4, table_name, output_path)
 
@@ -121,30 +124,24 @@ def make_column_description(
     def make_shape(shape_spec: list[str | int]) -> tuple[int]:
         return tuple(x if isinstance(x, int) else shape_dict[x] for x in shape_spec)
 
+    coldesc_arguments = dict(
+        columnname=column_name,
+        value=python_type(),
+        datamanagertype=schema["dataManagerType"],
+        datamanagergroup=schema["dataManagerGroup"],
+        options=schema.get("options", 0),
+        comment=schema["comment"],
+        valuetype=schema["valuetype"],
+        keywords=schema.get("keywords", {}),
+    )
+
     # NOTE: MUST PASS THE CORRECT "valuetype"
     if kind == "scalar":
-        return makescacoldesc(
-            column_name,
-            python_type(),
-            datamanagertype=schema["dataManagerType"],
-            datamanagergroup=schema["dataManagerGroup"],
-            options=schema.get("options", 0),
-            comment=schema["comment"],
-            valuetype=schema["valuetype"],
-            keywords=schema.get("keywords", {}),
-        )
+        return makescacoldesc(**coldesc_arguments)
     elif kind == "array":
-        return makearrcoldesc(
-            column_name,
-            python_type(),
-            shape=make_shape(schema["shape"]),
-            datamanagertype=schema["dataManagerType"],
-            datamanagergroup=schema["dataManagerGroup"],
-            options=schema.get("options", 0),
-            comment=schema["comment"],
-            valuetype=schema["valuetype"],
-            keywords=schema.get("keywords", {}),
-        )
+        shape = make_shape(schema["shape"])
+        kwargs = coldesc_arguments | dict(shape=shape)
+        return makearrcoldesc(**kwargs)
     else:
         raise ValueError(f"Invalid column kind {kind!r}")
 
