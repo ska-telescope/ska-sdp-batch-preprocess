@@ -17,7 +17,7 @@ Preconditions:
 
 
 def _load_schema_file() -> dict:
-    path = Path(__file__).with_name("newschema.yml")
+    path = Path(__file__).with_name("schema.yml")
     return yaml.safe_load(path.read_text())
 
 
