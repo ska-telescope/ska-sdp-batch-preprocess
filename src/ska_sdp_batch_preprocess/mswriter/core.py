@@ -1,11 +1,10 @@
 import os
 from pathlib import Path
-from xarray import DataTree
-import yaml
-
 from typing import Any, Type
 
-from casacore.tables import table, maketabdesc, makescacoldesc, makearrcoldesc
+import yaml
+from casacore.tables import makearrcoldesc, makescacoldesc, maketabdesc, table
+from xarray import DataTree
 
 
 def _load_schema_file() -> dict:
@@ -63,7 +62,9 @@ def write_msv2_template_matching_xradio_msv4(
     with table(output_path, readonly=False) as tbl:
         tbl.putkeyword("MS_VERSION", 2.0)
         for subtable_name in subtable_names:
-            subtable_path_str = str(Path(output_path).absolute() / subtable_name)
+            subtable_path_str = str(
+                Path(output_path).absolute() / subtable_name
+            )
             tbl.putkeyword(subtable_name, f"Table: {subtable_path_str}")
 
 
@@ -79,7 +80,9 @@ def make_column_description(
     python_type: Type = TYPE_MAPPING[schema["valuetype"]]
 
     def make_shape(shape_spec: list[str | int]) -> tuple[int]:
-        return tuple(x if isinstance(x, int) else shape_dict[x] for x in shape_spec)
+        return tuple(
+            x if isinstance(x, int) else shape_dict[x] for x in shape_spec
+        )
 
     coldesc_arguments = dict(
         columnname=column_name,
@@ -118,11 +121,15 @@ def write_empty_table_template(
     }
 
     column_descriptors_by_name = {
-        column_name: make_column_description(table_name, column_name, shape_dict)
+        column_name: make_column_description(
+            table_name, column_name, shape_dict
+        )
         for column_name in SCHEMA[table_name]
     }
 
     tdesc = maketabdesc(column_descriptors_by_name.values())
     output_path = Path(output_path).absolute()
-    table_path = output_path if table_name == "MAIN" else output_path / table_name
+    table_path = (
+        output_path if table_name == "MAIN" else output_path / table_name
+    )
     table(str(table_path), tdesc, nrow=0).close()
