@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from xarray import DataTree
 import yaml
-import copy
+import numpy as np
 
 from typing import Any, Type
 
@@ -56,6 +56,21 @@ def write_msv2_template_matching_xradio_msv4(
         write_empty_table_template(msv4, table_name, output_path)
 
     add_subtable_and_version_keywords(output_path)
+
+    # Fix data type of TabRefCodes
+    # TODO: it's most likely NOT necessary
+    path = Path(output_path) / "SPECTRAL_WINDOW"
+    tbl = table(str(path), readonly=False)
+
+    kw = tbl.getcolkeyword("CHAN_FREQ", "MEASINFO")
+    kw["TabRefCodes"] = np.asarray(kw["TabRefCodes"], dtype="uint32")
+    tbl.putcolkeyword("CHAN_FREQ", "MEASINFO", kw)
+
+    kw = tbl.getcolkeyword("REF_FREQUENCY", "MEASINFO")
+    kw["TabRefCodes"] = np.asarray(kw["TabRefCodes"], dtype="uint32")
+    tbl.putcolkeyword("REF_FREQUENCY", "MEASINFO", kw)
+
+    tbl.close()
 
 
 def add_subtable_and_version_keywords(output_path: str | os.PathLike):
