@@ -115,6 +115,9 @@ def make_column_description(
     def tiled_data_manager_group_name(colname: str) -> str:
         return "Tiled" + "".join(map(str.capitalize, colname.split("_")))
 
+    # TODO: MUST PASS THE CORRECT "valuetype"
+    # e.g. vtype() won't be enough, e.g. the WEIGHT column wants single
+    # precision "float" and not "double"
     if kind == "scalar":
         return makescacoldesc(
             column_name,
