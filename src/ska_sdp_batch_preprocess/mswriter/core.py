@@ -2,18 +2,10 @@ import os
 from pathlib import Path
 from xarray import DataTree
 import yaml
-import numpy as np
 
 from typing import Any, Type
 
 from casacore.tables import table, maketabdesc, makescacoldesc, makearrcoldesc
-
-"""
-Preconditions:
-- Only one MSv4 in the processing set
-- Fixed phase centre
-- Four linear pols
-"""
 
 
 def _load_schema_file() -> dict:
